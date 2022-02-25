@@ -148,8 +148,8 @@ class _HistoryState extends State<History> {
       gradeCancelHistory.text = '';
       cancelHistoryEnabled = false;
     });
-    Scaffold.of(context)
-        .showSnackBar(SnackBar(content: Text('Cancel Order Complete')));
+
+    showSuccessDialog('Cancel Order Complete');
     onload();
   }
 

@@ -17,12 +17,23 @@ class _StockOverviewPage extends State<StockOverviewPage> {
   var session = FlutterSession();
   var username = "";
   int stepflow = 0;
+  int step = 0;
   List<StockOView> datalist = <StockOView>[];
 
-  TextEditingController location = TextEditingController();
+  TextEditingController locationController = TextEditingController();
 
   late StockOView? resValidateStockOverview;
   late Timer timer;
+  late List<FocusNode> focusNodes = List.generate(1, (index) => FocusNode());
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      step = 0;
+    });
+    setFocus();
+  }
 
   void showErrorDialog(String error) {
     //MyWidget.showMyAlertDialog(context, "Error", error);
@@ -69,9 +80,16 @@ class _StockOverviewPage extends State<StockOverviewPage> {
     });
   }
 
+  void setFocus() {
+    if (step == 0) {
+      Future.delayed(Duration(milliseconds: 100))
+          .then((_) => FocusScope.of(context).requestFocus(focusNodes[0]));
+    }
+  }
+
   Future<void> searchStock() async {
     try {
-      var value = location.text.trim();
+      var value = locationController.text.trim();
 
       if (value.length == 0) {
         //MyWidget.showMyAlertDialog(context, "Error", "Invalid Input");
@@ -166,17 +184,34 @@ class _StockOverviewPage extends State<StockOverviewPage> {
                 child: Form(
                     child: Center(
                         child: Column(children: <Widget>[
-          Card(
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Header("Location", location, stepflow,
-                      StepControl("location"), context, searchStock),
-                ],
-              ),
-            ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+              padding: new EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width / 5,
+                  right: MediaQuery.of(context).size.width / 5),
+              child: Visibility(
+                  child: TextFormField(
+                focusNode: focusNodes[0],
+                textInputAction: TextInputAction.go,
+                onFieldSubmitted: (value) {
+                  searchStock();
+                },
+                decoration: InputDecoration(
+                  //icon: const Icon(Icons.person),
+                  fillColor: Color(0xFFFFFFFF),
+                  filled: true,
+                  hintText: 'Enter Location',
+                  labelText: 'Location',
+                  border: OutlineInputBorder(),
+                  isDense: true, // Added this
+                  contentPadding: EdgeInsets.all(15), //
+                ),
+                controller: locationController,
+              ))),
+          SizedBox(
+            height: 20,
           ),
           Card(
             child: datalist.length > 0

@@ -92,6 +92,7 @@ class _ReLabelState extends State<ReLabel> {
     setReadOnly();
     setColor();
     setText();
+    setFocus();
   }
 
   _getSession() async {

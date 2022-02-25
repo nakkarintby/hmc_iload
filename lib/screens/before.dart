@@ -62,6 +62,7 @@ class _BeforePageState extends State<BeforePage> {
     setReadOnly();
     setColor();
     setText();
+    setFocus();
   }
 
   _getSession() async {
@@ -260,13 +261,20 @@ class _BeforePageState extends State<BeforePage> {
           documentWillUpload = false;
           documentWillUploadOrWillFinish = false;
           documentWillFinish = true;
+          _image = null;
+          statusUpload = 'finish';
           step = 3;
+          documentReadonly = true;
+          documentColor = Color(0xFFEEEEEE);
+          documentController.text = documentIdInput;
         });
       } else if (canUpload && !canComplete) {
         setState(() {
           documentWillUpload = true;
           documentWillUploadOrWillFinish = false;
           documentWillFinish = false;
+          _image = null;
+          statusUpload = 'not enough images';
           step++;
         });
       } else if (canUpload && canComplete) {
@@ -274,7 +282,12 @@ class _BeforePageState extends State<BeforePage> {
           documentWillUpload = true;
           documentWillUploadOrWillFinish = true;
           documentWillFinish = false;
-          step++;
+          _image = null;
+          statusUpload = 'add more images or finish';
+          step = 3;
+          documentReadonly = true;
+          documentColor = Color(0xFFEEEEEE);
+          documentController.text = documentIdInput;
         });
       }
     }
@@ -301,6 +314,7 @@ class _BeforePageState extends State<BeforePage> {
           //encode base64
           final encodedBytes = _image!.readAsBytesSync();
           fileInBase64 = base64Encode(encodedBytes);
+          showSuccessDialog(fileInBase64.length.toString());
         });
 
         //double temp1 = _image!.lengthSync() * 0.0000009537;
@@ -430,6 +444,7 @@ class _BeforePageState extends State<BeforePage> {
         });
       }
     }
+
     setVisible();
     setReadOnly();
     setColor();

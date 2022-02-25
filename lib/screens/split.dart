@@ -89,6 +89,7 @@ class _SplitState extends State<Split> {
     setReadOnly();
     setColor();
     setText();
+    setFocus();
   }
 
   _getSession() async {
@@ -290,7 +291,7 @@ class _SplitState extends State<Split> {
         documentController.text = documentIdInput;
         locationController.text = locationInput;
         gradeLabel1Controller.text = '';
-        weight1Controller.text = '';
+        weight1Controller.text = weight1Input;
         gradeLabel2Controller.text = '';
         weight2Controller.text = '';
 
@@ -718,7 +719,12 @@ class _SplitState extends State<Split> {
 
   void back() {
     setState(() {
-      if (step == 3) {
+      if (step == 2) {
+        listPalletitem.clear();
+        weight1Input = '';
+        weight2Input = '';
+        numSplitItem = 0;
+      } else if (step == 3) {
         listPalletitem.clear();
         weight1Input = '';
         weight2Input = '';

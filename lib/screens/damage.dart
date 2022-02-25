@@ -97,6 +97,7 @@ class _DamageState extends State<Damage> {
     setReadOnly();
     setColor();
     setText();
+    setFocus();
   }
 
   _getSession() async {

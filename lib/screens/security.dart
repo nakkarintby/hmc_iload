@@ -62,6 +62,7 @@ class _SecurityPageState extends State<SecurityPage> {
     setReadOnly();
     setColor();
     setText();
+    setFocus();
   }
 
   _getSession() async {
@@ -260,13 +261,20 @@ class _SecurityPageState extends State<SecurityPage> {
           documentWillUpload = false;
           documentWillUploadOrWillFinish = false;
           documentWillFinish = true;
+          _image = null;
+          statusUpload = 'finish';
           step = 3;
+          documentReadonly = true;
+          documentColor = Color(0xFFEEEEEE);
+          documentController.text = documentIdInput;
         });
       } else if (canUpload && !canComplete) {
         setState(() {
           documentWillUpload = true;
           documentWillUploadOrWillFinish = false;
           documentWillFinish = false;
+          _image = null;
+          statusUpload = 'not enough images';
           step++;
         });
       } else if (canUpload && canComplete) {
@@ -274,7 +282,12 @@ class _SecurityPageState extends State<SecurityPage> {
           documentWillUpload = true;
           documentWillUploadOrWillFinish = true;
           documentWillFinish = false;
-          step++;
+          _image = null;
+          statusUpload = 'add more images or finish';
+          step = 3;
+          documentReadonly = true;
+          documentColor = Color(0xFFEEEEEE);
+          documentController.text = documentIdInput;
         });
       }
     }

@@ -98,6 +98,7 @@ class _GoodIssueState extends State<GoodIssue> {
     setReadOnly();
     setColor();
     setText();
+    setFocus();
   }
 
   _getSession() async {
@@ -829,7 +830,7 @@ class _GoodIssueState extends State<GoodIssue> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: 36,
+                height: 28,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -841,6 +842,7 @@ class _GoodIssueState extends State<GoodIssue> {
                         focusNode: focusNodes[0],
                         readOnly: documentReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {
                           documentIDCheck();
                         },
@@ -850,14 +852,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Document No.',
                           labelText: 'Document Number',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: documentController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -869,6 +872,7 @@ class _GoodIssueState extends State<GoodIssue> {
                         focusNode: focusNodes[1],
                         readOnly: locationReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {
                           locationCheck();
                         },
@@ -878,14 +882,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Location',
                           labelText: 'Location',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: locationController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -897,6 +902,7 @@ class _GoodIssueState extends State<GoodIssue> {
                         focusNode: focusNodes[2],
                         readOnly: gradeReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 12.5),
                         onFieldSubmitted: (value) {
                           gradeCheck();
                         },
@@ -906,14 +912,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Grade Label',
                           labelText: 'GradeLabel',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: gradeController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -924,6 +931,7 @@ class _GoodIssueState extends State<GoodIssue> {
                       child: TextFormField(
                         readOnly: matReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -931,14 +939,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Mat Desc.',
                           labelText: 'Mat Descriptions',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: matController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -949,6 +958,7 @@ class _GoodIssueState extends State<GoodIssue> {
                       child: TextFormField(
                         readOnly: locationReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -956,14 +966,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Lot',
                           labelText: 'Lot',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: lotController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -974,6 +985,7 @@ class _GoodIssueState extends State<GoodIssue> {
                       child: TextFormField(
                         readOnly: palletnumberReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -981,14 +993,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Pallet No.',
                           labelText: 'Pallet Number',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: palletnumberController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -999,6 +1012,7 @@ class _GoodIssueState extends State<GoodIssue> {
                       child: TextFormField(
                         readOnly: pallettypeReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -1006,14 +1020,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Pallet Type',
                           labelText: 'Pallet Type',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: pallettypeController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1024,6 +1039,7 @@ class _GoodIssueState extends State<GoodIssue> {
                       child: TextFormField(
                         readOnly: remainweightReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -1031,14 +1047,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Remain Weight',
                           labelText: 'Remain Weight',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: remainweightController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1049,6 +1066,7 @@ class _GoodIssueState extends State<GoodIssue> {
                       child: TextFormField(
                         readOnly: palletweightReadonly,
                         textInputAction: TextInputAction.go,
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -1056,14 +1074,15 @@ class _GoodIssueState extends State<GoodIssue> {
                           filled: true,
                           hintText: 'Enter Pallet Weight',
                           labelText: 'Pallet Weight',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(8), //
                         ),
                         controller: palletweightController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               new Center(
                 child: new ButtonBar(
