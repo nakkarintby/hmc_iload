@@ -13,7 +13,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   List<GlobalKey<NavigatorState>> _navigatorKeys = [
-    GlobalKey<NavigatorState>(),
+    //GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
   ];
@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
           showSelectedLabels: false,
           showUnselectedLabels: false,
           items: [
-            BottomNavigationBarItem(
+            /*BottomNavigationBarItem(
               icon: Icon(
                 Icons.home_outlined,
                 size: 40,
@@ -47,7 +47,7 @@ class _MainScreenState extends State<MainScreen> {
                 size: 40,
                 color: Colors.blue,
               ),
-            ),
+            ),*/
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.menu_outlined,
@@ -83,9 +83,9 @@ class _MainScreenState extends State<MainScreen> {
         ),
         body: Stack(
           children: [
+            //_buildOffstageNavigator(0),
             _buildOffstageNavigator(0),
             _buildOffstageNavigator(1),
-            _buildOffstageNavigator(2),
           ],
         ),
       ),
@@ -96,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
     return {
       '/': (context) {
         return [
-          Home(),
+          //Home(),
           Menu(),
           Setting(),
         ].elementAt(index);

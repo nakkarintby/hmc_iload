@@ -50,7 +50,7 @@ class Setting extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 50),
         child: Column(
           children: [
-            SettingPic(),
+            /*SettingPic(),
             SizedBox(height: 20),
             SettingMenu(
               text: "My Account",
@@ -90,7 +90,7 @@ class Setting extends StatelessWidget {
                 color: Colors.blue,
               ),
               press: () {},
-            ),
+            ),*/
             SettingMenu(
               text: "Log Out",
               icon: Icon(

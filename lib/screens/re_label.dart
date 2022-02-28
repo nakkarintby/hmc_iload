@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/resvalidatedocument.dart';
 import 'package:test/class/resvalidatelocation.dart';
 import 'package:test/class/resvalidatepalletitem.dart';
@@ -81,10 +82,13 @@ class _ReLabelState extends State<ReLabel> {
   late List<FocusNode> focusNodes = List.generate(8, (index) => FocusNode());
   late Timer timer;
 
+  String configs = '';
+
   @override
   void initState() {
     super.initState();
-    _getSession();
+    getSharedPrefs();
+    getSession();
     setState(() {
       step = 0;
     });
@@ -95,7 +99,14 @@ class _ReLabelState extends State<ReLabel> {
     setFocus();
   }
 
-  _getSession() async {
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      configs = prefs.getString('configs');
+    });
+  }
+
+  Future<void> getSession() async {
     isUsername = await FlutterSession().get("token_username");
     setState(() {
       username = isUsername.toString();
@@ -548,9 +559,8 @@ class _ReLabelState extends State<ReLabel> {
     setState(() {
       documentIdInput = documentController.text;
     });
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/document/validatere/' +
-            documentIdInput);
+    var url =
+        Uri.parse(configs + '/api/api/document/validatere/' + documentIdInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -577,8 +587,7 @@ class _ReLabelState extends State<ReLabel> {
       locationFromInput = locationFromController.text;
     });
     var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/location/validatere/' +
-            locationFromInput);
+        configs + '/api/api/location/validatere/' + locationFromInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -615,17 +624,17 @@ class _ReLabelState extends State<ReLabel> {
         totalpalletweight += tempWeight!;
       }
     }
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatere/' +
-            resultDocument!.documentId.toString() +
-            '/' +
-            gradeLabel1Input +
-            '/' +
-            locationFrombinIdTemp.toString() +
-            '/' +
-            'From' +
-            '/' +
-            totalpalletweight.toString());
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatere/' +
+        resultDocument!.documentId.toString() +
+        '/' +
+        gradeLabel1Input +
+        '/' +
+        locationFrombinIdTemp.toString() +
+        '/' +
+        'From' +
+        '/' +
+        totalpalletweight.toString());
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -676,17 +685,17 @@ class _ReLabelState extends State<ReLabel> {
         totalpalletweight += tempWeight!;
       }
     }
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatere/' +
-            resultDocument!.documentId.toString() +
-            '/' +
-            gradeLabel2Input +
-            '/' +
-            locationFrombinIdTemp.toString() +
-            '/' +
-            'From' +
-            '/' +
-            totalpalletweight.toString());
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatere/' +
+        resultDocument!.documentId.toString() +
+        '/' +
+        gradeLabel2Input +
+        '/' +
+        locationFrombinIdTemp.toString() +
+        '/' +
+        'From' +
+        '/' +
+        totalpalletweight.toString());
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -725,9 +734,8 @@ class _ReLabelState extends State<ReLabel> {
     setState(() {
       locationToInput = locationToController.text;
     });
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/location/validatetr/' +
-            locationToInput);
+    var url =
+        Uri.parse(configs + '/api/api/location/validatetr/' + locationToInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -764,17 +772,17 @@ class _ReLabelState extends State<ReLabel> {
         totalpalletweight += tempWeight!;
       }
     }
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatere/' +
-            resultDocument!.documentId.toString() +
-            '/' +
-            gradeLabel3Input +
-            '/' +
-            locationTobinIdTemp.toString() +
-            '/' +
-            'To' +
-            '/' +
-            totalpalletweight.toString());
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatere/' +
+        resultDocument!.documentId.toString() +
+        '/' +
+        gradeLabel3Input +
+        '/' +
+        locationTobinIdTemp.toString() +
+        '/' +
+        'To' +
+        '/' +
+        totalpalletweight.toString());
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -859,17 +867,17 @@ class _ReLabelState extends State<ReLabel> {
         totalpalletweight += tempWeight!;
       }
     }
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatere/' +
-            resultDocument!.documentId.toString() +
-            '/' +
-            gradeLabel4Input +
-            '/' +
-            locationTobinIdTemp.toString() +
-            '/' +
-            'To' +
-            '/' +
-            totalpalletweight.toString());
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatere/' +
+        resultDocument!.documentId.toString() +
+        '/' +
+        gradeLabel4Input +
+        '/' +
+        locationTobinIdTemp.toString() +
+        '/' +
+        'To' +
+        '/' +
+        totalpalletweight.toString());
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -932,8 +940,7 @@ class _ReLabelState extends State<ReLabel> {
   }
 
   Future<void> finishReLabel() async {
-    String tempAPI =
-        'http://192.168.1.49:8111/api/api/palletitem/createrelabel';
+    String tempAPI = configs + '/api/api/palletitem/createrelabel';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(listPalletitem);
@@ -950,7 +957,7 @@ class _ReLabelState extends State<ReLabel> {
     if (resultDocument!.documentStatus == "Created") {
       resultDocument!.documentStatus = "In Progress";
     }
-    String tempAPI2 = 'http://192.168.1.49:8111/api/api/document/update';
+    String tempAPI2 = configs + '/api/api/document/updatemobile';
     final uri2 = Uri.parse(tempAPI2);
     final headers2 = {'Content-Type': 'application/json'};
     var jsonBody2 = jsonEncode(resultDocument?.toJson());
@@ -1126,7 +1133,7 @@ class _ReLabelState extends State<ReLabel> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: 36,
+                height: 20,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1136,6 +1143,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: documentVisible,
                       child: TextFormField(
                         focusNode: focusNodes[0],
+                        style: TextStyle(fontSize: 16),
                         readOnly: documentReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1147,6 +1155,7 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter Document No.',
                           labelText: 'Document No.',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -1154,7 +1163,7 @@ class _ReLabelState extends State<ReLabel> {
                         controller: documentController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1164,6 +1173,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: locationFromVisible,
                       child: TextFormField(
                         focusNode: focusNodes[1],
+                        style: TextStyle(fontSize: 16),
                         readOnly: locationFromReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1175,6 +1185,7 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter Location From',
                           labelText: 'Location From',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -1182,7 +1193,7 @@ class _ReLabelState extends State<ReLabel> {
                         controller: locationFromController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1192,6 +1203,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: gradeLabel1Visible,
                       child: TextFormField(
                         focusNode: focusNodes[2],
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel1Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1203,6 +1215,7 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter GradeLabel1',
                           labelText: 'GradeLabel1',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -1210,7 +1223,7 @@ class _ReLabelState extends State<ReLabel> {
                         controller: gradeLabel1Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1220,6 +1233,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: gradeLabel2Visible,
                       child: TextFormField(
                         focusNode: focusNodes[3],
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel2Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1231,6 +1245,7 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter GradeLabel2',
                           labelText: 'GradeLabel2',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -1238,7 +1253,7 @@ class _ReLabelState extends State<ReLabel> {
                         controller: gradeLabel2Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1248,6 +1263,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: locationToVisible,
                       child: TextFormField(
                         focusNode: focusNodes[4],
+                        style: TextStyle(fontSize: 16),
                         readOnly: locationToReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1259,6 +1275,7 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter Location To',
                           labelText: 'Location To',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -1266,7 +1283,7 @@ class _ReLabelState extends State<ReLabel> {
                         controller: locationToController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1276,6 +1293,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: gradeLabel3Visible,
                       child: TextFormField(
                         focusNode: focusNodes[5],
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel3Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1287,6 +1305,7 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter GradeLabel3',
                           labelText: 'GradeLabel3',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -1294,7 +1313,7 @@ class _ReLabelState extends State<ReLabel> {
                         controller: gradeLabel3Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1304,6 +1323,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: gradeLabel4Visible,
                       child: TextFormField(
                         focusNode: focusNodes[6],
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel4Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1315,6 +1335,7 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter GradeLabel4',
                           labelText: 'GradeLabel4',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -1322,7 +1343,7 @@ class _ReLabelState extends State<ReLabel> {
                         controller: gradeLabel4Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 5,
               ),
               new Center(
                 child: new ButtonBar(

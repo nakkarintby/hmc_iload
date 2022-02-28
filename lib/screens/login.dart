@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:flutter_session/flutter_session.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   static String routeName = "/login";
@@ -22,7 +23,66 @@ class _LoginState extends State<Login> {
   final RoundedLoadingButtonController _btnController =
       RoundedLoadingButtonController();
   TextEditingController usernameController = TextEditingController();
+  TextEditingController configsController = TextEditingController();
   late Timer timer;
+  String configs = '';
+
+  @override
+  void initState() {
+    super.initState();
+    setSharedPrefs();
+  }
+
+  Future<void> setSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool checkPrefs = prefs.containsKey('configs');
+
+    if (checkPrefs) {
+    } else {
+      prefs.setString('configs', configs + '');
+    }
+  }
+
+  Future<void> editSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Icon icon = Icon(Icons.edit, color: Colors.lightBlue);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Row(children: [icon, Text(" " + 'Edit Configs')]),
+            content: TextField(
+              onChanged: (value) {},
+              controller: configsController..text = prefs.getString('configs'),
+              //decoration: InputDecoration(hintText: "Text Field in Dialog"),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.red,
+                textColor: Colors.white,
+                child: Text('Cancel'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              FlatButton(
+                color: Colors.green,
+                textColor: Colors.white,
+                child: Text('Save'),
+                onPressed: () {
+                  setState(() {
+                    prefs.setString('configs', configsController.text);
+                    Navigator.pop(context);
+                  });
+                  alertDialog('Edit Configs Successful', 'Success');
+                },
+              ),
+            ],
+          );
+        });
+  }
 
   void incorrectUsernameDialog() {
     //MyWidget.showMyAlertDialog(context, "Error", 'Username Incorrect');
@@ -69,33 +129,40 @@ class _LoginState extends State<Login> {
     Size size = MediaQuery.of(context).size;
 
     Future<void> login_check() async {
-      var username = usernameController.text;
-      var url = Uri.parse(
-          'http://192.168.1.49:8111/api/api/user/validateuser/' + username);
-      http.Response response = await http.get(url);
-      var data = json.decode(response.body);
-      DataUser msg = DataUser.fromJson(data);
-      var msg_userid = msg.user?.userId;
-      var msg_username = msg.user?.userName;
-      var msg_password = msg.user?.password;
-      var msg_role = msg.user?.role;
-      var msg_user = msg.user;
-      var msg_err = msg.errorMsg;
+      try {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        setState(() {
+          configs = prefs.getString('configs');
+        });
+        var username = usernameController.text;
+        var url = Uri.parse(configs + '/api/api/user/validateuser/' + username);
+        http.Response response = await http.get(url);
+        var data = json.decode(response.body);
+        DataUser msg = DataUser.fromJson(data);
+        var msg_userid = msg.user?.userId;
+        var msg_username = msg.user?.userName;
+        var msg_password = msg.user?.password;
+        var msg_role = msg.user?.role;
+        var msg_user = msg.user;
+        var msg_err = msg.errorMsg;
 
-      Timer(Duration(seconds: 3), () async {
-        if (msg_username != null) {
-          await FlutterSession().set('token', msg_username);
-          await FlutterSession().set('token_userid', msg_userid);
-          await FlutterSession().set('token_username', msg_username);
-          await FlutterSession().set('token_role', msg_role);
-          _btnController.reset();
-          Navigator.pushReplacementNamed(context, MainScreen.routeName);
-        } else {
-          _btnController.reset();
-          usernameController.text = '';
-          incorrectUsernameDialog();
-        }
-      });
+        Timer(Duration(seconds: 3), () async {
+          if (msg_username != null) {
+            await FlutterSession().set('token', msg_username);
+            await FlutterSession().set('token_userid', msg_userid);
+            await FlutterSession().set('token_username', msg_username);
+            await FlutterSession().set('token_role', msg_role);
+            _btnController.reset();
+            Navigator.pushReplacementNamed(context, MainScreen.routeName);
+          } else {
+            _btnController.reset();
+            usernameController.text = '';
+            incorrectUsernameDialog();
+          }
+        });
+      } catch (e) {
+        Navigator.pushReplacementNamed(context, Login.routeName);
+      }
     }
 
     return Scaffold(
@@ -137,6 +204,13 @@ class _LoginState extends State<Login> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          editSharedPrefs();
+        },
+        backgroundColor: Colors.red[400],
+        child: const Icon(Icons.settings),
       ),
     );
   }

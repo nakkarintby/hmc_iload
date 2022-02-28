@@ -4,9 +4,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_session/flutter_session.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/stockoverview.dart';
 import 'package:test/mywidget.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter/services.dart';
 
 class StockOverviewPage extends StatefulWidget {
   @override
@@ -26,13 +29,23 @@ class _StockOverviewPage extends State<StockOverviewPage> {
   late Timer timer;
   late List<FocusNode> focusNodes = List.generate(1, (index) => FocusNode());
 
+  String configs = '';
+
   @override
   void initState() {
     super.initState();
+    getSharedPrefs();
     setState(() {
       step = 0;
     });
     setFocus();
+  }
+
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      configs = prefs.getString('configs');
+    });
   }
 
   void showErrorDialog(String error) {
@@ -98,8 +111,7 @@ class _StockOverviewPage extends State<StockOverviewPage> {
       }
 
       var url = Uri.parse(
-          'http://192.168.1.49:8111/api/api//viewstockoverviewpage/getbybin/' +
-              value);
+          configs + '/api/api//viewstockoverviewpage/getbybin/' + value);
       http.Response response = await http.get(url);
       //var data = json.decode(response.body);
 
@@ -162,6 +174,23 @@ class _StockOverviewPage extends State<StockOverviewPage> {
     return false;
   }
 
+  Future<void> scanQR() async {
+    String barcodeScanRes;
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.QR);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    if (step == 0) {
+      setState(() {
+        locationController.text = barcodeScanRes;
+      });
+      searchStock();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -171,14 +200,23 @@ class _StockOverviewPage extends State<StockOverviewPage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-            leading: BackButton(color: Colors.black),
-            backgroundColor: Colors.white,
-            title: Text(
-              'Stock OverView',
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.black, fontSize: 20),
-            )),
+          leading: BackButton(color: Colors.black),
+          backgroundColor: Colors.white,
+          title: Text(
+            'Stock OverView',
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: Colors.black, fontSize: 20),
+          ),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Colors.black,
+                ),
+                onPressed: scanQR)
+          ],
+        ),
         body: Container(
             child: SingleChildScrollView(
                 child: Form(

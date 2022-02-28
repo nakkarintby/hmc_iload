@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/resvalidatedocument.dart';
 import 'package:test/class/resvalidatelocation.dart';
 import 'package:test/class/resvalidatepalletitem.dart';
@@ -75,10 +76,13 @@ class _BinToBinState extends State<BinToBin> {
   late List<FocusNode> focusNodes = List.generate(7, (index) => FocusNode());
   late Timer timer;
 
+  String configs = '';
+
   @override
   void initState() {
     super.initState();
-    _getSession();
+    getSharedPrefs();
+    getSession();
     setState(() {
       step = 0;
     });
@@ -89,7 +93,14 @@ class _BinToBinState extends State<BinToBin> {
     setFocus();
   }
 
-  _getSession() async {
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      configs = prefs.getString('configs');
+    });
+  }
+
+  Future<void> getSession() async {
     isUsername = await FlutterSession().get("token_username");
     setState(() {
       username = isUsername.toString();
@@ -467,8 +478,7 @@ class _BinToBinState extends State<BinToBin> {
       locationFromInput = locationFromController.text;
     });
     var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/location/validatetr/' +
-            locationFromInput);
+        configs + '/api/api/location/validatetr/' + locationFromInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -497,13 +507,13 @@ class _BinToBinState extends State<BinToBin> {
 
     int? temp = resultLocationFrom?.binId;
     int locationFrombinIdTemp = temp!;
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatetr/' +
-            gradeLabel1Input +
-            '/' +
-            locationFrombinIdTemp.toString() +
-            '/' +
-            'From');
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatetr/' +
+        gradeLabel1Input +
+        '/' +
+        locationFrombinIdTemp.toString() +
+        '/' +
+        'From');
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -546,13 +556,13 @@ class _BinToBinState extends State<BinToBin> {
 
     int? temp = resultLocationFrom?.binId;
     int locationFrombinIdTemp = temp!;
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatetr/' +
-            gradeLabel2Input +
-            '/' +
-            locationFrombinIdTemp.toString() +
-            '/' +
-            'From');
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatetr/' +
+        gradeLabel2Input +
+        '/' +
+        locationFrombinIdTemp.toString() +
+        '/' +
+        'From');
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -590,9 +600,8 @@ class _BinToBinState extends State<BinToBin> {
     setState(() {
       locationToInput = locationToController.text;
     });
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/location/validatetr/' +
-            locationToInput);
+    var url =
+        Uri.parse(configs + '/api/api/location/validatetr/' + locationToInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -623,13 +632,13 @@ class _BinToBinState extends State<BinToBin> {
 
     int? temp = resultLocationTo?.binId;
     int locationTobinIdTemp = temp!;
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatetr/' +
-            gradeLabel3Input +
-            '/' +
-            locationTobinIdTemp.toString() +
-            '/' +
-            'To');
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatetr/' +
+        gradeLabel3Input +
+        '/' +
+        locationTobinIdTemp.toString() +
+        '/' +
+        'To');
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -687,13 +696,13 @@ class _BinToBinState extends State<BinToBin> {
 
     int? temp = resultLocationTo?.binId;
     int locationTobinIdTemp = temp!;
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatetr/' +
-            gradeLabel4Input +
-            '/' +
-            locationTobinIdTemp.toString() +
-            '/' +
-            'To');
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatetr/' +
+        gradeLabel4Input +
+        '/' +
+        locationTobinIdTemp.toString() +
+        '/' +
+        'To');
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -743,8 +752,7 @@ class _BinToBinState extends State<BinToBin> {
   }
 
   Future<void> finishBin() async {
-    String tempAPI =
-        'http://192.168.1.49:8111/api/api/palletitem/createtransfer';
+    String tempAPI = configs + '/api/api/palletitem/createtransfer';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(listPalletitem);
@@ -939,7 +947,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: gradeLabel1Visible,
                       child: TextFormField(
                         focusNode: focusNodes[1],
-                        style: TextStyle(fontSize: 11.8),
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel1Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -969,7 +977,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: gradeLabel2Visible,
                       child: TextFormField(
                         focusNode: focusNodes[2],
-                        style: TextStyle(fontSize: 11.8),
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel2Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1029,7 +1037,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: gradeLabel3Visible,
                       child: TextFormField(
                         focusNode: focusNodes[4],
-                        style: TextStyle(fontSize: 11.8),
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel3Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1059,7 +1067,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: gradeLabel4Visible,
                       child: TextFormField(
                         focusNode: focusNodes[5],
-                        style: TextStyle(fontSize: 11.8),
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel4Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {

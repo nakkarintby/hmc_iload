@@ -3,7 +3,10 @@ import 'package:flutter_session/flutter_session.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/resvalidatepalletitem.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter/services.dart';
 
 class History extends StatefulWidget {
   @override
@@ -27,11 +30,91 @@ class _HistoryState extends State<History> {
   Color gradeCancelHistoryColor = Color(0xFFFFFFFF);
   bool cancelHistoryEnabled = false;
   late Timer timer;
+  int step = 0;
+  String gradeInputCancle = '';
+  late List<FocusNode> focusNodes = List.generate(2, (index) => FocusNode());
+  String configs = '';
 
   @override
   void initState() {
     super.initState();
+    getSharedPrefs();
+    setState(() {
+      step = 0;
+    });
+    setVisible();
+    setReadOnly();
+    setColor();
+    setText();
+    setFocus();
     onload();
+  }
+
+  void setVisible() {
+    if (step == 0) {
+      setState(() {
+        gradeCancelHistoryVisible = true;
+      });
+    } else if (step == 1) {
+      setState(() {
+        gradeCancelHistoryVisible = true;
+      });
+    }
+  }
+
+  void setReadOnly() {
+    if (step == 0) {
+      setState(() {
+        gradeCancelHistoryReadonly = false;
+        cancelHistoryEnabled = false;
+      });
+    } else if (step == 1) {
+      setState(() {
+        gradeCancelHistoryReadonly = true;
+        cancelHistoryEnabled = true;
+      });
+    }
+  }
+
+  void setColor() {
+    if (step == 0) {
+      setState(() {
+        gradeCancelHistoryColor = Color(0xFFFFFFFF);
+      });
+    } else if (step == 1) {
+      setState(() {
+        gradeCancelHistoryColor = Color(0xFFEEEEEE);
+      });
+    }
+  }
+
+  void setText() {
+    if (step == 0) {
+      setState(() {
+        gradeCancelHistory.text = '';
+      });
+    } else if (step == 1) {
+      setState(() {
+        gradeCancelHistory.text = gradeInputCancle;
+      });
+    }
+  }
+
+  void setFocus() {
+    if (step == 0) {
+      Future.delayed(Duration(milliseconds: 100))
+          .then((_) => FocusScope.of(context).requestFocus(focusNodes[0]));
+    } else if (step == 1) {
+      Future.delayed(Duration(milliseconds: 100))
+          .then((_) => FocusScope.of(context).requestFocus(focusNodes[1]));
+    }
+  }
+
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      configs = prefs.getString('configs');
+    });
   }
 
   Future<void> onload() async {
@@ -42,8 +125,7 @@ class _HistoryState extends State<History> {
       documentId = isDocumentId.toString();
       appBar = isAppbar;
     });
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/getbydoc/' + documentId);
+    var url = Uri.parse(configs + '/api/api/palletitem/getbydoc/' + documentId);
     http.Response response = await http.get(url);
     //var data = json.decode(response.body) as List;
     setState(() {
@@ -99,13 +181,15 @@ class _HistoryState extends State<History> {
   }
 
   Future<void> gradeCancelCheck() async {
-    String gradeInputCancle = gradeCancelHistory.text;
+    setState(() {
+      gradeInputCancle = gradeCancelHistory.text;
+    });
 
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatecancel/' +
-            documentId +
-            '/' +
-            gradeInputCancle);
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatecancel/' +
+        documentId +
+        '/' +
+        gradeInputCancle);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
 
@@ -118,18 +202,19 @@ class _HistoryState extends State<History> {
       showErrorDialog(resultValPalletCheckCancel!.errorMsg.toString());
     } else {
       setState(() {
-        gradeCancelHistoryReadonly = true;
-        gradeCancelHistoryColor = Color(0xFFEEEEEE);
-        gradeCancelHistory.text = gradeInputCancle;
-        cancelHistoryEnabled = true;
+        step++;
       });
     }
+    setVisible();
+    setReadOnly();
+    setColor();
+    setText();
+    setFocus();
   }
 
   Future<void> cancelHistory() async {
     resultPalletCheckCancel!.isDeleted = true;
-    String tempAPI =
-        'http://192.168.1.49:8111/api/api/palletitem/updateandpost/';
+    String tempAPI = configs + '/api/api/palletitem/updateandpost/';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(resultPalletCheckCancel?.toJson());
@@ -143,28 +228,56 @@ class _HistoryState extends State<History> {
     var data = json.decode(response.body);
     setState(() {
       resultPalletCheckCancel = Palletitem.fromJson(data);
-      gradeCancelHistoryReadonly = false;
-      gradeCancelHistoryColor = Color(0xFFFFFFFF);
-      gradeCancelHistory.text = '';
-      cancelHistoryEnabled = false;
+      step = 0;
     });
 
     showSuccessDialog('Cancel Order Complete');
     onload();
+    setVisible();
+    setReadOnly();
+    setColor();
+    setText();
+    setFocus();
+  }
+
+  Future<void> scanQR() async {
+    String barcodeScanRes;
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.QR);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    if (step == 0) {
+      setState(() {
+        gradeCancelHistory.text = barcodeScanRes;
+      });
+      gradeCancelCheck();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            leading: BackButton(color: Colors.black),
-            backgroundColor: Colors.white,
-            title: Text(
-              isAppbar.toString(),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.black, fontSize: 20),
-            )),
+          leading: BackButton(color: Colors.black),
+          backgroundColor: Colors.white,
+          title: Text(
+            isAppbar.toString(),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: Colors.black, fontSize: 20),
+          ),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Colors.black,
+                ),
+                onPressed: scanQR)
+          ],
+        ),
         body: Container(
             child: SingleChildScrollView(
                 child: Form(
@@ -236,6 +349,7 @@ class _HistoryState extends State<History> {
                     child: Visibility(
                         visible: gradeCancelHistoryVisible,
                         child: TextFormField(
+                          focusNode: focusNodes[0],
                           readOnly: gradeCancelHistoryReadonly,
                           textInputAction: TextInputAction.go,
                           onFieldSubmitted: (value) {
@@ -260,6 +374,7 @@ class _HistoryState extends State<History> {
                         .min, // this will take space as minimum as posible(to center)
                     children: <Widget>[
                       new RaisedButton(
+                        focusNode: focusNodes[1],
                         color: Colors.redAccent,
                         child: const Text('Cancel',
                             style: TextStyle(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/resvalidatedocument.dart';
 import 'package:test/class/resvalidatelocation.dart';
 import 'package:test/class/resvalidatepalletitem.dart';
@@ -87,10 +88,13 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
   late List<FocusNode> focusNodes = List.generate(5, (index) => FocusNode());
   late Timer timer;
 
+  String configs = '';
+
   @override
   void initState() {
     super.initState();
-    _getSession();
+    getSharedPrefs();
+    getSession();
     setState(() {
       step = 0;
     });
@@ -101,18 +105,25 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
     setFocus();
   }
 
-  _getSession() async {
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      configs = prefs.getString('configs');
+    });
+  }
+
+  Future<void> getSession() async {
     isUsername = await FlutterSession().get("token_username");
     setState(() {
       username = isUsername.toString();
     });
   }
 
-  void setDocumentIdSession() async {
+  Future<void> setDocumentIdSession() async {
     await FlutterSession().set('token_documentID', documentIdInput);
   }
 
-  void setHistoryAppBarSession() async {
+  Future<void> setHistoryAppBarSession() async {
     await FlutterSession().set('token_historyAppBarSession', 'RePackGR');
   }
 
@@ -451,8 +462,7 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
       documentIdInput = documentController.text;
     });
     var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/document/validateregr/' +
-            documentIdInput);
+        configs + '/api/api/document/validateregr/' + documentIdInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -490,11 +500,11 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
       locationInput = locationController.text;
     });
 
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/location/validateregr/' +
-            documentIdInput +
-            '/' +
-            locationInput);
+    var url = Uri.parse(configs +
+        '/api/api/location/validateregr/' +
+        documentIdInput +
+        '/' +
+        locationInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -523,13 +533,13 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
 
     int? temp = resultLocation?.binId;
     int binIdTemp = temp!;
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validateregr/' +
-            documentIdInput +
-            '/' +
-            gradeInput +
-            '/' +
-            binIdTemp.toString());
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validateregr/' +
+        documentIdInput +
+        '/' +
+        gradeInput +
+        '/' +
+        binIdTemp.toString());
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -570,19 +580,19 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
     String? temp3 = resultPalletitem?.palletNo;
     String palletNoTemp = temp3!.toString();
 
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/checkdup/' +
-            documentIdInput +
-            '/' +
-            materialIdTemp +
-            '/' +
-            lotTemp +
-            '/' +
-            palletNoTemp);
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/checkdup/' +
+        documentIdInput +
+        '/' +
+        materialIdTemp +
+        '/' +
+        lotTemp +
+        '/' +
+        palletNoTemp);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
 
-    String tempAPI = 'http://192.168.1.49:8111/api/';
+    String tempAPI = configs + '/api/';
     int? temp5 = resultPalletitem?.palletItemId;
     int palletItemIDtemp = temp5!;
     bool? temp6 = resultDocument?.silo;
@@ -646,7 +656,7 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
           });
         }
 
-        tempAPI = 'http://192.168.1.49:8111/api/api/document/update';
+        tempAPI = configs + '/api/api/document/updatemobile';
         final uri3 = Uri.parse(tempAPI);
         final headers3 = {'Content-Type': 'application/json'};
         var jsonBody3 = jsonEncode(resultDocument?.toJson());
@@ -698,7 +708,7 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
       resultDocument!.modifiedBy = username;
     });
 
-    String tempAPI = 'http://192.168.1.49:8111/api/api/document/update';
+    String tempAPI = configs + '/api/api/document/updatemobile';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(resultDocument?.toJson());
@@ -867,7 +877,7 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
                         focusNode: focusNodes[2],
                         readOnly: gradeReadonly,
                         textInputAction: TextInputAction.go,
-                        style: TextStyle(fontSize: 12.5),
+                        style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {
                           gradeCheck();
                         },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/documentitem.dart';
 import 'package:test/class/resvalidatedocument.dart';
 import 'package:test/class/resvalidatelocation.dart';
@@ -78,10 +79,13 @@ class _SplitState extends State<Split> {
   late List<FocusNode> focusNodes = List.generate(5, (index) => FocusNode());
   late Timer timer;
 
+  String configs = '';
+
   @override
   void initState() {
     super.initState();
-    _getSession();
+    getSharedPrefs();
+    getSession();
     setState(() {
       step = 0;
     });
@@ -92,7 +96,14 @@ class _SplitState extends State<Split> {
     setFocus();
   }
 
-  _getSession() async {
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      configs = prefs.getString('configs');
+    });
+  }
+
+  Future<void> getSession() async {
     isUsername = await FlutterSession().get("token_username");
     setState(() {
       username = isUsername.toString();
@@ -404,9 +415,8 @@ class _SplitState extends State<Split> {
     setState(() {
       documentIdInput = documentController.text;
     });
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/document/validatesp/' +
-            documentIdInput);
+    var url =
+        Uri.parse(configs + '/api/api/document/validatesp/' + documentIdInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -415,8 +425,7 @@ class _SplitState extends State<Split> {
     });
 
     var url2 = Uri.parse(
-        'http://192.168.1.49:8111/api/api/documentitem/getbydoc/' +
-            documentIdInput);
+        configs + '/api/api/documentitem/getbydoc/' + documentIdInput);
     http.Response response2 = await http.get(url2);
     //var data2 = json.decode(response2.body);
     setState(() {
@@ -443,9 +452,8 @@ class _SplitState extends State<Split> {
     setState(() {
       locationInput = locationController.text;
     });
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/location/validatesp/' +
-            locationInput);
+    var url =
+        Uri.parse(configs + '/api/api/location/validatesp/' + locationInput);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -475,15 +483,15 @@ class _SplitState extends State<Split> {
     int? temp = resultLocation?.binId;
     int locationbinIdTemp = temp!;
 
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatesp/' +
-            resultDocument!.documentId.toString() +
-            '/' +
-            gradeLabel1Input +
-            '/' +
-            locationbinIdTemp.toString() +
-            '/' +
-            'From');
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatesp/' +
+        resultDocument!.documentId.toString() +
+        '/' +
+        gradeLabel1Input +
+        '/' +
+        locationbinIdTemp.toString() +
+        '/' +
+        'From');
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -575,15 +583,15 @@ class _SplitState extends State<Split> {
     int? temp = resultLocation?.binId;
     int locationbinIdTemp = temp!;
 
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/palletitem/validatesp/' +
-            resultDocument!.documentId.toString() +
-            '/' +
-            gradeLabel2Input +
-            '/' +
-            locationbinIdTemp.toString() +
-            '/' +
-            'To');
+    var url = Uri.parse(configs +
+        '/api/api/palletitem/validatesp/' +
+        resultDocument!.documentId.toString() +
+        '/' +
+        gradeLabel2Input +
+        '/' +
+        locationbinIdTemp.toString() +
+        '/' +
+        'To');
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -670,7 +678,7 @@ class _SplitState extends State<Split> {
   }
 
   Future<void> finishSplit() async {
-    String tempAPI = 'http://192.168.1.49:8111/api/api/palletitem/createsplit';
+    String tempAPI = configs + '/api/api/palletitem/createsplit';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(listPalletitem);
@@ -685,7 +693,7 @@ class _SplitState extends State<Split> {
     bool result = data;
 
     resultDocument!.documentStatus = "Document Completed";
-    String tempAPI2 = 'http://192.168.1.49:8111/api/api/document/update';
+    String tempAPI2 = configs + '/api/api/document/updatemobile';
     final uri2 = Uri.parse(tempAPI2);
     final headers2 = {'Content-Type': 'application/json'};
     var jsonBody2 = jsonEncode(resultDocument?.toJson());
@@ -808,7 +816,7 @@ class _SplitState extends State<Split> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: 36,
+                height: 28,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -818,6 +826,7 @@ class _SplitState extends State<Split> {
                       visible: documentVisible,
                       child: TextFormField(
                         focusNode: focusNodes[0],
+                        style: TextStyle(fontSize: 16),
                         readOnly: documentReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -829,6 +838,7 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter Document No.',
                           labelText: 'Document No.',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -846,6 +856,7 @@ class _SplitState extends State<Split> {
                       visible: locationVisible,
                       child: TextFormField(
                         focusNode: focusNodes[1],
+                        style: TextStyle(fontSize: 16),
                         readOnly: locationReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -857,6 +868,7 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter Location',
                           labelText: 'Location',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -874,6 +886,7 @@ class _SplitState extends State<Split> {
                       visible: gradeLabel1Visible,
                       child: TextFormField(
                         focusNode: focusNodes[2],
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel1Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -885,6 +898,7 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter GradeLabel1',
                           labelText: 'GradeLabel1',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -901,6 +915,7 @@ class _SplitState extends State<Split> {
                   child: Visibility(
                       visible: weight1Visible,
                       child: TextFormField(
+                        style: TextStyle(fontSize: 16),
                         readOnly: weight1Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {},
@@ -910,6 +925,7 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter weight1',
                           labelText: 'weight1',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -927,6 +943,7 @@ class _SplitState extends State<Split> {
                       visible: gradeLabel2Visible,
                       child: TextFormField(
                         focusNode: focusNodes[3],
+                        style: TextStyle(fontSize: 16),
                         readOnly: gradeLabel2Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -938,6 +955,7 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter GradeLabel2',
                           labelText: 'GradeLabel2',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -954,6 +972,7 @@ class _SplitState extends State<Split> {
                   child: Visibility(
                       visible: weight2Visible,
                       child: TextFormField(
+                        style: TextStyle(fontSize: 16),
                         readOnly: weight2Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {},
@@ -963,6 +982,7 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter weight2',
                           labelText: 'weight2',
+                          labelStyle: TextStyle(fontSize: 16),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(15), //
@@ -970,7 +990,7 @@ class _SplitState extends State<Split> {
                         controller: weight2Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               new Center(
                 child: new ButtonBar(
@@ -980,7 +1000,7 @@ class _SplitState extends State<Split> {
                 ),
               ),
               SizedBox(
-                height: 16,
+                height: 5,
               ),
               new Center(
                 child: new ButtonBar(

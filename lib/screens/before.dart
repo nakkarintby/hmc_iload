@@ -9,6 +9,7 @@ import 'package:flutter_session/flutter_session.dart';
 import 'package:http/http.dart' as http;
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/image.dart';
 import 'package:test/class/resvalidateimage.dart';
 
@@ -49,12 +50,13 @@ class _BeforePageState extends State<BeforePage> {
   late ResValidateImage? resultValImage;
   late Document? resultDocument;
 
-  List<String> a = [];
+  String configs = '';
 
   @override
   void initState() {
     super.initState();
-    _getSession();
+    getSharedPrefs();
+    getSession();
     setState(() {
       step = 0;
     });
@@ -65,7 +67,14 @@ class _BeforePageState extends State<BeforePage> {
     setFocus();
   }
 
-  _getSession() async {
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      configs = prefs.getString('configs');
+    });
+  }
+
+  Future<void> getSession() async {
     isUsername = await FlutterSession().get("token_username");
     setState(() {
       username = isUsername.toString();
@@ -236,11 +245,11 @@ class _BeforePageState extends State<BeforePage> {
       eventType = 'Before';
     });
 
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/document/validateimage/' +
-            documentIdInput +
-            '/' +
-            eventType);
+    var url = Uri.parse(configs +
+        '/api/api/document/validateimage/' +
+        documentIdInput +
+        '/' +
+        eventType);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -304,7 +313,7 @@ class _BeforePageState extends State<BeforePage> {
       fileInBase64 = '';
     });
     PickedFile? selectedImage =
-        await _picker.getImage(source: ImageSource.camera, imageQuality: 50);
+        await _picker.getImage(source: ImageSource.camera, imageQuality: 35);
     File? temp;
     if (selectedImage != null) {
       temp = File(selectedImage.path);
@@ -314,8 +323,14 @@ class _BeforePageState extends State<BeforePage> {
           //encode base64
           final encodedBytes = _image!.readAsBytesSync();
           fileInBase64 = base64Encode(encodedBytes);
-          showSuccessDialog(fileInBase64.length.toString());
         });
+
+        //int sizeInBytes = _image!.lengthSync();
+        //double original = sizeInBytes / (1024 * 1024);
+        //original += 0.3;
+        double news = fileInBase64.length / (1024 * 1024);
+        //print('Original : ' + original.toString() + ' MB');
+        print('Base64 : ' + news.toString() + ' MB');
 
         //double temp1 = _image!.lengthSync() * 0.0000009537;
         //String temp2 = temp1.toString() + ' MB';
@@ -365,6 +380,8 @@ class _BeforePageState extends State<BeforePage> {
   }
 
   Future<void> upload() async {
+    int? temp = resultValImage!.sequence;
+    int checkSequence = temp!;
     //post image
     DateTime? a = DateTime.now();
     if (imagePic != null) {
@@ -381,7 +398,7 @@ class _BeforePageState extends State<BeforePage> {
       });
     }
 
-    String tempAPI = 'http://192.168.1.49:8111/api/api/image/create';
+    String tempAPI = configs + '/api/api/image/create';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(imagePic);
@@ -395,11 +412,11 @@ class _BeforePageState extends State<BeforePage> {
     var data = json.decode(response.body);
 
     //check can upload?
-    var url2 = Uri.parse(
-        'http://192.168.1.49:8111/api/api/document/validateimage/' +
-            documentIdInput +
-            '/' +
-            eventType);
+    var url2 = Uri.parse(configs +
+        '/api/api/document/validateimage/' +
+        documentIdInput +
+        '/' +
+        eventType);
     http.Response response2 = await http.get(url2);
     var data2 = json.decode(response2.body);
     setState(() {
@@ -445,6 +462,32 @@ class _BeforePageState extends State<BeforePage> {
       }
     }
 
+    if (checkSequence == 1) {
+      setState(() {
+        resultDocument!.documentStatus = "In Progress";
+        resultDocument!.modifiedBy = username;
+      });
+      String tempAPI3 = configs + '/api/api/document/updatemobile';
+      final uri3 = Uri.parse(tempAPI3);
+      final headers3 = {'Content-Type': 'application/json'};
+      var jsonBody3 = jsonEncode(resultDocument?.toJson());
+      final encoding3 = Encoding.getByName('utf-8');
+      http.Response response3 = await http.post(
+        uri3,
+        headers: headers3,
+        body: jsonBody3,
+        encoding: encoding3,
+      );
+      var data3 = json.decode(response3.body);
+      setState(() {
+        resultDocument = Document.fromJson(data3);
+      });
+
+      if (resultDocument == null) {
+        showErrorDialog("Error Update Status Document");
+      } else {}
+    }
+
     setVisible();
     setReadOnly();
     setColor();
@@ -458,7 +501,7 @@ class _BeforePageState extends State<BeforePage> {
       resultDocument!.modifiedBy = username;
       resultDocument!.flagImgBefore = true;
     });
-    String tempAPI = 'http://192.168.1.49:8111/api/api/document/update';
+    String tempAPI = configs + '/api/api/document/updatemobile';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(resultDocument?.toJson());

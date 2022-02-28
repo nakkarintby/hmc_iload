@@ -9,6 +9,7 @@ import 'package:flutter_session/flutter_session.dart';
 import 'package:http/http.dart' as http;
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/image.dart';
 import 'package:test/class/resvalidateimage.dart';
 
@@ -49,12 +50,13 @@ class _SecurityPageState extends State<SecurityPage> {
   late ResValidateImage? resultValImage;
   late Document? resultDocument;
 
-  List<String> a = [];
+  String configs = '';
 
   @override
   void initState() {
     super.initState();
-    _getSession();
+    getSharedPrefs();
+    getSession();
     setState(() {
       step = 0;
     });
@@ -65,7 +67,14 @@ class _SecurityPageState extends State<SecurityPage> {
     setFocus();
   }
 
-  _getSession() async {
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      configs = prefs.getString('configs');
+    });
+  }
+
+  Future<void> getSession() async {
     isUsername = await FlutterSession().get("token_username");
     setState(() {
       username = isUsername.toString();
@@ -236,11 +245,11 @@ class _SecurityPageState extends State<SecurityPage> {
       eventType = 'Security';
     });
 
-    var url = Uri.parse(
-        'http://192.168.1.49:8111/api/api/document/validateimage/' +
-            documentIdInput +
-            '/' +
-            eventType);
+    var url = Uri.parse(configs +
+        '/api/api/document/validateimage/' +
+        documentIdInput +
+        '/' +
+        eventType);
     http.Response response = await http.get(url);
     var data = json.decode(response.body);
     setState(() {
@@ -380,7 +389,7 @@ class _SecurityPageState extends State<SecurityPage> {
       });
     }
 
-    String tempAPI = 'http://192.168.1.49:8111/api/api/image/create';
+    String tempAPI = configs + '/api/api/image/create';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(imagePic);
@@ -394,11 +403,11 @@ class _SecurityPageState extends State<SecurityPage> {
     var data = json.decode(response.body);
 
     //check can upload?
-    var url2 = Uri.parse(
-        'http://192.168.1.49:8111/api/api/document/validateimage/' +
-            documentIdInput +
-            '/' +
-            eventType);
+    var url2 = Uri.parse(configs +
+        '/api/api/document/validateimage/' +
+        documentIdInput +
+        '/' +
+        eventType);
     http.Response response2 = await http.get(url2);
     var data2 = json.decode(response2.body);
     setState(() {
@@ -456,7 +465,7 @@ class _SecurityPageState extends State<SecurityPage> {
       resultDocument!.modifiedBy = username;
       resultDocument!.flagImgSecurity = true;
     });
-    String tempAPI = 'http://192.168.1.49:8111/api/api/document/update';
+    String tempAPI = configs + '/api/api/document/updatemobile';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(resultDocument?.toJson());
