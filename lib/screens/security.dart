@@ -463,7 +463,6 @@ class _SecurityPageState extends State<SecurityPage> {
               sequence.toString() +
               ' / ' +
               min.toString();
-
           step--;
         });
       } else if (canUpload && canComplete) {
@@ -476,7 +475,6 @@ class _SecurityPageState extends State<SecurityPage> {
               sequence.toString() +
               ' / ' +
               min.toString();
-
           step++;
         });
       }

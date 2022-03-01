@@ -463,7 +463,6 @@ class _AfterPageState extends State<AfterPage> {
               sequence.toString() +
               ' / ' +
               min.toString();
-
           step--;
         });
       } else if (canUpload && canComplete) {
@@ -476,7 +475,6 @@ class _AfterPageState extends State<AfterPage> {
               sequence.toString() +
               ' / ' +
               min.toString();
-
           step++;
         });
       }
