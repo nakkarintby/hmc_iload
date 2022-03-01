@@ -316,7 +316,7 @@ class _SecurityPageState extends State<SecurityPage> {
         });
       } else if (canUpload && canComplete) {
         setState(() {
-          documentWillUpload = true;
+          documentWillUpload = false;
           documentWillUploadOrWillFinish = true;
           documentWillFinish = false;
           _image = null;
@@ -467,7 +467,7 @@ class _SecurityPageState extends State<SecurityPage> {
         });
       } else if (canUpload && canComplete) {
         setState(() {
-          documentWillUpload = true;
+          documentWillUpload = false;
           documentWillUploadOrWillFinish = true;
           documentWillFinish = false;
           _image = null;
@@ -480,7 +480,7 @@ class _SecurityPageState extends State<SecurityPage> {
       }
     }
 
-    if (sequence == 1) {
+    /*if (sequence == 1) {
       setState(() {
         resultDocument!.documentStatus = "In Progress";
         resultDocument!.modifiedBy = username;
@@ -504,7 +504,7 @@ class _SecurityPageState extends State<SecurityPage> {
       if (resultDocument == null) {
         showErrorDialog("Error Update Status Document");
       } else {}
-    }
+    }*/
 
     setVisible();
     setReadOnly();
