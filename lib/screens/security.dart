@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/image.dart';
 import 'package:test/class/resvalidateimage.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class SecurityPage extends StatefulWidget {
   @override
@@ -53,6 +54,10 @@ class _SecurityPageState extends State<SecurityPage> {
   String configs = '';
   int quality = 0;
 
+  int sequence = 0;
+  int min = 0;
+  int max = 0;
+
   @override
   void initState() {
     super.initState();
@@ -80,6 +85,27 @@ class _SecurityPageState extends State<SecurityPage> {
     isUsername = await FlutterSession().get("token_username");
     setState(() {
       username = isUsername.toString();
+    });
+  }
+
+  Future<void> showProgress() async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        progress: 50.0,
+        message: "Please wait...",
+        progressWidget: Container(
+            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
+    await pr.show();
+    timer = Timer(Duration(seconds: 4), () async {
+      await pr.hide();
     });
   }
 
@@ -326,11 +352,8 @@ class _SecurityPageState extends State<SecurityPage> {
           final encodedBytes = _image!.readAsBytesSync();
           fileInBase64 = base64Encode(encodedBytes);
         });
-
-        //double temp1 = _image!.lengthSync() * 0.0000009537;
-        //String temp2 = temp1.toString() + ' MB';
-        //print(temp2);
-        //print(fileInBase64); //base64
+        double news = fileInBase64.length / (1024 * 1024);
+        print('Base64 : ' + news.toString() + ' MB');
 
         //decode base64
         /*
@@ -346,6 +369,7 @@ class _SecurityPageState extends State<SecurityPage> {
       }
     }
     if (_image != null) {
+      showProgress();
       setState(() {
         step++;
       });
@@ -357,24 +381,16 @@ class _SecurityPageState extends State<SecurityPage> {
     }
   }
 
-  Future<void> scanQR() async {
-    String barcodeScanRes;
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', 'Cancel', true, ScanMode.QR);
-    } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
-    }
-
-    if (step == 0) {
-      setState(() {
-        documentController.text = barcodeScanRes;
-      });
-      documentIDCheck();
-    }
-  }
-
   Future<void> upload() async {
+    showProgress();
+    int? temp = resultValImage!.sequence;
+    int? temp2 = resultValImage!.min;
+    int? temp3 = resultValImage!.max;
+    setState(() {
+      sequence = temp!;
+      min = temp2!;
+      max = temp3!;
+    });
     //post image
     DateTime? a = DateTime.now();
     if (imagePic != null) {
@@ -431,7 +447,10 @@ class _SecurityPageState extends State<SecurityPage> {
           documentWillUploadOrWillFinish = false;
           documentWillFinish = true;
           _image = null;
-          statusUpload = 'upload successful';
+          statusUpload = 'upload successful : ' +
+              sequence.toString() +
+              ' / ' +
+              min.toString();
           step++;
         });
       } else if (canUpload && !canComplete) {
@@ -440,7 +459,11 @@ class _SecurityPageState extends State<SecurityPage> {
           documentWillUploadOrWillFinish = false;
           documentWillFinish = false;
           _image = null;
-          statusUpload = 'upload successful but not enough images';
+          statusUpload = 'upload successful but not enough images : ' +
+              sequence.toString() +
+              ' / ' +
+              min.toString();
+
           step--;
         });
       } else if (canUpload && canComplete) {
@@ -449,11 +472,42 @@ class _SecurityPageState extends State<SecurityPage> {
           documentWillUploadOrWillFinish = true;
           documentWillFinish = false;
           _image = null;
-          statusUpload = 'upload successful but can add more images';
+          statusUpload = 'upload successful but can add more images : ' +
+              sequence.toString() +
+              ' / ' +
+              min.toString();
+
           step++;
         });
       }
     }
+
+    if (sequence == 1) {
+      setState(() {
+        resultDocument!.documentStatus = "In Progress";
+        resultDocument!.modifiedBy = username;
+      });
+      String tempAPI3 = configs + '/api/api/document/updatemobile';
+      final uri3 = Uri.parse(tempAPI3);
+      final headers3 = {'Content-Type': 'application/json'};
+      var jsonBody3 = jsonEncode(resultDocument?.toJson());
+      final encoding3 = Encoding.getByName('utf-8');
+      http.Response response3 = await http.post(
+        uri3,
+        headers: headers3,
+        body: jsonBody3,
+        encoding: encoding3,
+      );
+      var data3 = json.decode(response3.body);
+      setState(() {
+        resultDocument = Document.fromJson(data3);
+      });
+
+      if (resultDocument == null) {
+        showErrorDialog("Error Update Status Document");
+      } else {}
+    }
+
     setVisible();
     setReadOnly();
     setColor();
@@ -496,6 +550,23 @@ class _SecurityPageState extends State<SecurityPage> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> scanQR() async {
+    String barcodeScanRes;
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.QR);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    if (step == 0) {
+      setState(() {
+        documentController.text = barcodeScanRes;
+      });
+      documentIDCheck();
+    }
   }
 
   @override

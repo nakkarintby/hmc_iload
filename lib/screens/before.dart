@@ -54,6 +54,10 @@ class _BeforePageState extends State<BeforePage> {
   String configs = '';
   int quality = 0;
 
+  int sequence = 0;
+  int min = 0;
+  int max = 0;
+
   @override
   void initState() {
     super.initState();
@@ -378,8 +382,15 @@ class _BeforePageState extends State<BeforePage> {
   }
 
   Future<void> upload() async {
+    showProgress();
     int? temp = resultValImage!.sequence;
-    int checkSequence = temp!;
+    int? temp2 = resultValImage!.min;
+    int? temp3 = resultValImage!.max;
+    setState(() {
+      sequence = temp!;
+      min = temp2!;
+      max = temp3!;
+    });
     //post image
     DateTime? a = DateTime.now();
     if (imagePic != null) {
@@ -436,8 +447,10 @@ class _BeforePageState extends State<BeforePage> {
           documentWillUploadOrWillFinish = false;
           documentWillFinish = true;
           _image = null;
-          statusUpload = 'upload successful';
-          showProgress();
+          statusUpload = 'upload successful : ' +
+              sequence.toString() +
+              ' / ' +
+              min.toString();
           step++;
         });
       } else if (canUpload && !canComplete) {
@@ -446,8 +459,11 @@ class _BeforePageState extends State<BeforePage> {
           documentWillUploadOrWillFinish = false;
           documentWillFinish = false;
           _image = null;
-          statusUpload = 'upload successful but not enough images';
-          showProgress();
+          statusUpload = 'upload successful but not enough images : ' +
+              sequence.toString() +
+              ' / ' +
+              min.toString();
+
           step--;
         });
       } else if (canUpload && canComplete) {
@@ -456,14 +472,17 @@ class _BeforePageState extends State<BeforePage> {
           documentWillUploadOrWillFinish = true;
           documentWillFinish = false;
           _image = null;
-          statusUpload = 'upload successful but can add more images';
-          showProgress();
+          statusUpload = 'upload successful but can add more images : ' +
+              sequence.toString() +
+              ' / ' +
+              min.toString();
+
           step++;
         });
       }
     }
 
-    if (checkSequence == 1) {
+    if (sequence == 1) {
       setState(() {
         resultDocument!.documentStatus = "In Progress";
         resultDocument!.modifiedBy = username;
