@@ -46,7 +46,7 @@ dependencies:
   path_provider: ^1.6.28
   shared_preferences: ^0.5.8
   progress_dialog: ^1.2.0
-
+  input_with_keyboard_control: ^1.0.8
 
 
 dev_dependencies:

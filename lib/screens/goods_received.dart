@@ -12,6 +12,7 @@ import 'package:test/mywidget.dart';
 import 'package:test/screens/history.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
+import 'package:input_with_keyboard_control/input_with_keyboard_control.dart';
 
 class GoodReceived extends StatefulWidget {
   const GoodReceived({Key? key}) : super(key: key);
@@ -91,6 +92,7 @@ class _GoodReceivedState extends State<GoodReceived> {
 
   String configs = '';
 
+  TextEditingController test = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -809,6 +811,32 @@ class _GoodReceivedState extends State<GoodReceived> {
               SizedBox(
                 height: 28,
               ),
+              /*Container(
+                  padding: new EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width / 5,
+                      right: MediaQuery.of(context).size.width / 5),
+                  child: Visibility(
+                    visible: true,
+                    child: InputWithKeyboardControl(
+                      controller: test,
+                      style: TextStyle(fontSize: 16),
+                      cursorColor: Colors.black,
+                      autofocus: false,
+                      selectionColor: Colors.blue,
+                      startShowKeyboard: false,
+                      onSubmitted: (value) {},
+                      focusNode: InputWithKeyboardControlFocusNode(),
+                      width: 300,
+                      buttonColorEnabled: Colors.blue,
+                      buttonColorDisabled: Colors.black,
+                      underlineColor: Colors.black,
+                      showUnderline: true,
+                      showButton: true,
+                    ),
+                  )),
+              SizedBox(
+                height: 28,
+              ),*/
               Container(
                   padding: new EdgeInsets.only(
                       left: MediaQuery.of(context).size.width / 5,
@@ -816,7 +844,7 @@ class _GoodReceivedState extends State<GoodReceived> {
                   child: Visibility(
                       visible: documentVisible,
                       child: TextFormField(
-                        focusNode: focusNodes[0],
+                        //focusNode: focusNodes[0],
                         readOnly: documentReadonly,
                         textInputAction: TextInputAction.go,
                         style: TextStyle(fontSize: 16),
