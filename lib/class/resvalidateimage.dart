@@ -3,6 +3,8 @@ class ResValidateImage {
   bool? canUpload;
   bool? canComplete;
   int? sequence;
+  int? min;
+  int? max;
   String? errorMsg;
 
   ResValidateImage(
@@ -10,6 +12,8 @@ class ResValidateImage {
       this.canUpload,
       this.canComplete,
       this.sequence,
+      this.min,
+      this.max,
       this.errorMsg});
 
   ResValidateImage.fromJson(Map<String, dynamic> json) {
@@ -19,6 +23,8 @@ class ResValidateImage {
     canUpload = json['canUpload'];
     canComplete = json['canComplete'];
     sequence = json['Sequence'];
+    min = json['Min'];
+    max = json['Max'];
     errorMsg = json['ErrorMsg'];
   }
 
@@ -30,6 +36,8 @@ class ResValidateImage {
     data['canUpload'] = this.canUpload;
     data['canComplete'] = this.canComplete;
     data['Sequence'] = this.sequence;
+    data['Min'] = this.min;
+    data['Max'] = this.max;
     data['ErrorMsg'] = this.errorMsg;
     return data;
   }

@@ -51,6 +51,7 @@ class _SecurityPageState extends State<SecurityPage> {
   late Document? resultDocument;
 
   String configs = '';
+  int quality = 0;
 
   @override
   void initState() {
@@ -71,6 +72,7 @@ class _SecurityPageState extends State<SecurityPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       configs = prefs.getString('configs');
+      quality = prefs.getInt('quality');
     });
   }
 
@@ -312,8 +314,8 @@ class _SecurityPageState extends State<SecurityPage> {
       step = 1;
       fileInBase64 = '';
     });
-    PickedFile? selectedImage =
-        await _picker.getImage(source: ImageSource.camera, imageQuality: 50);
+    PickedFile? selectedImage = await _picker.getImage(
+        source: ImageSource.camera, imageQuality: quality);
     File? temp;
     if (selectedImage != null) {
       temp = File(selectedImage.path);

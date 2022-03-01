@@ -24,8 +24,11 @@ class _LoginState extends State<Login> {
       RoundedLoadingButtonController();
   TextEditingController usernameController = TextEditingController();
   TextEditingController configsController = TextEditingController();
+  TextEditingController qualityController = TextEditingController();
   late Timer timer;
   String configs = '';
+
+  late List<FocusNode> focusNodes = List.generate(3, (index) => FocusNode());
 
   @override
   void initState() {
@@ -35,11 +38,13 @@ class _LoginState extends State<Login> {
 
   Future<void> setSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool checkPrefs = prefs.containsKey('configs');
+    bool checkConfigsPrefs = prefs.containsKey('configs');
+    bool checkQualityPrefs = prefs.containsKey('quality');
 
-    if (checkPrefs) {
+    if (checkConfigsPrefs && checkQualityPrefs) {
     } else {
-      prefs.setString('configs', configs + '');
+      prefs.setString('configs', 'http://192.168.1.49:8111');
+      prefs.setInt('quality', 35);
     }
   }
 
@@ -51,11 +56,46 @@ class _LoginState extends State<Login> {
         builder: (context) {
           return AlertDialog(
             title: Row(children: [icon, Text(" " + 'Edit Configs')]),
-            content: TextField(
+            content: SingleChildScrollView(
+                child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                TextField(
+                  autofocus: true, //set initail focus on dialog
+                  focusNode: focusNodes[0],
+                  readOnly: false,
+                  controller: configsController
+                    ..text = prefs.getString('configs'),
+                  decoration: InputDecoration(
+                      labelText: 'Configs IP', hintText: "Enter Configs IP"),
+                  textInputAction: TextInputAction.next,
+                  onEditingComplete: () {
+                    Future.delayed(Duration(milliseconds: 100)).then((_) =>
+                        FocusScope.of(context).requestFocus(focusNodes[1]));
+                  },
+                ),
+                TextField(
+                  focusNode: focusNodes[1],
+                  readOnly: false,
+                  controller: qualityController
+                    ..text = prefs.getInt('quality').toString(),
+                  decoration: InputDecoration(
+                      labelText: 'Quality Image',
+                      hintText: "Enter Quality Image[0-100]"),
+                  textInputAction: TextInputAction.next,
+                  onEditingComplete: () {
+                    Future.delayed(Duration(milliseconds: 100)).then((_) =>
+                        FocusScope.of(context).requestFocus(focusNodes[2]));
+                  },
+                ),
+              ],
+            )),
+            /* content: TextField(
               onChanged: (value) {},
               controller: configsController..text = prefs.getString('configs'),
               //decoration: InputDecoration(hintText: "Text Field in Dialog"),
-            ),
+            ),*/
             actions: <Widget>[
               FlatButton(
                 color: Colors.red,
@@ -68,15 +108,17 @@ class _LoginState extends State<Login> {
                 },
               ),
               FlatButton(
+                focusNode: focusNodes[2],
                 color: Colors.green,
                 textColor: Colors.white,
                 child: Text('Save'),
                 onPressed: () {
                   setState(() {
                     prefs.setString('configs', configsController.text);
+                    prefs.setInt('quality', int.parse(qualityController.text));
                     Navigator.pop(context);
                   });
-                  alertDialog('Edit Configs Successful', 'Success');
+                  alertDialog('Edit Configs and Quality Successful', 'Success');
                 },
               ),
             ],

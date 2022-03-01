@@ -821,6 +821,7 @@ class _GoodReceivedState extends State<GoodReceived> {
                         textInputAction: TextInputAction.go,
                         style: TextStyle(fontSize: 16),
                         onFieldSubmitted: (value) {
+                          FocusScope.of(context).unfocus();
                           documentIDCheck();
                         },
                         decoration: InputDecoration(

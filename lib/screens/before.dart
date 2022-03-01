@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/image.dart';
 import 'package:test/class/resvalidateimage.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class BeforePage extends StatefulWidget {
   @override
@@ -51,6 +52,7 @@ class _BeforePageState extends State<BeforePage> {
   late Document? resultDocument;
 
   String configs = '';
+  int quality = 0;
 
   @override
   void initState() {
@@ -71,6 +73,7 @@ class _BeforePageState extends State<BeforePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       configs = prefs.getString('configs');
+      quality = prefs.getInt('quality');
     });
   }
 
@@ -78,6 +81,27 @@ class _BeforePageState extends State<BeforePage> {
     isUsername = await FlutterSession().get("token_username");
     setState(() {
       username = isUsername.toString();
+    });
+  }
+
+  Future<void> showProgress() async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        progress: 50.0,
+        message: "Please wait...",
+        progressWidget: Container(
+            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
+    await pr.show();
+    timer = Timer(Duration(seconds: 4), () async {
+      await pr.hide();
     });
   }
 
@@ -312,8 +336,8 @@ class _BeforePageState extends State<BeforePage> {
       step = 1;
       fileInBase64 = '';
     });
-    PickedFile? selectedImage =
-        await _picker.getImage(source: ImageSource.camera, imageQuality: 35);
+    PickedFile? selectedImage = await _picker.getImage(
+        source: ImageSource.camera, imageQuality: quality);
     File? temp;
     if (selectedImage != null) {
       temp = File(selectedImage.path);
@@ -324,18 +348,8 @@ class _BeforePageState extends State<BeforePage> {
           final encodedBytes = _image!.readAsBytesSync();
           fileInBase64 = base64Encode(encodedBytes);
         });
-
-        //int sizeInBytes = _image!.lengthSync();
-        //double original = sizeInBytes / (1024 * 1024);
-        //original += 0.3;
         double news = fileInBase64.length / (1024 * 1024);
-        //print('Original : ' + original.toString() + ' MB');
         print('Base64 : ' + news.toString() + ' MB');
-
-        //double temp1 = _image!.lengthSync() * 0.0000009537;
-        //String temp2 = temp1.toString() + ' MB';
-        //print(temp2);
-        //print(fileInBase64); //base64
 
         //decode base64
         /*
@@ -351,6 +365,7 @@ class _BeforePageState extends State<BeforePage> {
       }
     }
     if (_image != null) {
+      showProgress();
       setState(() {
         step++;
       });
@@ -359,23 +374,6 @@ class _BeforePageState extends State<BeforePage> {
       setColor();
       setText();
       setFocus();
-    }
-  }
-
-  Future<void> scanQR() async {
-    String barcodeScanRes;
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', 'Cancel', true, ScanMode.QR);
-    } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
-    }
-
-    if (step == 0) {
-      setState(() {
-        documentController.text = barcodeScanRes;
-      });
-      documentIDCheck();
     }
   }
 
@@ -439,6 +437,7 @@ class _BeforePageState extends State<BeforePage> {
           documentWillFinish = true;
           _image = null;
           statusUpload = 'upload successful';
+          showProgress();
           step++;
         });
       } else if (canUpload && !canComplete) {
@@ -448,6 +447,7 @@ class _BeforePageState extends State<BeforePage> {
           documentWillFinish = false;
           _image = null;
           statusUpload = 'upload successful but not enough images';
+          showProgress();
           step--;
         });
       } else if (canUpload && canComplete) {
@@ -457,6 +457,7 @@ class _BeforePageState extends State<BeforePage> {
           documentWillFinish = false;
           _image = null;
           statusUpload = 'upload successful but can add more images';
+          showProgress();
           step++;
         });
       }
@@ -530,6 +531,23 @@ class _BeforePageState extends State<BeforePage> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> scanQR() async {
+    String barcodeScanRes;
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.QR);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    if (step == 0) {
+      setState(() {
+        documentController.text = barcodeScanRes;
+      });
+      documentIDCheck();
+    }
   }
 
   @override

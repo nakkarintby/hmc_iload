@@ -45,6 +45,7 @@ dependencies:
   multi_image_picker2: ^5.0.2
   path_provider: ^1.6.28
   shared_preferences: ^0.5.8
+  progress_dialog: ^1.2.4
 
 
 
