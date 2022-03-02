@@ -844,7 +844,7 @@ class _GoodReceivedState extends State<GoodReceived> {
                   child: Visibility(
                       visible: documentVisible,
                       child: TextFormField(
-                        //focusNode: focusNodes[0],
+                        focusNode: focusNodes[0],
                         readOnly: documentReadonly,
                         textInputAction: TextInputAction.go,
                         style: TextStyle(fontSize: 16),

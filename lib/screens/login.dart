@@ -213,7 +213,9 @@ class _LoginState extends State<Login> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SizedBox(height: size.height * 0.08),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 8,
+            ),
             Container(
               alignment: Alignment.center,
               margin: EdgeInsets.symmetric(horizontal: 40),
@@ -229,7 +231,9 @@ class _LoginState extends State<Login> {
                         borderSide: BorderSide(color: redColor, width: 1))),
               ),
             ),
-            SizedBox(height: size.height * 0.05),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 16,
+            ),
             Container(
               alignment: Alignment.centerRight,
               margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
@@ -244,15 +248,53 @@ class _LoginState extends State<Login> {
                 child: Text('LOGIN', style: TextStyle(color: whiteColor)),
               ),
             ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 16,
+            ),
+            new Positioned(
+              child: new Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: Text('version 1 by harmonious',
+                    style: TextStyle(
+                        color: Colors.black.withOpacity(0.4), fontSize: 13)),
+              ),
+            )
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         onPressed: () {
           editSharedPrefs();
         },
         backgroundColor: Colors.red[400],
         child: const Icon(Icons.settings),
+      ),*/
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+      floatingActionButton: Container(
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            FloatingActionButton(
+              onPressed: () {
+                editSharedPrefs();
+              },
+              backgroundColor: Colors.blue,
+              elevation: 1,
+              child: const Icon(
+                Icons.settings,
+                size: 36,
+              ),
+            ),
+            /*FloatingActionButton(
+              onPressed: () {
+                editSharedPrefs();
+              },
+              backgroundColor: Colors.red[400],
+              child: const Icon(Icons.settings),
+            ),*/
+          ],
+        ),
       ),
     );
   }
