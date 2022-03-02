@@ -480,7 +480,7 @@ class _BeforePageState extends State<BeforePage> {
       }
     }
 
-    if (sequence == 1) {
+    /*if (sequence == 1) {
       setState(() {
         resultDocument!.documentStatus = "In Progress";
         resultDocument!.modifiedBy = username;
@@ -504,7 +504,7 @@ class _BeforePageState extends State<BeforePage> {
       if (resultDocument == null) {
         showErrorDialog("Error Update Status Document");
       } else {}
-    }
+    }*/
 
     setVisible();
     setReadOnly();
