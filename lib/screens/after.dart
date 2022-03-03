@@ -480,32 +480,6 @@ class _AfterPageState extends State<AfterPage> {
       }
     }
 
-    /*if (sequence == 1) {
-      setState(() {
-        resultDocument!.documentStatus = "In Progress";
-        resultDocument!.modifiedBy = username;
-      });
-      String tempAPI3 = configs + '/api/api/document/updatemobile';
-      final uri3 = Uri.parse(tempAPI3);
-      final headers3 = {'Content-Type': 'application/json'};
-      var jsonBody3 = jsonEncode(resultDocument?.toJson());
-      final encoding3 = Encoding.getByName('utf-8');
-      http.Response response3 = await http.post(
-        uri3,
-        headers: headers3,
-        body: jsonBody3,
-        encoding: encoding3,
-      );
-      var data3 = json.decode(response3.body);
-      setState(() {
-        resultDocument = Document.fromJson(data3);
-      });
-
-      if (resultDocument == null) {
-        showErrorDialog("Error Update Status Document");
-      } else {}
-    }*/
-
     setVisible();
     setReadOnly();
     setColor();
