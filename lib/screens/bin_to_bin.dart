@@ -503,6 +503,7 @@ class _BinToBinState extends State<BinToBin> {
   Future<void> grade1Check() async {
     setState(() {
       gradeLabel1Input = gradeLabel1Controller.text;
+      gradeLabel1Input = gradeLabel1Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocationFrom?.binId;
@@ -552,6 +553,7 @@ class _BinToBinState extends State<BinToBin> {
   Future<void> grade2Check() async {
     setState(() {
       gradeLabel2Input = gradeLabel2Controller.text;
+      gradeLabel2Input = gradeLabel2Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocationFrom?.binId;
@@ -628,6 +630,7 @@ class _BinToBinState extends State<BinToBin> {
   Future<void> grade3Check() async {
     setState(() {
       gradeLabel3Input = gradeLabel3Controller.text;
+      gradeLabel3Input = gradeLabel3Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocationTo?.binId;
@@ -692,6 +695,7 @@ class _BinToBinState extends State<BinToBin> {
   Future<void> grade4Check() async {
     setState(() {
       gradeLabel4Input = gradeLabel4Controller.text;
+      gradeLabel4Input = gradeLabel4Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocationTo?.binId;

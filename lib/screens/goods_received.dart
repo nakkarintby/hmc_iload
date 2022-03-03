@@ -533,6 +533,7 @@ class _GoodReceivedState extends State<GoodReceived> {
   Future<void> gradeCheck() async {
     setState(() {
       gradeInput = gradeController.text;
+      gradeInput = gradeInput.replaceAll('/', ' ');
     });
 
     int? temp = resultLocation?.binId;

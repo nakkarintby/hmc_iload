@@ -183,6 +183,7 @@ class _HistoryState extends State<History> {
   Future<void> gradeCancelCheck() async {
     setState(() {
       gradeInputCancle = gradeCancelHistory.text;
+      gradeInputCancle = gradeInputCancle.replaceAll('/', ' ');
     });
 
     var url = Uri.parse(configs +

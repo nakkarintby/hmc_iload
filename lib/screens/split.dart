@@ -478,6 +478,7 @@ class _SplitState extends State<Split> {
   Future<void> grade1Check() async {
     setState(() {
       gradeLabel1Input = gradeLabel1Controller.text;
+      gradeLabel1Input = gradeLabel1Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocation?.binId;
@@ -578,6 +579,7 @@ class _SplitState extends State<Split> {
   Future<void> grade2Check() async {
     setState(() {
       gradeLabel2Input = gradeLabel2Controller.text;
+      gradeLabel2Input = gradeLabel2Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocation?.binId;

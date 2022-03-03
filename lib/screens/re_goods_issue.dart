@@ -549,6 +549,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
   Future<void> gradeCheck() async {
     setState(() {
       gradeInput = gradeController.text;
+      gradeInput = gradeInput.replaceAll('/', ' ');
     });
 
     int? temp;

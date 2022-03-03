@@ -529,6 +529,7 @@ class _ReGoodReceivedState extends State<ReGoodReceived> {
   Future<void> gradeCheck() async {
     setState(() {
       gradeInput = gradeController.text;
+      gradeInput = gradeInput.replaceAll('/', ' ');
     });
 
     int? temp = resultLocation?.binId;

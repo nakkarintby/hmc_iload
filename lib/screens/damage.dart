@@ -551,6 +551,7 @@ class _DamageState extends State<Damage> {
   Future<void> grade1Check() async {
     setState(() {
       gradeLabel1Input = gradeLabel1Controller.text;
+      gradeLabel1Input = gradeLabel1Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocation?.binId;
@@ -594,6 +595,7 @@ class _DamageState extends State<Damage> {
   Future<void> grade2Check() async {
     setState(() {
       gradeLabel2Input = gradeLabel2Controller.text;
+      gradeLabel2Input = gradeLabel2Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocation?.binId;
@@ -674,6 +676,7 @@ class _DamageState extends State<Damage> {
   Future<void> grade3Check() async {
     setState(() {
       gradeLabel3Input = gradeLabel3Controller.text;
+      gradeLabel3Input = gradeLabel3Input.replaceAll('/', ' ');
     });
 
     int? temp = resultLocation?.binId;
