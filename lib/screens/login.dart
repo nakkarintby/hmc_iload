@@ -30,7 +30,7 @@ class _LoginState extends State<Login> {
   String configs = '';
   String showMenu = '';
 
-  late List<FocusNode> focusNodes = List.generate(3, (index) => FocusNode());
+  late List<FocusNode> focusNodes = List.generate(1, (index) => FocusNode());
 
   @override
   void initState() {
@@ -73,7 +73,6 @@ class _LoginState extends State<Login> {
               children: <Widget>[
                 TextFormField(
                   //autofocus: true, //set initail focus on dialog
-                  focusNode: focusNodes[0],
                   readOnly: false,
                   controller: configsController
                     ..text = prefs.getString('configs'),
@@ -82,11 +81,10 @@ class _LoginState extends State<Login> {
                   textInputAction: TextInputAction.next,
                   onEditingComplete: () {
                     Future.delayed(Duration(milliseconds: 100)).then((_) =>
-                        FocusScope.of(context).requestFocus(focusNodes[1]));
+                        FocusScope.of(context).requestFocus(focusNodes[0]));
                   },
                 ),
                 TextFormField(
-                  focusNode: focusNodes[1],
                   keyboardType: TextInputType.number,
                   readOnly: false,
                   controller: qualityController
@@ -97,7 +95,7 @@ class _LoginState extends State<Login> {
                   textInputAction: TextInputAction.next,
                   onEditingComplete: () {
                     Future.delayed(Duration(milliseconds: 100)).then((_) =>
-                        FocusScope.of(context).requestFocus(focusNodes[2]));
+                        FocusScope.of(context).requestFocus(focusNodes[0]));
                   },
                 ),
                 SizedBox(
@@ -121,6 +119,8 @@ class _LoginState extends State<Login> {
                     setState(() {
                       showMenu = val!;
                     });
+                    Future.delayed(Duration(milliseconds: 100)).then((_) =>
+                        FocusScope.of(context).requestFocus(focusNodes[0]));
                   },
                 ),
               ],
@@ -138,7 +138,7 @@ class _LoginState extends State<Login> {
                 },
               ),
               FlatButton(
-                focusNode: focusNodes[2],
+                focusNode: focusNodes[0],
                 color: Colors.green,
                 textColor: Colors.white,
                 child: Text('Save'),
