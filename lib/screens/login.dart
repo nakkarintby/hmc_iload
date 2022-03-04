@@ -112,13 +112,13 @@ class _LoginState extends State<Login> {
                       child: new Text(value),
                     );
                   }).toList(),
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(new FocusNode());
+                  },
                   onChanged: (String? val) {
                     setState(() {
                       showMenu = val!;
                     });
-                  },
-                  onTap: () {
-                    FocusScope.of(context).requestFocus(new FocusNode());
                   },
                 ),
               ],
