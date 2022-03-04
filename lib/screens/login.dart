@@ -101,9 +101,11 @@ class _LoginState extends State<Login> {
                   },
                 ),
                 SizedBox(
-                  height: 24,
+                  height: 26,
                 ),
                 new DropdownButton<String>(
+                  isDense: true,
+                  isExpanded: true,
                   value: showMenu,
                   items: <String>['Show All Menu', 'Show Only TakePhoto Menu']
                       .map((String value) {

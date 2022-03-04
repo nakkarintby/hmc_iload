@@ -54,7 +54,7 @@ class Background_Login extends StatelessWidget {
               onPressed: () {},
               child: Text('V2'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.redAccent[400], //
+                primary: Colors.red[400], //
                 shape: CircleBorder(),
                 padding: EdgeInsets.all(12),
               ),
