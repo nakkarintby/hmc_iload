@@ -25,8 +25,10 @@ class _LoginState extends State<Login> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController configsController = TextEditingController();
   TextEditingController qualityController = TextEditingController();
+  TextEditingController takephotoOnlyController = TextEditingController();
   late Timer timer;
   String configs = '';
+  String showMenu = '';
 
   late List<FocusNode> focusNodes = List.generate(3, (index) => FocusNode());
 
@@ -40,17 +42,25 @@ class _LoginState extends State<Login> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool checkConfigsPrefs = prefs.containsKey('configs');
     bool checkQualityPrefs = prefs.containsKey('quality');
-
-    if (checkConfigsPrefs && checkQualityPrefs) {
+    bool checkshowMenuoPrefs = prefs.containsKey('showMenu');
+    if ((checkConfigsPrefs && checkQualityPrefs) && checkshowMenuoPrefs) {
+      setState(() {
+        showMenu = prefs.getString('showMenu');
+      });
     } else {
       prefs.setString('configs', 'http://192.168.1.49:8111');
       prefs.setInt('quality', 35);
+      prefs.setString('showMenu', 'Show All Menu');
+      setState(() {
+        showMenu = prefs.getString('showMenu');
+      });
     }
   }
 
   Future<void> editSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Icon icon = Icon(Icons.edit, color: Colors.lightBlue);
+
     showDialog(
         context: context,
         builder: (context) {
@@ -61,8 +71,8 @@ class _LoginState extends State<Login> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                TextField(
-                  autofocus: true, //set initail focus on dialog
+                TextFormField(
+                  //autofocus: true, //set initail focus on dialog
                   focusNode: focusNodes[0],
                   readOnly: false,
                   controller: configsController
@@ -75,8 +85,9 @@ class _LoginState extends State<Login> {
                         FocusScope.of(context).requestFocus(focusNodes[1]));
                   },
                 ),
-                TextField(
+                TextFormField(
                   focusNode: focusNodes[1],
+                  keyboardType: TextInputType.number,
                   readOnly: false,
                   controller: qualityController
                     ..text = prefs.getInt('quality').toString(),
@@ -89,13 +100,29 @@ class _LoginState extends State<Login> {
                         FocusScope.of(context).requestFocus(focusNodes[2]));
                   },
                 ),
+                SizedBox(
+                  height: 24,
+                ),
+                new DropdownButton<String>(
+                  value: showMenu,
+                  items: <String>['Show All Menu', 'Show Only TakePhoto Menu']
+                      .map((String value) {
+                    return new DropdownMenuItem<String>(
+                      value: value,
+                      child: new Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? val) {
+                    setState(() {
+                      showMenu = val!;
+                    });
+                  },
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(new FocusNode());
+                  },
+                ),
               ],
             )),
-            /* content: TextField(
-              onChanged: (value) {},
-              controller: configsController..text = prefs.getString('configs'),
-              //decoration: InputDecoration(hintText: "Text Field in Dialog"),
-            ),*/
             actions: <Widget>[
               FlatButton(
                 color: Colors.red,
@@ -103,6 +130,7 @@ class _LoginState extends State<Login> {
                 child: Text('Cancel'),
                 onPressed: () {
                   setState(() {
+                    showMenu = prefs.getString('showMenu');
                     Navigator.pop(context);
                   });
                 },
@@ -113,12 +141,19 @@ class _LoginState extends State<Login> {
                 textColor: Colors.white,
                 child: Text('Save'),
                 onPressed: () {
-                  setState(() {
-                    prefs.setString('configs', configsController.text);
-                    prefs.setInt('quality', int.parse(qualityController.text));
-                    Navigator.pop(context);
-                  });
-                  alertDialog('Edit Configs and Quality Successful', 'Success');
+                  if (int.parse(qualityController.text) < 1 ||
+                      int.parse(qualityController.text) > 100) {
+                    alertDialog('Please Enter Quality 0-100', 'Error');
+                  } else {
+                    setState(() {
+                      prefs.setString('configs', configsController.text);
+                      prefs.setInt(
+                          'quality', int.parse(qualityController.text));
+                      prefs.setString('showMenu', showMenu);
+                      Navigator.pop(context);
+                    });
+                    alertDialog('Edit Successful', 'Success');
+                  }
                 },
               ),
             ],
@@ -166,47 +201,45 @@ class _LoginState extends State<Login> {
     });
   }
 
+  Future<void> loginCheck() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+      });
+      var username = usernameController.text;
+      var url = Uri.parse(configs + '/api/api/user/validateuser/' + username);
+      http.Response response = await http.get(url);
+      var data = json.decode(response.body);
+      DataUser msg = DataUser.fromJson(data);
+      var msg_userid = msg.user?.userId;
+      var msg_username = msg.user?.userName;
+      var msg_password = msg.user?.password;
+      var msg_role = msg.user?.role;
+      var msg_user = msg.user;
+      var msg_err = msg.errorMsg;
+
+      Timer(Duration(seconds: 3), () async {
+        if (msg_username != null) {
+          await FlutterSession().set('token', msg_username);
+          await FlutterSession().set('token_userid', msg_userid);
+          await FlutterSession().set('token_username', msg_username);
+          await FlutterSession().set('token_role', msg_role);
+          _btnController.reset();
+          Navigator.pushReplacementNamed(context, MainScreen.routeName);
+        } else {
+          _btnController.reset();
+          usernameController.text = '';
+          incorrectUsernameDialog();
+        }
+      });
+    } catch (e) {
+      Navigator.pushReplacementNamed(context, Login.routeName);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-
-    Future<void> login_check() async {
-      try {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        setState(() {
-          configs = prefs.getString('configs');
-        });
-        var username = usernameController.text;
-        var url = Uri.parse(configs + '/api/api/user/validateuser/' + username);
-        http.Response response = await http.get(url);
-        var data = json.decode(response.body);
-        DataUser msg = DataUser.fromJson(data);
-        var msg_userid = msg.user?.userId;
-        var msg_username = msg.user?.userName;
-        var msg_password = msg.user?.password;
-        var msg_role = msg.user?.role;
-        var msg_user = msg.user;
-        var msg_err = msg.errorMsg;
-
-        Timer(Duration(seconds: 3), () async {
-          if (msg_username != null) {
-            await FlutterSession().set('token', msg_username);
-            await FlutterSession().set('token_userid', msg_userid);
-            await FlutterSession().set('token_username', msg_username);
-            await FlutterSession().set('token_role', msg_role);
-            _btnController.reset();
-            Navigator.pushReplacementNamed(context, MainScreen.routeName);
-          } else {
-            _btnController.reset();
-            usernameController.text = '';
-            incorrectUsernameDialog();
-          }
-        });
-      } catch (e) {
-        Navigator.pushReplacementNamed(context, Login.routeName);
-      }
-    }
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Background_Login(
@@ -214,7 +247,7 @@ class _LoginState extends State<Login> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-              height: MediaQuery.of(context).size.height / 8,
+              height: MediaQuery.of(context).size.height / 6,
             ),
             Container(
               alignment: Alignment.center,
@@ -232,7 +265,7 @@ class _LoginState extends State<Login> {
               ),
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.height / 16,
+              height: MediaQuery.of(context).size.height / 25,
             ),
             Container(
               alignment: Alignment.centerRight,
@@ -242,7 +275,7 @@ class _LoginState extends State<Login> {
                 successColor: roundedLoadingButtonSuccessColor,
                 width: 200,
                 controller: _btnController,
-                onPressed: () => login_check(),
+                onPressed: () => loginCheck(),
                 valueColor: Colors.black,
                 borderRadius: 30,
                 child: Text('LOGIN', style: TextStyle(color: whiteColor)),
@@ -251,14 +284,19 @@ class _LoginState extends State<Login> {
             SizedBox(
               height: MediaQuery.of(context).size.height / 16,
             ),
-            new Positioned(
-              child: new Align(
-                alignment: FractionalOffset.bottomCenter,
-                child: Text('version 1 by harmonious',
-                    style: TextStyle(
-                        color: Colors.black.withOpacity(0.4), fontSize: 13)),
+            ElevatedButton(
+              onPressed: () {
+                editSharedPrefs();
+              },
+              child: const Icon(
+                Icons.settings,
+                size: 30,
               ),
-            )
+              style: ElevatedButton.styleFrom(
+                shape: CircleBorder(),
+                padding: EdgeInsets.all(10),
+              ),
+            ),
           ],
         ),
       ),
@@ -269,7 +307,7 @@ class _LoginState extends State<Login> {
         backgroundColor: Colors.red[400],
         child: const Icon(Icons.settings),
       ),*/
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+      /*floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       floatingActionButton: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 5),
         child: Row(
@@ -286,16 +324,9 @@ class _LoginState extends State<Login> {
                 size: 36,
               ),
             ),
-            /*FloatingActionButton(
-              onPressed: () {
-                editSharedPrefs();
-              },
-              backgroundColor: Colors.red[400],
-              child: const Icon(Icons.settings),
-            ),*/
           ],
         ),
-      ),
+      ),*/
     );
   }
 }

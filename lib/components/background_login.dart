@@ -42,6 +42,24 @@ class Background_Login extends StatelessWidget {
             right: 0,
             child: Image.asset("assets/bottom2.png", width: size.width),
           ),
+          Positioned(
+            top: MediaQuery.of(context).size.height / 1.1,
+            right: MediaQuery.of(context).size.width / 1.7,
+            child: Image.asset("assets/hms2.png", width: size.width * 0.38),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).size.height / 1.11,
+            right: MediaQuery.of(context).size.width / 80,
+            child: ElevatedButton(
+              onPressed: () {},
+              child: Text('V2'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.redAccent[400], //
+                shape: CircleBorder(),
+                padding: EdgeInsets.all(12),
+              ),
+            ),
+          ),
           child
         ],
       ),

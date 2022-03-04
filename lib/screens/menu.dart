@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/components/menu_list.dart';
 import 'package:test/screens/menu_gi.dart';
 import 'package:test/screens/menu_gr.dart';
@@ -7,7 +8,49 @@ import 'package:test/screens/menu_transfer.dart';
 import 'package:test/screens/stock_overview.dart';
 import 'package:test/screens/before.dart';
 
-class Menu extends StatelessWidget {
+class Menu extends StatefulWidget {
+  @override
+  _MenuPageState createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<Menu> {
+  bool grVisible = false;
+  bool giVisible = false;
+  bool transferVisible = false;
+  bool stockVisible = false;
+  bool takephotoVisible = false;
+  String showMenu = '';
+
+  @override
+  void initState() {
+    super.initState();
+    getSharedPrefs();
+  }
+
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      showMenu = prefs.getString('showMenu');
+    });
+    if (showMenu == 'Show All Menu') {
+      setState(() {
+        grVisible = true;
+        giVisible = true;
+        transferVisible = true;
+        stockVisible = true;
+        takephotoVisible = true;
+      });
+    } else {
+      setState(() {
+        grVisible = false;
+        giVisible = false;
+        transferVisible = false;
+        stockVisible = false;
+        takephotoVisible = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,67 +69,84 @@ class Menu extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(height: 10),
-              MenuList(
-                text: "GR",
-                icon: Icon(
-                  Icons.flight_land_rounded,
-                  size: 40,
-                  color: Colors.blue,
+              Visibility(
+                visible: grVisible,
+                child: MenuList(
+                  text: "GR",
+                  icon: Icon(
+                    Icons.flight_land_rounded,
+                    size: 40,
+                    color: Colors.blue,
+                  ),
+                  press: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => MenuGR()))
+                  },
                 ),
-                press: () => {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MenuGR()))
-                },
               ),
-              MenuList(
-                text: "GI",
-                icon: Icon(
-                  Icons.flight_takeoff_rounded,
-                  size: 40,
-                  color: Colors.blue,
+              Visibility(
+                visible: giVisible,
+                child: MenuList(
+                  text: "GI",
+                  icon: Icon(
+                    Icons.flight_takeoff_rounded,
+                    size: 40,
+                    color: Colors.blue,
+                  ),
+                  press: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => MenuGI()))
+                  },
                 ),
-                press: () => {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MenuGI()))
-                },
               ),
-              MenuList(
-                text: "Transfer",
-                icon: Icon(
-                  Icons.swap_horiz_outlined,
-                  size: 40,
-                  color: Colors.blue,
+              Visibility(
+                visible: transferVisible,
+                child: MenuList(
+                  text: "Transfer",
+                  icon: Icon(
+                    Icons.swap_horiz_outlined,
+                    size: 40,
+                    color: Colors.blue,
+                  ),
+                  press: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => MenuTransfer()))
+                  },
                 ),
-                press: () => {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MenuTransfer()))
-                },
               ),
-              MenuList(
-                text: "Stock",
-                icon: Icon(
-                  Icons.shopping_cart_rounded,
-                  size: 40,
-                  color: Colors.blue,
+              Visibility(
+                visible: stockVisible,
+                child: MenuList(
+                  text: "Stock",
+                  icon: Icon(
+                    Icons.shopping_cart_rounded,
+                    size: 40,
+                    color: Colors.blue,
+                  ),
+                  press: () => {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => StockOverviewPage()))
+                  },
                 ),
-                press: () => {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => StockOverviewPage()))
-                },
               ),
-              MenuList(
-                text: "Take Photo",
-                icon: Icon(
-                  Icons.camera_alt_rounded,
-                  size: 40,
-                  color: Colors.blue,
+              Visibility(
+                visible: takephotoVisible,
+                child: MenuList(
+                  text: "Take Photo",
+                  icon: Icon(
+                    Icons.camera_alt_rounded,
+                    size: 40,
+                    color: Colors.blue,
+                  ),
+                  press: () => {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MenuTakePhoto()))
+                  },
                 ),
-                press: () => {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MenuTakePhoto()))
-                },
               ),
             ],
           ),

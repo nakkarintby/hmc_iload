@@ -88,7 +88,9 @@ flutter:
     - assets/Background.jpg
     - assets/top1.png
     - assets/top2.png
-    - assets/main.png
+    - assets/hms1.png
+    - assets/hms2.png
+    - assets/hms3.png
     - assets/bottom1.png
     - assets/bottom2.png
     - assets/men_wearing_jacket.gif
@@ -99,6 +101,7 @@ flutter:
     - assets/water1.jpg
     - assets/water2.jpg
     - assets/profile.jpg
+
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
