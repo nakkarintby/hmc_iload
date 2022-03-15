@@ -99,7 +99,7 @@ class _LoginState extends State<Login> {
                   },
                 ),
                 SizedBox(
-                  height: 26,
+                  height: 25,
                 ),
                 new DropdownButton<String>(
                   isDense: true,
