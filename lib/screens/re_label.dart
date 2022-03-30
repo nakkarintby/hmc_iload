@@ -1112,13 +1112,14 @@ class _ReLabelState extends State<ReLabel> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          toolbarHeight: 50,
           leading: BackButton(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
             'ReLabel',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
           actions: <Widget>[
             IconButton(
@@ -1137,7 +1138,7 @@ class _ReLabelState extends State<ReLabel> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: 20,
+                height: 10,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1147,7 +1148,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: documentVisible,
                       child: TextFormField(
                         focusNode: focusNodes[0],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 12),
                         readOnly: documentReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1159,15 +1160,15 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter Document No.',
                           labelText: 'Document No.',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 12),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: documentController,
                       ))),
               SizedBox(
-                height: 14,
+                height: 10,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1177,7 +1178,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: locationFromVisible,
                       child: TextFormField(
                         focusNode: focusNodes[1],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 12),
                         readOnly: locationFromReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1189,15 +1190,15 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter Location From',
                           labelText: 'Location From',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 12),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: locationFromController,
                       ))),
               SizedBox(
-                height: 14,
+                height: 10,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1207,7 +1208,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: gradeLabel1Visible,
                       child: TextFormField(
                         focusNode: focusNodes[2],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 12),
                         readOnly: gradeLabel1Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1219,15 +1220,15 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter GradeLabel1',
                           labelText: 'GradeLabel1',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 12),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: gradeLabel1Controller,
                       ))),
               SizedBox(
-                height: 14,
+                height: 10,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1237,7 +1238,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: gradeLabel2Visible,
                       child: TextFormField(
                         focusNode: focusNodes[3],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 12),
                         readOnly: gradeLabel2Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1249,15 +1250,15 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter GradeLabel2',
                           labelText: 'GradeLabel2',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 12),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: gradeLabel2Controller,
                       ))),
               SizedBox(
-                height: 14,
+                height: 10,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1267,7 +1268,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: locationToVisible,
                       child: TextFormField(
                         focusNode: focusNodes[4],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 12),
                         readOnly: locationToReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1279,15 +1280,15 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter Location To',
                           labelText: 'Location To',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 12),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: locationToController,
                       ))),
               SizedBox(
-                height: 14,
+                height: 10,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1297,7 +1298,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: gradeLabel3Visible,
                       child: TextFormField(
                         focusNode: focusNodes[5],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 12),
                         readOnly: gradeLabel3Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1309,15 +1310,15 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter GradeLabel3',
                           labelText: 'GradeLabel3',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 12),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: gradeLabel3Controller,
                       ))),
               SizedBox(
-                height: 14,
+                height: 10,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1327,7 +1328,7 @@ class _ReLabelState extends State<ReLabel> {
                       visible: gradeLabel4Visible,
                       child: TextFormField(
                         focusNode: focusNodes[6],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 12),
                         readOnly: gradeLabel4Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1339,15 +1340,15 @@ class _ReLabelState extends State<ReLabel> {
                           filled: true,
                           hintText: 'Enter GradeLabel4',
                           labelText: 'GradeLabel4',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 12),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: gradeLabel4Controller,
                       ))),
               SizedBox(
-                height: 5,
+                height: 4,
               ),
               new Center(
                 child: new ButtonBar(
@@ -1390,7 +1391,7 @@ class _ReLabelState extends State<ReLabel> {
                     ),
                     new RaisedButton(
                       focusNode: focusNodes[7],
-                      color: Colors.blue,
+                      color: step == 7 ? Colors.green : Colors.blue,
                       child: const Text('Finish',
                           style: TextStyle(
                             color: Colors.white,

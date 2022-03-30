@@ -28,8 +28,8 @@ class Background_Login extends StatelessWidget {
             child: Image.asset("assets/top2.png", width: size.width),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height / 4.7,
-            right: MediaQuery.of(context).size.width / 3.3,
+            top: MediaQuery.of(context).size.height / 5.5,
+            right: MediaQuery.of(context).size.width / 3.2,
             child: Image.asset("assets/SMC_logo.png", width: size.width * 0.58),
           ),
           Positioned(
@@ -43,12 +43,12 @@ class Background_Login extends StatelessWidget {
             child: Image.asset("assets/bottom2.png", width: size.width),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height / 1.1,
+            top: MediaQuery.of(context).size.height / 1.12,
             right: MediaQuery.of(context).size.width / 1.7,
             child: Image.asset("assets/hms2.png", width: size.width * 0.38),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height / 1.11,
+            top: MediaQuery.of(context).size.height / 1.135,
             right: MediaQuery.of(context).size.width / 80,
             child: ElevatedButton(
               onPressed: () {},

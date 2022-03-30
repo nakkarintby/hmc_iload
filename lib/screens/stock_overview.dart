@@ -200,13 +200,14 @@ class _StockOverviewPage extends State<StockOverviewPage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          toolbarHeight: 50,
           leading: BackButton(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
             'Stock OverView',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
           actions: <Widget>[
             IconButton(

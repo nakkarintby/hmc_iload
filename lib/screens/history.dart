@@ -262,13 +262,14 @@ class _HistoryState extends State<History> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          toolbarHeight: 50,
           leading: BackButton(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
             isAppbar.toString(),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
           actions: <Widget>[
             IconButton(
@@ -284,7 +285,7 @@ class _HistoryState extends State<History> {
                 child: Form(
                     child: Column(children: <Widget>[
           Container(
-            height: MediaQuery.of(context).size.height / 1.5,
+            height: MediaQuery.of(context).size.height / 1.3,
             child: ListView(
               shrinkWrap: true,
               children: <Widget>[
@@ -376,7 +377,7 @@ class _HistoryState extends State<History> {
                     children: <Widget>[
                       new RaisedButton(
                         focusNode: focusNodes[1],
-                        color: Colors.redAccent,
+                        color: step == 1 ? Colors.green : Colors.blue,
                         child: const Text('Cancel',
                             style: TextStyle(
                               color: Colors.white,

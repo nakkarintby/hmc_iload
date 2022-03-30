@@ -886,13 +886,14 @@ class _BinToBinState extends State<BinToBin> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          toolbarHeight: 50,
           leading: BackButton(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
             'Bin To Bin',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
           actions: <Widget>[
             IconButton(
@@ -911,7 +912,7 @@ class _BinToBinState extends State<BinToBin> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: 36,
+                height: 22,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -921,7 +922,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: locationFromVisible,
                       child: TextFormField(
                         focusNode: focusNodes[0],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 14),
                         readOnly: locationFromReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -933,15 +934,15 @@ class _BinToBinState extends State<BinToBin> {
                           filled: true,
                           hintText: 'Enter Location From',
                           labelText: 'Location From',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 14),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: locationFromController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -951,7 +952,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: gradeLabel1Visible,
                       child: TextFormField(
                         focusNode: focusNodes[1],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 14),
                         readOnly: gradeLabel1Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -963,15 +964,15 @@ class _BinToBinState extends State<BinToBin> {
                           filled: true,
                           hintText: 'Enter GradeLabel1',
                           labelText: 'GradeLabel1',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 14),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: gradeLabel1Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -981,7 +982,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: gradeLabel2Visible,
                       child: TextFormField(
                         focusNode: focusNodes[2],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 14),
                         readOnly: gradeLabel2Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -993,15 +994,15 @@ class _BinToBinState extends State<BinToBin> {
                           filled: true,
                           hintText: 'Enter GradeLabel2',
                           labelText: 'GradeLabel2',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 14),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: gradeLabel2Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1011,7 +1012,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: locationToVisible,
                       child: TextFormField(
                         focusNode: focusNodes[3],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 14),
                         readOnly: locationToReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1023,15 +1024,15 @@ class _BinToBinState extends State<BinToBin> {
                           filled: true,
                           hintText: 'Enter Location To',
                           labelText: 'Location To',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 14),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: locationToController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1041,7 +1042,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: gradeLabel3Visible,
                       child: TextFormField(
                         focusNode: focusNodes[4],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 14),
                         readOnly: gradeLabel3Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1053,15 +1054,15 @@ class _BinToBinState extends State<BinToBin> {
                           filled: true,
                           hintText: 'Enter GradeLabel3',
                           labelText: 'GradeLabel3',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 14),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: gradeLabel3Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 14,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -1071,7 +1072,7 @@ class _BinToBinState extends State<BinToBin> {
                       visible: gradeLabel4Visible,
                       child: TextFormField(
                         focusNode: focusNodes[5],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 14),
                         readOnly: gradeLabel4Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -1083,15 +1084,15 @@ class _BinToBinState extends State<BinToBin> {
                           filled: true,
                           hintText: 'Enter GradeLabel4',
                           labelText: 'GradeLabel4',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 14),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(12), //
                         ),
                         controller: gradeLabel4Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 10,
               ),
               new Center(
                 child: new ButtonBar(
@@ -1134,7 +1135,7 @@ class _BinToBinState extends State<BinToBin> {
                     ),
                     new RaisedButton(
                       focusNode: focusNodes[6],
-                      color: Colors.blue,
+                      color: step == 6 ? Colors.green : Colors.blue,
                       child: const Text('Finish',
                           style: TextStyle(
                             color: Colors.white,
@@ -1149,7 +1150,7 @@ class _BinToBinState extends State<BinToBin> {
                 ),
               ),
               SizedBox(
-                height: 16,
+                height: 10,
               ),
             ],
           ),

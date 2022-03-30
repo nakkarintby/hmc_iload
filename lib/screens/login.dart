@@ -284,7 +284,7 @@ class _LoginState extends State<Login> {
               ),
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.height / 16,
+              height: MediaQuery.of(context).size.height / 20,
             ),
             ElevatedButton(
               onPressed: () {

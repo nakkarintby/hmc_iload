@@ -51,26 +51,26 @@ class _MainScreenState extends State<MainScreen> {
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.menu_outlined,
-                size: 40,
+                size: 25,
                 color: Colors.grey,
               ),
               title: Text('MENU'),
               activeIcon: Icon(
                 Icons.menu_rounded,
-                size: 40,
+                size: 25,
                 color: Colors.blue,
               ),
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.settings_outlined,
-                size: 40,
+                size: 25,
                 color: Colors.grey,
               ),
               title: Text('SETTING'),
               activeIcon: Icon(
                 Icons.settings_rounded,
-                size: 40,
+                size: 25,
                 color: Colors.blue,
               ),
             ),

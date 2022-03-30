@@ -793,13 +793,14 @@ class _SplitState extends State<Split> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          toolbarHeight: 50,
           leading: BackButton(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
             'Split',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
           actions: <Widget>[
             IconButton(
@@ -818,7 +819,7 @@ class _SplitState extends State<Split> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: 28,
+                height: 16,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -828,7 +829,7 @@ class _SplitState extends State<Split> {
                       visible: documentVisible,
                       child: TextFormField(
                         focusNode: focusNodes[0],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: documentReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -840,15 +841,15 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter Document No.',
                           labelText: 'Document No.',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(11), //
                         ),
                         controller: documentController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -858,7 +859,7 @@ class _SplitState extends State<Split> {
                       visible: locationVisible,
                       child: TextFormField(
                         focusNode: focusNodes[1],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: locationReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -870,15 +871,15 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter Location',
                           labelText: 'Location',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(11), //
                         ),
                         controller: locationController,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -888,7 +889,7 @@ class _SplitState extends State<Split> {
                       visible: gradeLabel1Visible,
                       child: TextFormField(
                         focusNode: focusNodes[2],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: gradeLabel1Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -900,15 +901,15 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter GradeLabel1',
                           labelText: 'GradeLabel1',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(11), //
                         ),
                         controller: gradeLabel1Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -917,7 +918,7 @@ class _SplitState extends State<Split> {
                   child: Visibility(
                       visible: weight1Visible,
                       child: TextFormField(
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: weight1Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {},
@@ -927,15 +928,15 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter weight1',
                           labelText: 'weight1',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(11), //
                         ),
                         controller: weight1Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -945,7 +946,7 @@ class _SplitState extends State<Split> {
                       visible: gradeLabel2Visible,
                       child: TextFormField(
                         focusNode: focusNodes[3],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: gradeLabel2Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -957,15 +958,15 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter GradeLabel2',
                           labelText: 'GradeLabel2',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(11), //
                         ),
                         controller: gradeLabel2Controller,
                       ))),
               SizedBox(
-                height: 16,
+                height: 12,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -974,7 +975,7 @@ class _SplitState extends State<Split> {
                   child: Visibility(
                       visible: weight2Visible,
                       child: TextFormField(
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: weight2Readonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {},
@@ -984,15 +985,15 @@ class _SplitState extends State<Split> {
                           filled: true,
                           hintText: 'Enter weight2',
                           labelText: 'weight2',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(15), //
+                          contentPadding: EdgeInsets.all(11), //
                         ),
                         controller: weight2Controller,
                       ))),
               SizedBox(
-                height: 14,
+                height: 8,
               ),
               new Center(
                 child: new ButtonBar(
@@ -1000,9 +1001,6 @@ class _SplitState extends State<Split> {
                       .min, // this will take space as minimum as posible(to center)
                   children: <Widget>[Text(splitItemText)],
                 ),
-              ),
-              SizedBox(
-                height: 5,
               ),
               new Center(
                 child: new ButtonBar(
@@ -1031,7 +1029,7 @@ class _SplitState extends State<Split> {
                     ),
                     new RaisedButton(
                       focusNode: focusNodes[4],
-                      color: Colors.blue,
+                      color: step == 4 ? Colors.green : Colors.blue,
                       child: const Text('Finish',
                           style: TextStyle(
                             color: Colors.white,

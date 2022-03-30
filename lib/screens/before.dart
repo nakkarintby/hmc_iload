@@ -206,6 +206,19 @@ class _BeforePageState extends State<BeforePage> {
       Future.delayed(Duration(milliseconds: 100))
           .then((_) => FocusScope.of(context).requestFocus(focusNodes[3]));
     }
+    print('step : ' + step.toString());
+    print('focusNodes[' +
+        step.toString() +
+        '] canRequestFocus : ' +
+        focusNodes[step].canRequestFocus.toString());
+    print('focusNodes[' +
+        step.toString() +
+        '] hasFocus : ' +
+        focusNodes[step].hasFocus.toString());
+    print('focusNodes[' +
+        step.toString() +
+        '] hasPrimaryFocus : ' +
+        focusNodes[step].hasPrimaryFocus.toString());
   }
 
   void back() {
@@ -459,7 +472,7 @@ class _BeforePageState extends State<BeforePage> {
           documentWillUploadOrWillFinish = false;
           documentWillFinish = false;
           _image = null;
-          statusUpload = 'upload successful but not enough images : ' +
+          statusUpload = 'upload successful but not enough : ' +
               sequence.toString() +
               ' / ' +
               min.toString();
@@ -471,7 +484,7 @@ class _BeforePageState extends State<BeforePage> {
           documentWillUploadOrWillFinish = true;
           documentWillFinish = false;
           _image = null;
-          statusUpload = 'upload successful but can add more images : ' +
+          statusUpload = 'upload successful but can add more : ' +
               sequence.toString() +
               ' / ' +
               min.toString();
@@ -571,13 +584,14 @@ class _BeforePageState extends State<BeforePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          toolbarHeight: 50,
           leading: BackButton(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
             'Before',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
           actions: <Widget>[
             IconButton(
@@ -590,7 +604,7 @@ class _BeforePageState extends State<BeforePage> {
         ),
         body: SafeArea(
             child: Column(children: [
-          SizedBox(height: 30),
+          SizedBox(height: 20),
           Container(
               padding: new EdgeInsets.only(
                   left: MediaQuery.of(context).size.width / 5,
@@ -641,7 +655,7 @@ class _BeforePageState extends State<BeforePage> {
                 ),
                 new RaisedButton(
                   focusNode: focusNodes[1],
-                  color: Colors.blue,
+                  color: step == 1 ? Colors.green : Colors.blue,
                   child: Column(
                     children: <Widget>[Icon(Icons.add_a_photo_outlined)],
                   ),
@@ -653,7 +667,7 @@ class _BeforePageState extends State<BeforePage> {
                 ),
                 new RaisedButton(
                   focusNode: focusNodes[2],
-                  color: Colors.blue,
+                  color: step == 2 ? Colors.green : Colors.blue,
                   child: const Text('Upload',
                       style: TextStyle(
                         color: Colors.white,
@@ -671,7 +685,7 @@ class _BeforePageState extends State<BeforePage> {
                 ),
                 new RaisedButton(
                   focusNode: focusNodes[3],
-                  color: Colors.blue,
+                  color: step == 3 ? Colors.green : Colors.blue,
                   child: const Text('Finish',
                       style: TextStyle(
                         color: Colors.white,
@@ -690,15 +704,15 @@ class _BeforePageState extends State<BeforePage> {
               ],
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 5),
           Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Center(
               child: _image != null
                   ? Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Container(
-                        width: 300,
-                        height: 300,
+                        width: 225,
+                        height: 225,
                         child: Image.file(
                           _image!,
                         ),

@@ -816,13 +816,14 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          toolbarHeight: 50,
           leading: BackButton(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
             'ReGoodsIssue',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
           actions: <Widget>[
             IconButton(
@@ -841,7 +842,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: 28,
+                height: 16,
               ),
               Container(
                   padding: new EdgeInsets.only(
@@ -851,7 +852,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       visible: documentVisible,
                       child: TextFormField(
                         focusNode: focusNodes[0],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: documentReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -863,10 +864,10 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Document No.',
                           labelText: 'Document Number',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: documentController,
                       ))),
@@ -881,7 +882,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       visible: locationVisible,
                       child: TextFormField(
                         focusNode: focusNodes[1],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: locationReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -893,10 +894,10 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Location',
                           labelText: 'Location',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: locationController,
                       ))),
@@ -911,7 +912,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       visible: gradeVisible,
                       child: TextFormField(
                         focusNode: focusNodes[2],
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         readOnly: gradeReadonly,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {
@@ -923,10 +924,10 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Grade Label',
                           labelText: 'GradeLabel',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: gradeController,
                       ))),
@@ -942,7 +943,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       child: TextFormField(
                         readOnly: matReadonly,
                         textInputAction: TextInputAction.go,
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -950,10 +951,10 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Mat Desc.',
                           labelText: 'Mat Descriptions',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: matController,
                       ))),
@@ -969,7 +970,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       child: TextFormField(
                         readOnly: locationReadonly,
                         textInputAction: TextInputAction.go,
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -977,10 +978,10 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Lot',
                           labelText: 'Lot',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: lotController,
                       ))),
@@ -996,7 +997,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       child: TextFormField(
                         readOnly: palletnumberReadonly,
                         textInputAction: TextInputAction.go,
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -1004,10 +1005,10 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Pallet No.',
                           labelText: 'Pallet Number',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: palletnumberController,
                       ))),
@@ -1023,7 +1024,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       child: TextFormField(
                         readOnly: pallettypeReadonly,
                         textInputAction: TextInputAction.go,
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -1031,10 +1032,10 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Pallet Type',
                           labelText: 'Pallet Type',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: pallettypeController,
                       ))),
@@ -1050,7 +1051,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       child: TextFormField(
                         readOnly: remainweightReadonly,
                         textInputAction: TextInputAction.go,
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -1058,10 +1059,10 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Remain Weight',
                           labelText: 'Remain Weight',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: remainweightController,
                       ))),
@@ -1077,7 +1078,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                       child: TextFormField(
                         readOnly: palletweightReadonly,
                         textInputAction: TextInputAction.go,
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 13),
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
                           //icon: const Icon(Icons.person),
@@ -1085,83 +1086,99 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
                           filled: true,
                           hintText: 'Enter Pallet Weight',
                           labelText: 'Pallet Weight',
-                          labelStyle: TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(8), //
+                          contentPadding: EdgeInsets.all(6), //
                         ),
                         controller: palletweightController,
                       ))),
               SizedBox(
-                height: 12,
+                height: 6,
               ),
               new Center(
                 child: new ButtonBar(
                   mainAxisSize: MainAxisSize
                       .min, // this will take space as minimum as posible(to center)
                   children: <Widget>[
-                    new RaisedButton(
-                      color: Colors.blue,
-                      child: const Text('History',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      onPressed: historyEnabled
-                          ? () {
-                              // showHistoryDialog();
-                              setDocumentIdSession();
-                              setHistoryAppBarSession();
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => History()));
-                            }
-                          : null,
+                    Container(
+                      width: 70.0,
+                      height: 30.0,
+                      child: new RaisedButton(
+                        color: Colors.blue,
+                        child: const Text('History',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        onPressed: historyEnabled
+                            ? () {
+                                // showHistoryDialog();
+                                setDocumentIdSession();
+                                setHistoryAppBarSession();
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => History()));
+                              }
+                            : null,
+                      ),
                     ),
-                    new RaisedButton(
-                      color: Colors.blue,
-                      child: const Text('Back',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      onPressed: backEnabled
-                          ? () {
-                              back();
-                              setVisible();
-                              setReadOnly();
-                              setColor();
-                              setText();
-                              setFocus();
-                            }
-                          : null,
+                    Container(
+                      width: 70.0,
+                      height: 30.0,
+                      child: new RaisedButton(
+                        color: Colors.blue,
+                        child: const Text('Back',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        onPressed: backEnabled
+                            ? () {
+                                back();
+                                setVisible();
+                                setReadOnly();
+                                setColor();
+                                setText();
+                                setFocus();
+                              }
+                            : null,
+                      ),
                     ),
-                    new RaisedButton(
-                      focusNode: focusNodes[3],
-                      color: Colors.blue,
-                      child: const Text('Submit',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      onPressed: submitEnabled
-                          ? () {
-                              submitReGI();
-                              /*Scaffold.of(context).showSnackBar(
+                    Container(
+                      width: 70.0,
+                      height: 30.0,
+                      child: new RaisedButton(
+                        focusNode: focusNodes[3],
+                        color: step == 3 ? Colors.green : Colors.blue,
+                        child: const Text('Submit',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        onPressed: submitEnabled
+                            ? () {
+                                submitReGI();
+                                /*Scaffold.of(context).showSnackBar(
                                   SnackBar(content: Text('Post Complete')));*/
-                            }
-                          : null,
+                              }
+                            : null,
+                      ),
                     ),
-                    new RaisedButton(
-                      focusNode: focusNodes[4],
-                      color: Colors.blue,
-                      child: const Text('Finish',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      onPressed: finishEnabled
-                          ? () {
-                              finishReGI();
-                            }
-                          : null,
+                    Container(
+                      width: 70.0,
+                      height: 30.0,
+                      child: new RaisedButton(
+                        focusNode: focusNodes[4],
+                        color: step == 4 ? Colors.green : Colors.blue,
+                        child: const Text('Finish',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        onPressed: finishEnabled
+                            ? () {
+                                finishReGI();
+                              }
+                            : null,
+                      ),
                     ),
                   ],
                 ),

@@ -46,11 +46,21 @@ class Setting extends StatelessWidget {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(vertical: 50),
-        child: Column(
-          children: [
-            /*SettingPic(),
+      body: Container(
+        constraints: BoxConstraints.expand(),
+        decoration: BoxDecoration(
+            image: new DecorationImage(
+          image: new AssetImage("assets/Background.jpg"),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+              Colors.white.withOpacity(0.5), BlendMode.dstATop),
+        )),
+        alignment: Alignment.center,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(vertical: 50),
+          child: Column(
+            children: [
+              /*SettingPic(),
             SizedBox(height: 20),
             SettingMenu(
               text: "My Account",
@@ -91,18 +101,19 @@ class Setting extends StatelessWidget {
               ),
               press: () {},
             ),*/
-            SettingMenu(
-              text: "Log Out",
-              icon: Icon(
-                Icons.logout_rounded,
-                size: 40,
-                color: Colors.blue,
+              SettingMenu(
+                text: "Log Out",
+                icon: Icon(
+                  Icons.logout_rounded,
+                  size: 40,
+                  color: Colors.blue,
+                ),
+                press: () {
+                  logoutDialog();
+                },
               ),
-              press: () {
-                logoutDialog();
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
