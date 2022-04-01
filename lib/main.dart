@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'screens/login.dart';
 import 'package:test/routes.dart';
 
-void main() {
+void main() async {
+  await Future.delayed(Duration(seconds: 3));
   runApp(MyApp());
 }
 
