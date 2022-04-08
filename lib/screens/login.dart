@@ -31,6 +31,7 @@ class _LoginState extends State<Login> {
   late Timer timer;
   String configs = '';
   String showMenu = '';
+  String version = '';
 
   late List<FocusNode> focusNodes = List.generate(1, (index) => FocusNode());
   late ResInfoApp resultInfoApp;
@@ -94,7 +95,6 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> checkVersion() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? lastVersion = '';
     var url = Uri.parse(
         'http://192.168.1.49/api/api/configuration/getbyname/VersionApp');
@@ -111,9 +111,7 @@ class _LoginState extends State<Login> {
       });
     }
 
-    print(lastVersion);
-
-    if (prefs.getString('version') == lastVersion) {
+    if (version == lastVersion) {
     } else {
       String type = 'Warning';
       Icon icon = Icon(Icons.info_outline, color: Colors.lightBlue);
@@ -136,17 +134,20 @@ class _LoginState extends State<Login> {
           barrierDismissible: false,
           context: context,
           builder: (BuildContext builderContext) {
-            return AlertDialog(
-              title: Row(children: [icon, Text(" " + type)]),
-              content: Text('Please Update Lastest Version'),
-              actions: <Widget>[
-                new FlatButton(
-                  child: new Text("OK"),
-                  onPressed: () {
-                    launchUrlDownload();
-                  },
-                ),
-              ],
+            return WillPopScope(
+              onWillPop: () async => false,
+              child: AlertDialog(
+                title: Row(children: [icon, Text(" " + type)]),
+                content: Text('Please Update Lastest Version'),
+                actions: <Widget>[
+                  new FlatButton(
+                    child: new Text("OK"),
+                    onPressed: () {
+                      launchUrlDownload();
+                    },
+                  ),
+                ],
+              ),
             );
           }).then((val) {});
     }
@@ -157,9 +158,11 @@ class _LoginState extends State<Login> {
     bool checkConfigsPrefs = prefs.containsKey('configs');
     bool checkQualityPrefs = prefs.containsKey('quality');
     bool checkshowMenuoPrefs = prefs.containsKey('showMenu');
-    bool checkVersion = prefs.containsKey('version');
-    if ((checkConfigsPrefs && checkQualityPrefs) &&
-        (checkshowMenuoPrefs && checkVersion)) {
+
+    setState(() {
+      version = '2.1';
+    });
+    if ((checkConfigsPrefs && checkQualityPrefs) && checkshowMenuoPrefs) {
       setState(() {
         showMenu = prefs.getString('showMenu');
       });
@@ -167,7 +170,6 @@ class _LoginState extends State<Login> {
       prefs.setString('configs', 'http://192.168.1.49:8111');
       prefs.setInt('quality', 35);
       prefs.setString('showMenu', 'Show All Menu');
-      prefs.setString('version', '2.1');
       setState(() {
         showMenu = prefs.getString('showMenu');
       });
