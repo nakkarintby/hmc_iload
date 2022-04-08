@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test/class/datauser.dart';
+import 'package:test/class/resinfoapp.dart';
 import 'package:test/mywidget.dart';
 import 'package:test/screens/main_screen.dart';
 import 'package:test/constants.dart';
@@ -10,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:flutter_session/flutter_session.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Login extends StatefulWidget {
   static String routeName = "/login";
@@ -31,11 +33,123 @@ class _LoginState extends State<Login> {
   String showMenu = '';
 
   late List<FocusNode> focusNodes = List.generate(1, (index) => FocusNode());
+  late ResInfoApp resultInfoApp;
 
   @override
   void initState() {
     super.initState();
     setSharedPrefs();
+    checkVersion();
+  }
+
+  void incorrectUsernameDialog() {
+    //MyWidget.showMyAlertDialog(context, "Error", 'Username Incorrect');
+    alertDialog('Username Incorrect', 'Error');
+  }
+
+  void alertDialog(String msg, String type) {
+    Icon icon = Icon(Icons.info_outline, color: Colors.lightBlue);
+    switch (type) {
+      case "Success":
+        icon = Icon(Icons.check_circle_outline, color: Colors.lightGreen);
+        break;
+      case "Error":
+        icon = Icon(Icons.error_outline, color: Colors.redAccent);
+        break;
+      case "Warning":
+        icon = Icon(Icons.warning_amber_outlined, color: Colors.orangeAccent);
+        break;
+      case "Infomation":
+        icon = Icon(Icons.info_outline, color: Colors.lightBlue);
+        break;
+    }
+
+    showDialog(
+        context: context,
+        builder: (BuildContext builderContext) {
+          timer = Timer(Duration(seconds: 2), () {
+            Navigator.of(context, rootNavigator: true).pop();
+          });
+
+          return AlertDialog(
+            title: Row(children: [icon, Text(" " + type)]),
+            content: Text(msg),
+          );
+        }).then((val) {
+      if (timer.isActive) {
+        timer.cancel();
+      }
+    });
+  }
+
+  Future<void> launchUrlDownload() async {
+    const url = 'http://192.168.1.49/Web/User/DownloadApk';
+
+    //const url = 'https://google.com';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Future<void> checkVersion() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? lastVersion = '';
+    var url = Uri.parse(
+        'http://192.168.1.49/api/api/configuration/getbyname/VersionApp');
+
+    http.Response response = await http.get(url);
+    var data = json.decode(response.body);
+    setState(() {
+      resultInfoApp = ResInfoApp.fromJson(data);
+    });
+
+    if (resultInfoApp != null) {
+      setState(() {
+        lastVersion = resultInfoApp.description;
+      });
+    }
+
+    print(lastVersion);
+
+    if (prefs.getString('version') == lastVersion) {
+    } else {
+      String type = 'Warning';
+      Icon icon = Icon(Icons.info_outline, color: Colors.lightBlue);
+      switch (type) {
+        case "Success":
+          icon = Icon(Icons.check_circle_outline, color: Colors.lightGreen);
+          break;
+        case "Error":
+          icon = Icon(Icons.error_outline, color: Colors.redAccent);
+          break;
+        case "Warning":
+          icon = Icon(Icons.warning_amber_outlined, color: Colors.orangeAccent);
+          break;
+        case "Infomation":
+          icon = Icon(Icons.info_outline, color: Colors.lightBlue);
+          break;
+      }
+
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext builderContext) {
+            return AlertDialog(
+              title: Row(children: [icon, Text(" " + type)]),
+              content: Text('Please Update Lastest Version'),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text("OK"),
+                  onPressed: () {
+                    launchUrlDownload();
+                  },
+                ),
+              ],
+            );
+          }).then((val) {});
+    }
   }
 
   Future<void> setSharedPrefs() async {
@@ -43,7 +157,9 @@ class _LoginState extends State<Login> {
     bool checkConfigsPrefs = prefs.containsKey('configs');
     bool checkQualityPrefs = prefs.containsKey('quality');
     bool checkshowMenuoPrefs = prefs.containsKey('showMenu');
-    if ((checkConfigsPrefs && checkQualityPrefs) && checkshowMenuoPrefs) {
+    bool checkVersion = prefs.containsKey('version');
+    if ((checkConfigsPrefs && checkQualityPrefs) &&
+        (checkshowMenuoPrefs && checkVersion)) {
       setState(() {
         showMenu = prefs.getString('showMenu');
       });
@@ -51,6 +167,7 @@ class _LoginState extends State<Login> {
       prefs.setString('configs', 'http://192.168.1.49:8111');
       prefs.setInt('quality', 35);
       prefs.setString('showMenu', 'Show All Menu');
+      prefs.setString('version', '2.1');
       setState(() {
         showMenu = prefs.getString('showMenu');
       });
@@ -161,46 +278,6 @@ class _LoginState extends State<Login> {
             ],
           );
         });
-  }
-
-  void incorrectUsernameDialog() {
-    //MyWidget.showMyAlertDialog(context, "Error", 'Username Incorrect');
-    alertDialog('Username Incorrect', 'Error');
-  }
-
-  void alertDialog(String msg, String type) {
-    Icon icon = Icon(Icons.info_outline, color: Colors.lightBlue);
-    switch (type) {
-      case "Success":
-        icon = Icon(Icons.check_circle_outline, color: Colors.lightGreen);
-        break;
-      case "Error":
-        icon = Icon(Icons.error_outline, color: Colors.redAccent);
-        break;
-      case "Warning":
-        icon = Icon(Icons.warning_amber_outlined, color: Colors.orangeAccent);
-        break;
-      case "Infomation":
-        icon = Icon(Icons.info_outline, color: Colors.lightBlue);
-        break;
-    }
-
-    showDialog(
-        context: context,
-        builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 2), () {
-            Navigator.of(context, rootNavigator: true).pop();
-          });
-
-          return AlertDialog(
-            title: Row(children: [icon, Text(" " + type)]),
-            content: Text(msg),
-          );
-        }).then((val) {
-      if (timer.isActive) {
-        timer.cancel();
-      }
-    });
   }
 
   Future<void> loginCheck() async {

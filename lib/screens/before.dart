@@ -88,7 +88,7 @@ class _BeforePageState extends State<BeforePage> {
     });
   }
 
-  Future<void> showProgress() async {
+  Future<void> showProgressImageFromCamera() async {
     ProgressDialog pr = ProgressDialog(context);
     pr = ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
@@ -104,9 +104,31 @@ class _BeforePageState extends State<BeforePage> {
             color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
 
     await pr.show();
-    timer = Timer(Duration(seconds: 4), () async {
+    timer = Timer(Duration(seconds: 3), () async {
       await pr.hide();
     });
+  }
+
+  Future<void> showProgressUploadImage(bool finish) async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        progress: 50.0,
+        message: "Please wait...",
+        progressWidget: Container(
+            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
+    if (finish == false) {
+      await pr.show();
+    } else {
+      await pr.hide();
+    }
   }
 
   void setVisible() {
@@ -382,7 +404,7 @@ class _BeforePageState extends State<BeforePage> {
       }
     }
     if (_image != null) {
-      showProgress();
+      showProgressImageFromCamera();
       setState(() {
         step++;
       });
@@ -395,7 +417,7 @@ class _BeforePageState extends State<BeforePage> {
   }
 
   Future<void> upload() async {
-    showProgress();
+    showProgressUploadImage(false);
     int? temp = resultValImage!.sequence;
     int? temp2 = resultValImage!.min;
     int? temp3 = resultValImage!.max;
@@ -431,6 +453,7 @@ class _BeforePageState extends State<BeforePage> {
       body: jsonBody,
       encoding: encoding,
     );
+
     var data = json.decode(response.body);
 
     //check can upload?
@@ -524,6 +547,7 @@ class _BeforePageState extends State<BeforePage> {
     setColor();
     setText();
     setFocus();
+    showProgressUploadImage(true);
   }
 
   Future<void> finish() async {
