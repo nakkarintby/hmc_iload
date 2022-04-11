@@ -11,6 +11,7 @@ import 'package:test/mywidget.dart';
 import 'package:test/screens/history.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class ReLabel extends StatefulWidget {
   const ReLabel({Key? key}) : super(key: key);
@@ -97,6 +98,28 @@ class _ReLabelState extends State<ReLabel> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> showProgressLoading(bool finish) async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        progress: 50.0,
+        message: "Please wait...",
+        progressWidget: Container(
+            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
+    if (finish == false) {
+      await pr.show();
+    } else {
+      await pr.hide();
+    }
   }
 
   Future<void> getSharedPrefs() async {
@@ -540,7 +563,7 @@ class _ReLabelState extends State<ReLabel> {
     showDialog(
         context: context,
         builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 2), () {
+          timer = Timer(Duration(seconds: 5), () {
             Navigator.of(context, rootNavigator: true).pop();
           });
 
@@ -562,6 +585,12 @@ class _ReLabelState extends State<ReLabel> {
     var url =
         Uri.parse(configs + '/api/api/document/validatere/' + documentIdInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests documentCheck ReLabel');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValDocument = ResValidateDocument.fromJson(data);
@@ -589,6 +618,12 @@ class _ReLabelState extends State<ReLabel> {
     var url = Uri.parse(
         configs + '/api/api/location/validatere/' + locationFromInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests locationFromCheck ReLabel');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValLocation = ResValidateLocation.fromJson(data);
@@ -637,6 +672,12 @@ class _ReLabelState extends State<ReLabel> {
         '/' +
         totalpalletweight.toString());
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests grade1Check ReLabel');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -699,6 +740,12 @@ class _ReLabelState extends State<ReLabel> {
         '/' +
         totalpalletweight.toString());
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests grade2Check ReLabel');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -739,6 +786,12 @@ class _ReLabelState extends State<ReLabel> {
     var url =
         Uri.parse(configs + '/api/api/location/validatetr/' + locationToInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests locationToCheck ReLabel');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValLocation = ResValidateLocation.fromJson(data);
@@ -787,6 +840,12 @@ class _ReLabelState extends State<ReLabel> {
         '/' +
         totalpalletweight.toString());
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests grade3Check ReLabel');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -883,6 +942,12 @@ class _ReLabelState extends State<ReLabel> {
         '/' +
         totalpalletweight.toString());
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests grade4Check ReLabel');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -944,6 +1009,7 @@ class _ReLabelState extends State<ReLabel> {
   }
 
   Future<void> finishReLabel() async {
+    await showProgressLoading(false);
     String tempAPI = configs + '/api/api/palletitem/createrelabel';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
@@ -955,6 +1021,13 @@ class _ReLabelState extends State<ReLabel> {
       body: jsonBody,
       encoding: encoding,
     );
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests finishReLabel1 ReLabel');
+      return;
+    }
+
     var data = json.decode(response.body);
     bool result = data;
 
@@ -972,6 +1045,13 @@ class _ReLabelState extends State<ReLabel> {
       body: jsonBody2,
       encoding: encoding2,
     );
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests finishReLabel2 ReLabel');
+      return;
+    }
+
     var data2 = json.decode(response2.body);
     setState(() {
       resultDocument = Document.fromJson(data2);
@@ -990,11 +1070,13 @@ class _ReLabelState extends State<ReLabel> {
       setState(() {
         step = 0;
       });
+      await showProgressLoading(true);
       showSuccessDialog('Scan Complete');
     } else {
       setState(() {
         step = 2;
       });
+      await showProgressLoading(true);
       showSuccessDialog('Post Complete');
     }
 

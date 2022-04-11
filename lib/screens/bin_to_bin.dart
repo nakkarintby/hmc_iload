@@ -11,6 +11,7 @@ import 'package:test/mywidget.dart';
 import 'package:test/screens/history.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class BinToBin extends StatefulWidget {
   const BinToBin({Key? key}) : super(key: key);
@@ -91,6 +92,28 @@ class _BinToBinState extends State<BinToBin> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> showProgressLoading(bool finish) async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        progress: 50.0,
+        message: "Please wait...",
+        progressWidget: Container(
+            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
+    if (finish == false) {
+      await pr.show();
+    } else {
+      await pr.hide();
+    }
   }
 
   Future<void> getSharedPrefs() async {
@@ -458,7 +481,7 @@ class _BinToBinState extends State<BinToBin> {
     showDialog(
         context: context,
         builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 2), () {
+          timer = Timer(Duration(seconds: 5), () {
             Navigator.of(context, rootNavigator: true).pop();
           });
 
@@ -480,6 +503,12 @@ class _BinToBinState extends State<BinToBin> {
     var url = Uri.parse(
         configs + '/api/api/location/validatetr/' + locationFromInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests locationFromCheck Bin-to-Bin');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValLocation = ResValidateLocation.fromJson(data);
@@ -516,6 +545,12 @@ class _BinToBinState extends State<BinToBin> {
         '/' +
         'From');
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests grade1Check Bin-to-Bin');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -566,6 +601,12 @@ class _BinToBinState extends State<BinToBin> {
         '/' +
         'From');
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests grade2Check Bin-to-Bin');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -605,6 +646,12 @@ class _BinToBinState extends State<BinToBin> {
     var url =
         Uri.parse(configs + '/api/api/location/validatetr/' + locationToInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests locationToCheck Bin-to-Bin');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValLocation = ResValidateLocation.fromJson(data);
@@ -643,6 +690,12 @@ class _BinToBinState extends State<BinToBin> {
         '/' +
         'To');
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests grade3Check Bin-to-Bin');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -708,6 +761,12 @@ class _BinToBinState extends State<BinToBin> {
         '/' +
         'To');
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests grade4Check Bin-to-Bin');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -756,6 +815,7 @@ class _BinToBinState extends State<BinToBin> {
   }
 
   Future<void> finishBin() async {
+    await showProgressLoading(false);
     String tempAPI = configs + '/api/api/palletitem/createtransfer';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
@@ -767,15 +827,25 @@ class _BinToBinState extends State<BinToBin> {
       body: jsonBody,
       encoding: encoding,
     );
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests finishBin Bin-to-Bin');
+      return;
+    }
+
     var data = json.decode(response.body);
     bool result = data;
     if (result) {
+      await showProgressLoading(true);
       showSuccessDialog('Scan Complete');
       setState(() {
         step = 0;
       });
     } else {
+      await showProgressLoading(true);
       showErrorDialog('Failed');
+      return;
     }
     setVisible();
     setReadOnly();

@@ -43,11 +43,6 @@ class _LoginState extends State<Login> {
     checkVersion();
   }
 
-  void incorrectUsernameDialog() {
-    //MyWidget.showMyAlertDialog(context, "Error", 'Username Incorrect');
-    alertDialog('Username Incorrect', 'Error');
-  }
-
   void alertDialog(String msg, String type) {
     Icon icon = Icon(Icons.info_outline, color: Colors.lightBlue);
     switch (type) {
@@ -68,7 +63,7 @@ class _LoginState extends State<Login> {
     showDialog(
         context: context,
         builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 2), () {
+          timer = Timer(Duration(seconds: 5), () {
             Navigator.of(context, rootNavigator: true).pop();
           });
 
@@ -81,6 +76,16 @@ class _LoginState extends State<Login> {
         timer.cancel();
       }
     });
+  }
+
+  void showErrorDialog(String error) {
+    //MyWidget.showMyAlertDialog(context, "Error", error);
+    alertDialog(error, 'Error');
+  }
+
+  void showSuccessDialog(String success) {
+    //MyWidget.showMyAlertDialog(context, "Success", success);
+    alertDialog(success, 'Success');
   }
 
   Future<void> launchUrlDownload() async {
@@ -100,6 +105,12 @@ class _LoginState extends State<Login> {
         'http://192.168.1.49/api/api/configuration/getbyname/VersionApp');
 
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests checkVersion');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultInfoApp = ResInfoApp.fromJson(data);
@@ -291,6 +302,12 @@ class _LoginState extends State<Login> {
       var username = usernameController.text;
       var url = Uri.parse(configs + '/api/api/user/validateuser/' + username);
       http.Response response = await http.get(url);
+
+      if (response.statusCode != 200) {
+        showErrorDialog('Error Http Requests loginCheck');
+        return;
+      }
+
       var data = json.decode(response.body);
       DataUser msg = DataUser.fromJson(data);
       var msg_userid = msg.user?.userId;
@@ -311,7 +328,7 @@ class _LoginState extends State<Login> {
         } else {
           _btnController.reset();
           usernameController.text = '';
-          incorrectUsernameDialog();
+          showErrorDialog('Username Incorrect');
         }
       });
     } catch (e) {

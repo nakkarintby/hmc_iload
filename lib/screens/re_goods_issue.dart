@@ -11,6 +11,7 @@ import 'package:test/mywidget.dart';
 import 'package:test/screens/history.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class ReGoodIssue extends StatefulWidget {
   const ReGoodIssue({Key? key}) : super(key: key);
@@ -103,6 +104,28 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> showProgressLoading(bool finish) async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        progress: 50.0,
+        message: "Please wait...",
+        progressWidget: Container(
+            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
+    if (finish == false) {
+      await pr.show();
+    } else {
+      await pr.hide();
+    }
   }
 
   Future<void> getSharedPrefs() async {
@@ -454,7 +477,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
     showDialog(
         context: context,
         builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 2), () {
+          timer = Timer(Duration(seconds: 5), () {
             Navigator.of(context, rootNavigator: true).pop();
           });
 
@@ -476,6 +499,12 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
     var url = Uri.parse(
         configs + '/api/api/document/validateregi/' + documentIdInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests documentIDCheck RE-GI');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValDocument = ResValidateDocument.fromJson(data);
@@ -526,6 +555,12 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
         '/' +
         locationInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests locationCheck RE-GI');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValLocation = ResValidateLocation.fromJson(data);
@@ -581,6 +616,12 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
     }
 
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests gradeCheck RE-GI');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -613,6 +654,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
   }
 
   Future<void> submitReGI() async {
+    await showProgressLoading(false);
     int? temp = resultPalletitem?.materialId;
     String materialIdTemp = temp!.toString();
     String? temp2 = resultPalletitem?.lot;
@@ -630,6 +672,13 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
         '/' +
         palletNoTemp);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests submitReGI1 RE-GI');
+      return;
+    }
+
     var data = json.decode(response.body);
 
     String tempAPI = configs + '/api/';
@@ -639,6 +688,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
     bool siloTemp = temp6!;
 
     if (data != null) {
+      await showProgressLoading(true);
       showErrorDialog("Pallet is Duplicate");
     } else {
       if (palletItemIDtemp == 0) {
@@ -676,6 +726,13 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
         body: jsonBody2,
         encoding: encoding2,
       );
+
+      if (response.statusCode != 200) {
+        await showProgressLoading(true);
+        showErrorDialog('Error Http Requests submitReGI2 RE-GI');
+        return;
+      }
+
       var data2 = json.decode(response2.body);
       setState(() {
         resultPalletitem = Palletitem.fromJson(data2);
@@ -703,6 +760,13 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
           body: jsonBody3,
           encoding: encoding3,
         );
+
+        if (response.statusCode != 200) {
+          await showProgressLoading(true);
+          showErrorDialog('Error Http Requests submitReGI3 RE-GI');
+          return;
+        }
+
         var data3 = json.decode(response3.body);
         setState(() {
           resultDocument = Document.fromJson(data3);
@@ -729,6 +793,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
           step--;
         });
       }
+      await showProgressLoading(true);
       showSuccessDialog('Post Complete');
     }
     setVisible();
@@ -739,6 +804,7 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
   }
 
   Future<void> finishReGI() async {
+    await showProgressLoading(false);
     setState(() {
       resultDocument!.documentStatus = "Scan Completed";
       resultDocument!.modifiedBy = username;
@@ -755,17 +821,26 @@ class _ReGoodIssueState extends State<ReGoodIssue> {
       body: jsonBody,
       encoding: encoding,
     );
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests finishReGI RE-GI');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultDocument = Document.fromJson(data);
     });
 
     if (resultDocument == null) {
+      await showProgressLoading(true);
       showErrorDialog(resultValDocument!.errorMsg.toString());
     } else {
       setState(() {
         step = 0;
       });
+      await showProgressLoading(true);
       showSuccessDialog('Scan Complete');
     }
     setVisible();

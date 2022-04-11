@@ -109,7 +109,7 @@ class _SecurityPageState extends State<SecurityPage> {
     });
   }
 
-  Future<void> showProgressUploadImage(bool finish) async {
+  Future<void> showProgressLoading(bool finish) async {
     ProgressDialog pr = ProgressDialog(context);
     pr = ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
@@ -277,7 +277,7 @@ class _SecurityPageState extends State<SecurityPage> {
     showDialog(
         context: context,
         builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 2), () {
+          timer = Timer(Duration(seconds: 5), () {
             Navigator.of(context, rootNavigator: true).pop();
           });
 
@@ -314,6 +314,12 @@ class _SecurityPageState extends State<SecurityPage> {
         '/' +
         eventType);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests documentIDCheck Security');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValImage = ResValidateImage.fromJson(data);
@@ -417,7 +423,7 @@ class _SecurityPageState extends State<SecurityPage> {
   }
 
   Future<void> upload() async {
-    showProgressUploadImage(false);
+    await showProgressLoading(false);
     int? temp = resultValImage!.sequence;
     int? temp2 = resultValImage!.min;
     int? temp3 = resultValImage!.max;
@@ -454,6 +460,12 @@ class _SecurityPageState extends State<SecurityPage> {
       encoding: encoding,
     );
 
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests upload1 Security');
+      return;
+    }
+
     var data = json.decode(response.body);
 
     //check can upload?
@@ -463,6 +475,13 @@ class _SecurityPageState extends State<SecurityPage> {
         '/' +
         eventType);
     http.Response response2 = await http.get(url2);
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests upload2 Security');
+      return;
+    }
+
     var data2 = json.decode(response2.body);
     setState(() {
       resultValImage = ResValidateImage.fromJson(data2);
@@ -470,6 +489,7 @@ class _SecurityPageState extends State<SecurityPage> {
     });
 
     if (resultDocument == null) {
+      await showProgressLoading(true);
       showErrorDialog(resultValImage!.errorMsg.toString());
     } else {
       bool? temp1 = resultValImage?.canUpload;
@@ -520,10 +540,11 @@ class _SecurityPageState extends State<SecurityPage> {
     setColor();
     setText();
     setFocus();
-    showProgressUploadImage(true);
+    await showProgressLoading(true);
   }
 
   Future<void> finish() async {
+    await showProgressLoading(false);
     setState(() {
       //resultDocument!.documentStatus = "In Progress";
       resultDocument!.modifiedBy = username;
@@ -540,17 +561,26 @@ class _SecurityPageState extends State<SecurityPage> {
       body: jsonBody,
       encoding: encoding,
     );
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests finish Security');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultDocument = Document.fromJson(data);
     });
 
     if (resultDocument == null) {
+      await showProgressLoading(true);
       showErrorDialog("Error Update Status Document");
     } else {
       setState(() {
         step = 0;
       });
+      await showProgressLoading(true);
       showSuccessDialog('Upload Complete');
     }
     setVisible();

@@ -13,6 +13,7 @@ import 'package:test/screens/history.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
 import 'package:input_with_keyboard_control/input_with_keyboard_control.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class GoodReceived extends StatefulWidget {
   const GoodReceived({Key? key}) : super(key: key);
@@ -106,6 +107,28 @@ class _GoodReceivedState extends State<GoodReceived> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> showProgressLoading(bool finish) async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        progress: 50.0,
+        message: "Please wait...",
+        progressWidget: Container(
+            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
+    if (finish == false) {
+      await pr.show();
+    } else {
+      await pr.hide();
+    }
   }
 
   Future<void> getSharedPrefs() async {
@@ -445,7 +468,7 @@ class _GoodReceivedState extends State<GoodReceived> {
     showDialog(
         context: context,
         builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 2), () {
+          timer = Timer(Duration(seconds: 5), () {
             Navigator.of(context, rootNavigator: true).pop();
           });
 
@@ -467,6 +490,12 @@ class _GoodReceivedState extends State<GoodReceived> {
     var url =
         Uri.parse(configs + '/api/api/document/validategr/' + documentIdInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests documentIDCheck GR');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValDocument = ResValidateDocument.fromJson(data);
@@ -510,6 +539,12 @@ class _GoodReceivedState extends State<GoodReceived> {
         '/' +
         locationInput);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests locationCheck GR');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValLocation = ResValidateLocation.fromJson(data);
@@ -546,6 +581,12 @@ class _GoodReceivedState extends State<GoodReceived> {
         '/' +
         binIdTemp.toString());
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests gradeCheck GR');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultValPallet = ResValidatePalletitem.fromJson(data);
@@ -578,6 +619,7 @@ class _GoodReceivedState extends State<GoodReceived> {
   }
 
   Future<void> submitGR() async {
+    await showProgressLoading(false);
     int? temp = resultPalletitem?.materialId;
     String materialIdTemp = temp!.toString();
     String? temp2 = resultPalletitem?.lot;
@@ -595,6 +637,13 @@ class _GoodReceivedState extends State<GoodReceived> {
         '/' +
         palletNoTemp);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests submitGR1 GR');
+      return;
+    }
+
     var data = json.decode(response.body);
 
     String tempAPI = configs + '/api/';
@@ -604,6 +653,7 @@ class _GoodReceivedState extends State<GoodReceived> {
     bool siloTemp = temp6!;
 
     if (data != null) {
+      await showProgressLoading(true);
       showErrorDialog("Pallet is Duplicate");
     } else {
       if (palletItemIDtemp == 0) {
@@ -645,6 +695,13 @@ class _GoodReceivedState extends State<GoodReceived> {
         body: jsonBody2,
         encoding: encoding2,
       );
+
+      if (response.statusCode != 200) {
+        await showProgressLoading(true);
+        showErrorDialog('Error Http Requests submitGR2 GR');
+        return;
+      }
+
       var data2 = json.decode(response2.body);
       setState(() {
         resultPalletitem = Palletitem.fromJson(data2);
@@ -672,6 +729,12 @@ class _GoodReceivedState extends State<GoodReceived> {
           body: jsonBody3,
           encoding: encoding3,
         );
+
+        if (response.statusCode != 200) {
+          await showProgressLoading(true);
+          showErrorDialog('Error Http Requests submitGR3 GR');
+          return;
+        }
         var data3 = json.decode(response3.body);
         setState(() {
           resultDocument = Document.fromJson(data3);
@@ -698,6 +761,7 @@ class _GoodReceivedState extends State<GoodReceived> {
           step--;
         });
       }
+      await showProgressLoading(true);
       showSuccessDialog('Post Complete');
     }
     setVisible();
@@ -708,6 +772,7 @@ class _GoodReceivedState extends State<GoodReceived> {
   }
 
   Future<void> finishGR() async {
+    await showProgressLoading(false);
     setState(() {
       resultDocument!.documentStatus = "Scan Completed";
       resultDocument!.modifiedBy = username;
@@ -724,17 +789,26 @@ class _GoodReceivedState extends State<GoodReceived> {
       body: jsonBody,
       encoding: encoding,
     );
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests finishGR GR');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultDocument = Document.fromJson(data);
     });
 
     if (resultDocument == null) {
+      await showProgressLoading(true);
       showErrorDialog(resultValDocument!.errorMsg.toString());
     } else {
       setState(() {
         step = 0;
       });
+      await showProgressLoading(true);
       showSuccessDialog('Scan Complete');
     }
     setVisible();

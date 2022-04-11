@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/resvalidatepalletitem.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class History extends StatefulWidget {
   @override
@@ -48,6 +49,28 @@ class _HistoryState extends State<History> {
     setText();
     setFocus();
     onload();
+  }
+
+  Future<void> showProgressLoading(bool finish) async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        progress: 50.0,
+        message: "Please wait...",
+        progressWidget: Container(
+            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
+    if (finish == false) {
+      await pr.show();
+    } else {
+      await pr.hide();
+    }
   }
 
   void setVisible() {
@@ -127,6 +150,12 @@ class _HistoryState extends State<History> {
     });
     var url = Uri.parse(configs + '/api/api/palletitem/getbydoc/' + documentId);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests onload History');
+      return;
+    }
+
     //var data = json.decode(response.body) as List;
     setState(() {
       listHistoryPalletitem = (json.decode(response.body) as List)
@@ -165,7 +194,7 @@ class _HistoryState extends State<History> {
     showDialog(
         context: context,
         builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 2), () {
+          timer = Timer(Duration(seconds: 5), () {
             Navigator.of(context, rootNavigator: true).pop();
           });
 
@@ -192,6 +221,12 @@ class _HistoryState extends State<History> {
         '/' +
         gradeInputCancle);
     http.Response response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      showErrorDialog('Error Http Requests gradeCancelCheck History');
+      return;
+    }
+
     var data = json.decode(response.body);
 
     setState(() {
@@ -214,6 +249,7 @@ class _HistoryState extends State<History> {
   }
 
   Future<void> cancelHistory() async {
+    await showProgressLoading(false);
     resultPalletCheckCancel!.isDeleted = true;
     String tempAPI = configs + '/api/api/palletitem/updateandpost/';
     final uri = Uri.parse(tempAPI);
@@ -226,12 +262,19 @@ class _HistoryState extends State<History> {
       body: jsonBody,
       encoding: encoding,
     );
+
+    if (response.statusCode != 200) {
+      await showProgressLoading(true);
+      showErrorDialog('Error Http Requests cancelHistory History');
+      return;
+    }
+
     var data = json.decode(response.body);
     setState(() {
       resultPalletCheckCancel = Palletitem.fromJson(data);
       step = 0;
     });
-
+    await showProgressLoading(true);
     showSuccessDialog('Cancel Order Complete');
     onload();
     setVisible();
