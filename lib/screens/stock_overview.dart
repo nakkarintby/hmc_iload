@@ -10,7 +10,6 @@ import 'package:test/mywidget.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 
 class StockOverviewPage extends StatefulWidget {
   @override
@@ -40,28 +39,6 @@ class _StockOverviewPage extends State<StockOverviewPage> {
       step = 0;
     });
     setFocus();
-  }
-
-  Future<void> showProgressLoading(bool finish) async {
-    ProgressDialog pr = ProgressDialog(context);
-    pr = ProgressDialog(context,
-        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
-    pr.style(
-        progress: 50.0,
-        message: "Please wait...",
-        progressWidget: Container(
-            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
-        maxProgress: 100.0,
-        progressTextStyle: TextStyle(
-            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
-        messageTextStyle: TextStyle(
-            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
-
-    if (finish == false) {
-      await pr.show();
-    } else {
-      await pr.hide();
-    }
   }
 
   Future<void> getSharedPrefs() async {
@@ -101,7 +78,7 @@ class _StockOverviewPage extends State<StockOverviewPage> {
     showDialog(
         context: context,
         builder: (BuildContext builderContext) {
-          timer = Timer(Duration(seconds: 5), () {
+          timer = Timer(Duration(seconds: 2), () {
             Navigator.of(context, rootNavigator: true).pop();
           });
 
@@ -124,13 +101,11 @@ class _StockOverviewPage extends State<StockOverviewPage> {
   }
 
   Future<void> searchStock() async {
-    await showProgressLoading(false);
     try {
       var value = locationController.text.trim();
 
       if (value.length == 0) {
         //MyWidget.showMyAlertDialog(context, "Error", "Invalid Input");
-        await showProgressLoading(true);
         showErrorDialog("Invalid Input");
         return;
       }
@@ -138,35 +113,23 @@ class _StockOverviewPage extends State<StockOverviewPage> {
       var url = Uri.parse(
           configs + '/api/api//viewstockoverviewpage/getbybin/' + value);
       http.Response response = await http.get(url);
-
-      if (response.statusCode != 200) {
-        await showProgressLoading(true);
-        showErrorDialog('Error Http Requests searchStock StockOverview');
-        return;
-      }
-
       //var data = json.decode(response.body);
 
-      setState(() async {
+      setState(() {
         Iterable data = json.decode(response.body);
         datalist = List<StockOView>.from(
             data.map((model) => StockOView.fromJson(model)));
 
         if (datalist.length == 0) {
           //MyWidget.showMyAlertDialog(context, "Error", "Data not found");
-          await showProgressLoading(true);
           showErrorDialog('Data not found');
-          return;
         }
       });
     } catch (e) {
       //MyWidget.showMyAlertDialog(
       //context, "Error", e.toString() + "#E10 Server cannot be connected");
-      await showProgressLoading(true);
       showErrorDialog(e.toString() + "#E10 Server cannot be connected");
-      return;
     }
-    await showProgressLoading(true);
   }
 
   SfDataGrid _createDataTable() {
