@@ -780,6 +780,8 @@ class _SplitState extends State<Split> {
       showSuccessDialog('Scan Complete');
       setState(() {
         step = 0;
+        weight1Input = '';
+        weight2Input = '';
       });
     } else {
       await showProgressLoading(true);

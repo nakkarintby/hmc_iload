@@ -866,6 +866,9 @@ class _DamageState extends State<Damage> {
 
       setState(() {
         step = 0;
+        weight1Input = '';
+        weight2Input = '';
+        weight3Input = '';
       });
     } else {
       await showProgressLoading(true);
