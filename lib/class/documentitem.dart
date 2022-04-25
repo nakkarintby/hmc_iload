@@ -10,7 +10,7 @@ class DocumentItem {
   double? totalWeight;
   double? amount;
   int? unitId;
-  Null? remark;
+  dynamic remark;
   int? productionLineId;
   int? qty;
   bool? tracking;

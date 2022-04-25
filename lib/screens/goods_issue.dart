@@ -12,6 +12,7 @@ import 'package:test/screens/history.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class GoodIssue extends StatefulWidget {
   const GoodIssue({Key? key}) : super(key: key);
@@ -90,10 +91,12 @@ class _GoodIssueState extends State<GoodIssue> {
   late Timer timer;
 
   String configs = '';
+  String deviceInfo = '';
 
   @override
   void initState() {
     super.initState();
+    getDeviceInfo();
     getSharedPrefs();
     getSession();
     setState(() {
@@ -104,6 +107,18 @@ class _GoodIssueState extends State<GoodIssue> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> getDeviceInfo() async {
+    DeviceInfoPlugin device = DeviceInfoPlugin();
+    // Android
+    AndroidDeviceInfo info = await device.androidInfo;
+    //print(info.brand);
+    //print(info.device.toString());
+    //print(info.id);
+    setState(() {
+      deviceInfo = info.device.toString();
+    });
   }
 
   Future<void> showProgressLoading(bool finish) async {
@@ -654,6 +669,10 @@ class _GoodIssueState extends State<GoodIssue> {
   }
 
   Future<void> submitGI() async {
+    print("disable submit");
+    setState(() {
+      submitEnabled = false;
+    });
     await showProgressLoading(false);
     int? temp = resultPalletitem?.materialId;
     String materialIdTemp = temp!.toString();
@@ -671,6 +690,7 @@ class _GoodIssueState extends State<GoodIssue> {
         lotTemp +
         '/' +
         palletNoTemp);
+    print("call get api checkup palletitem");
     http.Response response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -678,6 +698,7 @@ class _GoodIssueState extends State<GoodIssue> {
       showErrorDialog('Error Http Requests submitGI1 GI');
       return;
     }
+    print("success call get api checkup palletitem");
 
     var data = json.decode(response.body);
 
@@ -698,6 +719,7 @@ class _GoodIssueState extends State<GoodIssue> {
           resultPalletitem!.scanOn = a.toString();
           resultPalletitem!.scanBy = username;
           resultPalletitem!.createdBy = username;
+          resultPalletitem!.deviceInfo = deviceInfo;
         });
 
         if (siloTemp) {
@@ -712,6 +734,7 @@ class _GoodIssueState extends State<GoodIssue> {
           resultPalletitem!.scanOn = a.toString();
           resultPalletitem!.scanBy = username;
           resultPalletitem!.modifiedBy = username;
+          resultPalletitem!.deviceInfo = deviceInfo;
         });
         tempAPI += 'api/palletitem/updateandpost';
       }
@@ -720,6 +743,7 @@ class _GoodIssueState extends State<GoodIssue> {
       final headers2 = {'Content-Type': 'application/json'};
       var jsonBody2 = jsonEncode(resultPalletitem?.toJson());
       final encoding2 = Encoding.getByName('utf-8');
+      print("call post api updateandpost palletitem");
       http.Response response2 = await http.post(
         uri2,
         headers: headers2,
@@ -733,6 +757,7 @@ class _GoodIssueState extends State<GoodIssue> {
         return;
       }
 
+      print("success call post api updateandpost palletitem");
       var data2 = json.decode(response2.body);
       setState(() {
         resultPalletitem = Palletitem.fromJson(data2);
@@ -753,6 +778,7 @@ class _GoodIssueState extends State<GoodIssue> {
       final headers3 = {'Content-Type': 'application/json'};
       var jsonBody3 = jsonEncode(resultDocument?.toJson());
       final encoding3 = Encoding.getByName('utf-8');
+      print("call post api update document when first post");
       http.Response response3 = await http.post(
         uri3,
         headers: headers3,
@@ -765,7 +791,7 @@ class _GoodIssueState extends State<GoodIssue> {
         showErrorDialog('Error Http Requests submitGI3 GI');
         return;
       }
-
+      print("success call post api update document when first post");
       var data3 = json.decode(response3.body);
       setState(() {
         resultDocument = Document.fromJson(data3);
@@ -802,6 +828,10 @@ class _GoodIssueState extends State<GoodIssue> {
   }
 
   Future<void> finishGI() async {
+    print("disable finish");
+    setState(() {
+      finishEnabled = false;
+    });
     await showProgressLoading(false);
     setState(() {
       resultDocument!.documentStatus = "Scan Completed";
@@ -813,6 +843,7 @@ class _GoodIssueState extends State<GoodIssue> {
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(resultDocument?.toJson());
     final encoding = Encoding.getByName('utf-8');
+    print("call post api update document when finish");
     http.Response response = await http.post(
       uri,
       headers: headers,
@@ -825,6 +856,8 @@ class _GoodIssueState extends State<GoodIssue> {
       showErrorDialog('Error Http Requests finishGI GI');
       return;
     }
+
+    print("success call post api update document when finish");
 
     var data = json.decode(response.body);
     setState(() {

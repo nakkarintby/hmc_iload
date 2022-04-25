@@ -8,6 +8,7 @@ import 'package:test/class/resvalidatepalletitem.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class History extends StatefulWidget {
   @override
@@ -35,10 +36,12 @@ class _HistoryState extends State<History> {
   String gradeInputCancle = '';
   late List<FocusNode> focusNodes = List.generate(2, (index) => FocusNode());
   String configs = '';
+  String deviceInfo = '';
 
   @override
   void initState() {
     super.initState();
+    getDeviceInfo();
     getSharedPrefs();
     setState(() {
       step = 0;
@@ -49,6 +52,18 @@ class _HistoryState extends State<History> {
     setText();
     setFocus();
     onload();
+  }
+
+  Future<void> getDeviceInfo() async {
+    DeviceInfoPlugin device = DeviceInfoPlugin();
+    // Android
+    AndroidDeviceInfo info = await device.androidInfo;
+    //print(info.brand);
+    //print(info.device.toString());
+    //print(info.id);
+    setState(() {
+      deviceInfo = info.device.toString();
+    });
   }
 
   Future<void> showProgressLoading(bool finish) async {
@@ -220,12 +235,15 @@ class _HistoryState extends State<History> {
         documentId +
         '/' +
         gradeInputCancle);
+    print("call get api cancel palletitem");
     http.Response response = await http.get(url);
 
     if (response.statusCode != 200) {
       showErrorDialog('Error Http Requests gradeCancelCheck History');
       return;
     }
+
+    print("success call get api cancel palletitem");
 
     var data = json.decode(response.body);
 
@@ -249,13 +267,21 @@ class _HistoryState extends State<History> {
   }
 
   Future<void> cancelHistory() async {
+    print("disable cancel");
+    setState(() {
+      cancelHistoryEnabled = false;
+    });
     await showProgressLoading(false);
-    resultPalletCheckCancel!.isDeleted = true;
+    setState(() {
+      resultPalletCheckCancel!.isDeleted = true;
+      resultPalletCheckCancel!.deviceInfo = deviceInfo;
+    });
     String tempAPI = configs + '/api/api/palletitem/updateandpost/';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(resultPalletCheckCancel?.toJson());
     final encoding = Encoding.getByName('utf-8');
+    print("call post api cancel palletitem");
     http.Response response = await http.post(
       uri,
       headers: headers,
@@ -268,6 +294,8 @@ class _HistoryState extends State<History> {
       showErrorDialog('Error Http Requests cancelHistory History');
       return;
     }
+
+    print("success call post api cancel palletitem");
 
     var data = json.decode(response.body);
     setState(() {

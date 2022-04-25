@@ -12,6 +12,7 @@ import 'package:test/screens/history.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class BinToBin extends StatefulWidget {
   const BinToBin({Key? key}) : super(key: key);
@@ -78,10 +79,12 @@ class _BinToBinState extends State<BinToBin> {
   late Timer timer;
 
   String configs = '';
+  String deviceInfo = '';
 
   @override
   void initState() {
     super.initState();
+    getDeviceInfo();
     getSharedPrefs();
     getSession();
     setState(() {
@@ -92,6 +95,18 @@ class _BinToBinState extends State<BinToBin> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> getDeviceInfo() async {
+    DeviceInfoPlugin device = DeviceInfoPlugin();
+    // Android
+    AndroidDeviceInfo info = await device.androidInfo;
+    //print(info.brand);
+    //print(info.device.toString());
+    //print(info.id);
+    setState(() {
+      deviceInfo = info.device.toString();
+    });
   }
 
   Future<void> showProgressLoading(bool finish) async {
@@ -575,6 +590,7 @@ class _BinToBinState extends State<BinToBin> {
         resultPalletitem!.scanBy = username;
         resultPalletitem!.createdBy = username;
         resultPalletitem!.gradeLabel = gradeLabel1Input;
+        resultPalletitem!.deviceInfo = deviceInfo;
         listPalletitem.add(resultPalletitem);
       });
     }
@@ -629,6 +645,7 @@ class _BinToBinState extends State<BinToBin> {
         resultPalletitem!.scanBy = username;
         resultPalletitem!.createdBy = username;
         resultPalletitem!.gradeLabel = gradeLabel2Input;
+        resultPalletitem!.deviceInfo = deviceInfo;
         listPalletitem.add(resultPalletitem);
       });
     }
@@ -734,6 +751,7 @@ class _BinToBinState extends State<BinToBin> {
         resultPalletitem!.scanBy = username;
         resultPalletitem!.createdBy = username;
         resultPalletitem!.gradeLabel = gradeLabel3Input;
+        resultPalletitem!.deviceInfo = deviceInfo;
         listPalletitem.add(resultPalletitem);
       });
     }
@@ -803,6 +821,7 @@ class _BinToBinState extends State<BinToBin> {
         resultPalletitem!.scanBy = username;
         resultPalletitem!.createdBy = username;
         resultPalletitem!.gradeLabel = gradeLabel4Input;
+        resultPalletitem!.deviceInfo = deviceInfo;
         listPalletitem.add(resultPalletitem);
       });
     }
@@ -815,12 +834,17 @@ class _BinToBinState extends State<BinToBin> {
   }
 
   Future<void> finishBin() async {
+    print("disable finish");
+    setState(() {
+      finishEnabled = false;
+    });
     await showProgressLoading(false);
     String tempAPI = configs + '/api/api/palletitem/createtransfer';
     final uri = Uri.parse(tempAPI);
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(listPalletitem);
     final encoding = Encoding.getByName('utf-8');
+    print("call post api transfer palletitem");
     http.Response response = await http.post(
       uri,
       headers: headers,
@@ -833,6 +857,8 @@ class _BinToBinState extends State<BinToBin> {
       showErrorDialog('Error Http Requests finishBin Bin-to-Bin');
       return;
     }
+
+    print("success call post api transfer palletitem");
 
     var data = json.decode(response.body);
     bool result = data;

@@ -8,6 +8,7 @@ class ImagePic {
   String? createdOn;
   String? modifiedBy;
   String? modifiedOn;
+  String? deviceInfo;
 
   ImagePic(
       {this.documentId,
@@ -18,7 +19,8 @@ class ImagePic {
       this.createdBy,
       this.createdOn,
       this.modifiedBy,
-      this.modifiedOn});
+      this.modifiedOn,
+      this.deviceInfo});
 
   ImagePic.fromJson(Map<String, dynamic> json) {
     documentId = json['DocumentId'];
@@ -30,6 +32,7 @@ class ImagePic {
     createdOn = json['CreatedOn'];
     modifiedBy = json['ModifiedBy'];
     modifiedOn = json['ModifiedOn'];
+    deviceInfo = json['DeviceInfo'];
   }
 
   Map<String, dynamic> toJson() {
@@ -43,6 +46,7 @@ class ImagePic {
     data['CreatedOn'] = this.createdOn;
     data['ModifiedBy'] = this.modifiedBy;
     data['ModifiedOn'] = this.modifiedOn;
+    data['DeviceInfo'] = this.deviceInfo;
     return data;
   }
 }

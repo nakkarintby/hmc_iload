@@ -12,7 +12,6 @@ import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:flutter_session/flutter_session.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 class Login extends StatefulWidget {
   static String routeName = "/login";
@@ -101,14 +100,6 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> checkVersion() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
-    // Android
-    AndroidDeviceInfo info = await deviceInfo.androidInfo;
-    print(info.brand);
-    print(info.device);
-    print(info.id);
-
     String? lastVersion = '';
     var url = Uri.parse(
         'http://192.168.1.49/api/api/configuration/getbyname/VersionApp');
@@ -180,7 +171,7 @@ class _LoginState extends State<Login> {
     bool checkshowMenuoPrefs = prefs.containsKey('showMenu');
 
     setState(() {
-      version = '2.1';
+      version = '2.2';
     });
     if ((checkConfigsPrefs && checkQualityPrefs) && checkshowMenuoPrefs) {
       setState(() {

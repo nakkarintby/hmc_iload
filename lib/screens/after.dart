@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/image.dart';
 import 'package:test/class/resvalidateimage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class AfterPage extends StatefulWidget {
   @override
@@ -52,6 +53,7 @@ class _AfterPageState extends State<AfterPage> {
   late Document? resultDocument;
 
   String configs = '';
+  String deviceInfo = '';
   int quality = 0;
 
   int sequence = 0;
@@ -61,6 +63,7 @@ class _AfterPageState extends State<AfterPage> {
   @override
   void initState() {
     super.initState();
+    getDeviceInfo();
     getSharedPrefs();
     getSession();
     setState(() {
@@ -71,6 +74,18 @@ class _AfterPageState extends State<AfterPage> {
     setColor();
     setText();
     setFocus();
+  }
+
+  Future<void> getDeviceInfo() async {
+    DeviceInfoPlugin device = DeviceInfoPlugin();
+    // Android
+    AndroidDeviceInfo info = await device.androidInfo;
+    //print(info.brand);
+    //print(info.device.toString());
+    //print(info.id);
+    setState(() {
+      deviceInfo = info.device.toString();
+    });
   }
 
   Future<void> getSharedPrefs() async {
@@ -423,6 +438,10 @@ class _AfterPageState extends State<AfterPage> {
   }
 
   Future<void> upload() async {
+    print("disable upload");
+    setState(() {
+      uploadEnabled = false;
+    });
     await showProgressLoading(false);
     int? temp = resultValImage!.sequence;
     int? temp2 = resultValImage!.min;
@@ -445,6 +464,7 @@ class _AfterPageState extends State<AfterPage> {
         imagePic!.createdOn = resultDocument!.createdOn;
         imagePic!.modifiedBy = username;
         imagePic!.modifiedOn = a.toString();
+        imagePic!.deviceInfo = deviceInfo;
       });
     }
 
@@ -453,6 +473,7 @@ class _AfterPageState extends State<AfterPage> {
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(imagePic);
     final encoding = Encoding.getByName('utf-8');
+    print("call post api upload image after");
     http.Response response = await http.post(
       uri,
       headers: headers,
@@ -466,6 +487,7 @@ class _AfterPageState extends State<AfterPage> {
       return;
     }
 
+    print("success call post api upload image after");
     var data = json.decode(response.body);
 
     //check can upload?
@@ -474,6 +496,7 @@ class _AfterPageState extends State<AfterPage> {
         documentIdInput +
         '/' +
         eventType);
+    print("call get api check upload image after");
     http.Response response2 = await http.get(url2);
 
     if (response.statusCode != 200) {
@@ -481,6 +504,8 @@ class _AfterPageState extends State<AfterPage> {
       showErrorDialog('Error Http Requests upload2 After');
       return;
     }
+
+    print("success call get api check upload image after");
 
     var data2 = json.decode(response2.body);
     setState(() {
@@ -544,6 +569,10 @@ class _AfterPageState extends State<AfterPage> {
   }
 
   Future<void> finish() async {
+    print("disable finish");
+    setState(() {
+      finishEnabled = false;
+    });
     await showProgressLoading(false);
     setState(() {
       //resultDocument!.documentStatus = "In Progress";
@@ -555,6 +584,7 @@ class _AfterPageState extends State<AfterPage> {
     final headers = {'Content-Type': 'application/json'};
     var jsonBody = jsonEncode(resultDocument?.toJson());
     final encoding = Encoding.getByName('utf-8');
+    print("call post api update document when finish");
     http.Response response = await http.post(
       uri,
       headers: headers,
@@ -567,6 +597,8 @@ class _AfterPageState extends State<AfterPage> {
       showErrorDialog('Error Http Requests finish After');
       return;
     }
+
+    print("success call post api update document when finish");
 
     var data = json.decode(response.body);
     setState(() {

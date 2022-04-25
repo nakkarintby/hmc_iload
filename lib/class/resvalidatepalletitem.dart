@@ -65,10 +65,11 @@ class Palletitem {
   String? modifiedBy;
   String? modifiedOn;
   String? gradeLabel;
-  Null? reprintBy;
-  Null? reprintOn;
-  Null? damageBy;
-  dynamic? entityKey;
+  dynamic reprintBy;
+  dynamic reprintOn;
+  dynamic damageBy;
+  dynamic entityKey;
+  String? deviceInfo;
 
   Palletitem(
       {this.id,
@@ -95,7 +96,8 @@ class Palletitem {
       this.reprintBy,
       this.reprintOn,
       this.damageBy,
-      this.entityKey});
+      this.entityKey,
+      this.deviceInfo});
 
   Palletitem.fromJson(Map<String, dynamic> json) {
     id = json['$id'];
@@ -123,6 +125,7 @@ class Palletitem {
     reprintOn = json['ReprintOn'];
     damageBy = json['DamageBy'];
     entityKey = json['EntityKey'];
+    deviceInfo = json['DeviceInfo'];
   }
 
   Map<String, dynamic> toJson() {
@@ -152,6 +155,7 @@ class Palletitem {
     data['ReprintOn'] = this.reprintOn;
     data['DamageBy'] = this.damageBy;
     data['EntityKey'] = this.entityKey;
+    data['DeviceInfo'] = this.deviceInfo;
     return data;
   }
 }
