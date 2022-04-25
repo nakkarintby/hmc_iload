@@ -110,14 +110,29 @@ class _GoodIssueState extends State<GoodIssue> {
   }
 
   Future<void> getDeviceInfo() async {
-    DeviceInfoPlugin device = DeviceInfoPlugin();
+    //DeviceInfoPlugin device = DeviceInfoPlugin();
     // Android
-    AndroidDeviceInfo info = await device.androidInfo;
+    //AndroidDeviceInfo info = await device.androidInfo;
     //print(info.brand);
     //print(info.device.toString());
     //print(info.id);
+    var androidInfo = await DeviceInfoPlugin().androidInfo;
+    var release = androidInfo.version.release;
+    var sdkInt = androidInfo.version.sdkInt;
+    var manufacturer = androidInfo.manufacturer;
+    var model = androidInfo.model;
+    var ans = 'Android ' +
+        release.toString() +
+        ' (SDK ' +
+        sdkInt.toString() +
+        '), ' +
+        manufacturer.toString() +
+        ' ' +
+        model.toString();
+    print(ans);
+    // Android 9 (SDK 28), Xiaomi Redmi Note 7
     setState(() {
-      deviceInfo = info.device.toString();
+      deviceInfo = ans;
     });
   }
 
