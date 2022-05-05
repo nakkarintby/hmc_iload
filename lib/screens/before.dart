@@ -423,8 +423,14 @@ class _BeforePageState extends State<BeforePage> {
           final encodedBytes = _image!.readAsBytesSync();
           fileInBase64 = base64Encode(encodedBytes);
         });
+
+        //print size, width. height image[]
         double news = fileInBase64.length / (1024 * 1024);
         print('Base64 : ' + news.toString() + ' MB');
+
+        var decodedImage = await decodeImageFromList(_image!.readAsBytesSync());
+        print('Width : ' + decodedImage.width.toString());
+        print('Heght : ' + decodedImage.height.toString());
 
         //decode base64
         /*
