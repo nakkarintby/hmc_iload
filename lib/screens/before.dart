@@ -14,6 +14,7 @@ import 'package:test/class/image.dart';
 import 'package:test/class/resvalidateimage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:image/image.dart' as img;
 
 class BeforePage extends StatefulWidget {
   @override
@@ -412,7 +413,10 @@ class _BeforePageState extends State<BeforePage> {
       fileInBase64 = '';
     });
     PickedFile? selectedImage = await _picker.getImage(
-        source: ImageSource.camera, imageQuality: quality);
+        source: ImageSource.camera,
+        imageQuality: quality,
+        maxHeight: 2000,
+        maxWidth: 2000);
     File? temp;
     if (selectedImage != null) {
       temp = File(selectedImage.path);
@@ -429,8 +433,32 @@ class _BeforePageState extends State<BeforePage> {
         print('Base64 : ' + news.toString() + ' MB');
 
         var decodedImage = await decodeImageFromList(_image!.readAsBytesSync());
-        print('Width : ' + decodedImage.width.toString());
-        print('Heght : ' + decodedImage.height.toString());
+        print('Original Width : ' + decodedImage.width.toString());
+        print('Original Heght : ' + decodedImage.height.toString());
+
+        //resize
+        img.Image? image = img.decodeImage(temp.readAsBytesSync());
+        var resizedImage = img.copyResize(image!, height: 120, width: 120);
+
+        //Get a path to save the resized file
+        final directory = await getApplicationDocumentsDirectory();
+        String path = directory.path;
+
+        // Save file
+        File resizedFile = File('$path/resizedImage.jpg')
+          ..writeAsBytesSync(img.encodePng(resizedImage));
+
+        var decodedImage2 =
+            await decodeImageFromList(resizedFile.readAsBytesSync());
+        print('Resize Width : ' + decodedImage2.width.toString());
+        print('Resize Heght : ' + decodedImage2.height.toString());
+
+        final encodedBytes2 = resizedFile.readAsBytesSync();
+        String fileResizeInBase64 = base64Encode(encodedBytes2);
+
+        //print size, width. height image[]
+        double news2 = fileResizeInBase64.length / (1024 * 1024);
+        print('Base64 : ' + news2.toString() + ' MB');
 
         //decode base64
         /*
