@@ -412,31 +412,35 @@ class _BeforePageState extends State<BeforePage> {
       step = 1;
       fileInBase64 = '';
     });
+
+    //open camera device
     PickedFile? selectedImage = await _picker.getImage(
         source: ImageSource.camera,
         imageQuality: quality,
         maxHeight: 2000,
         maxWidth: 2000);
+
+    //set image from camera
     File? temp;
     if (selectedImage != null) {
       temp = File(selectedImage.path);
       if (selectedImage.path.isNotEmpty) {
         setState(() {
           _image = temp;
-          //encode base64
           final encodedBytes = _image!.readAsBytesSync();
           fileInBase64 = base64Encode(encodedBytes);
         });
 
-        //print size, width. height image[]
+        //print size file image
         double news = fileInBase64.length / (1024 * 1024);
         print('Base64 : ' + news.toString() + ' MB');
 
-        var decodedImage = await decodeImageFromList(_image!.readAsBytesSync());
-        print('Original Width : ' + decodedImage.width.toString());
-        print('Original Heght : ' + decodedImage.height.toString());
+        //print size width, height image
+        var decoded = await decodeImageFromList(_image!.readAsBytesSync());
+        print('Original Width : ' + decoded.width.toString());
+        print('Original Height : ' + decoded.height.toString());
 
-        //resize
+        //resize image
         img.Image? image = img.decodeImage(temp.readAsBytesSync());
         var resizedImage = img.copyResize(image!, height: 120, width: 120);
 
@@ -448,20 +452,25 @@ class _BeforePageState extends State<BeforePage> {
         File resizedFile = File('$path/resizedImage.jpg')
           ..writeAsBytesSync(img.encodePng(resizedImage));
 
-        var decodedImage2 =
-            await decodeImageFromList(resizedFile.readAsBytesSync());
-        print('Resize Width : ' + decodedImage2.width.toString());
-        print('Resize Heght : ' + decodedImage2.height.toString());
-
+        //encode image to base64
         final encodedBytes2 = resizedFile.readAsBytesSync();
         String fileResizeInBase64 = base64Encode(encodedBytes2);
 
-        //print size, width. height image[]
+        //print size file image
         double news2 = fileResizeInBase64.length / (1024 * 1024);
         print('Base64 : ' + news2.toString() + ' MB');
 
+        //print size width, height image
+        var decoded2 = await decodeImageFromList(resizedFile.readAsBytesSync());
+        print('Resize Width : ' + decoded2.width.toString());
+        print('Resize Heght : ' + decoded2.height.toString());
+
+        //encode base64
+        /* 
+        final encodedBytes = _image!.readAsBytesSync();
+        fileInBase64 = base64Encode(encodedBytes);
+        
         //decode base64
-        /*
         final decodedBytes = base64Decode(fileInBase64);
         final directory = await getApplicationDocumentsDirectory();
         File fileImg = File('${directory.path}/testImage.png');
@@ -471,6 +480,7 @@ class _BeforePageState extends State<BeforePage> {
           _image = fileImg;
         });
         */
+
       }
     }
     if (_image != null) {
