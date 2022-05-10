@@ -463,7 +463,7 @@ class _BeforePageState extends State<BeforePage> {
         //print size width, height image
         var decoded2 = await decodeImageFromList(resizedFile.readAsBytesSync());
         print('Resize Width : ' + decoded2.width.toString());
-        print('Resize Heght : ' + decoded2.height.toString());
+        print('Resize Height : ' + decoded2.height.toString());
 
         //encode base64
         /* 
