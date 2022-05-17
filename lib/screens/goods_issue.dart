@@ -778,6 +778,31 @@ class _GoodIssueState extends State<GoodIssue> {
         resultPalletitem = Palletitem.fromJson(data2);
       });
 
+      print('-------------------------------');
+      print(resultPalletitem!.palletItemId.toString());
+      print(resultPalletitem!.palletNo.toString());
+      print(resultPalletitem!.documentId.toString());
+      print(resultPalletitem!.documentItemId.toString());
+      print(resultPalletitem!.binId.toString());
+      print(resultPalletitem!.materialId.toString());
+      print(resultPalletitem!.lot.toString());
+      print(resultPalletitem!.weight.toString());
+      print(resultPalletitem!.unitId.toString());
+      print(resultPalletitem!.movementTypeId.toString());
+      print(resultPalletitem!.movementTypeAction.toString());
+      print(resultPalletitem!.isPosted.toString());
+      print(resultPalletitem!.isDeleted.toString());
+      print(resultPalletitem!.scanBy.toString());
+      print(resultPalletitem!.scanOn.toString());
+      print(resultPalletitem!.createdBy.toString());
+      print(resultPalletitem!.createdOn.toString());
+      print(resultPalletitem!.modifiedBy.toString());
+      print(resultPalletitem!.modifiedOn.toString());
+      print(resultPalletitem!.reprintBy.toString());
+      print(resultPalletitem!.reprintOn.toString());
+      print(resultPalletitem!.damageBy.toString());
+      print(resultPalletitem!.deviceInfo.toString());
+      print('-------------------------------');
       if (siloTemp) {
         setState(() {
           resultDocument!.documentStatus = "Scan Completed";
