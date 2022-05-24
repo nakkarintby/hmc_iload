@@ -779,86 +779,101 @@ class _GoodIssueState extends State<GoodIssue> {
       });
 
       print('-------------------------------');
-      print(resultPalletitem!.palletItemId.toString());
-      print(resultPalletitem!.palletNo.toString());
-      print(resultPalletitem!.documentId.toString());
-      print(resultPalletitem!.documentItemId.toString());
-      print(resultPalletitem!.binId.toString());
-      print(resultPalletitem!.materialId.toString());
-      print(resultPalletitem!.lot.toString());
-      print(resultPalletitem!.weight.toString());
-      print(resultPalletitem!.unitId.toString());
-      print(resultPalletitem!.movementTypeId.toString());
-      print(resultPalletitem!.movementTypeAction.toString());
-      print(resultPalletitem!.isPosted.toString());
-      print(resultPalletitem!.isDeleted.toString());
-      print(resultPalletitem!.scanBy.toString());
-      print(resultPalletitem!.scanOn.toString());
-      print(resultPalletitem!.createdBy.toString());
-      print(resultPalletitem!.createdOn.toString());
-      print(resultPalletitem!.modifiedBy.toString());
-      print(resultPalletitem!.modifiedOn.toString());
-      print(resultPalletitem!.reprintBy.toString());
-      print(resultPalletitem!.reprintOn.toString());
-      print(resultPalletitem!.damageBy.toString());
-      print(resultPalletitem!.deviceInfo.toString());
+      print('palletItemId : ' + resultPalletitem!.palletItemId.toString());
+      print('palletNo : ' + resultPalletitem!.palletNo.toString());
+      print('documentId :' + resultPalletitem!.documentId.toString());
+      print('documentItemId : ' + resultPalletitem!.documentItemId.toString());
+      print('binId : ' + resultPalletitem!.binId.toString());
+      print('materialId : ' + resultPalletitem!.materialId.toString());
+      print('lot : ' + resultPalletitem!.lot.toString());
+      print('weight : ' + resultPalletitem!.weight.toString());
+      print('unitId : ' + resultPalletitem!.unitId.toString());
+      print('movementTypeId : ' + resultPalletitem!.movementTypeId.toString());
+      print('movementTypeAction : ' +
+          resultPalletitem!.movementTypeAction.toString());
+      print('isPosted : ' + resultPalletitem!.isPosted.toString());
+      print('isDeleted : ' + resultPalletitem!.isDeleted.toString());
+      print('scanBy : ' + resultPalletitem!.scanBy.toString());
+      print('scanOn : ' + resultPalletitem!.scanOn.toString());
+      print('createdBy : ' + resultPalletitem!.createdBy.toString());
+      print('createdOn : ' + resultPalletitem!.createdOn.toString());
+      print('modifiedBy : ' + resultPalletitem!.modifiedBy.toString());
+      print('modifiedOn : ' + resultPalletitem!.modifiedOn.toString());
+      print('reprintBy : ' + resultPalletitem!.reprintBy.toString());
+      print('reprintOn : ' + resultPalletitem!.reprintOn.toString());
+      print('damageBy : ' + resultPalletitem!.damageBy.toString());
+      print('deviceInfo : ' + resultPalletitem!.deviceInfo.toString());
       print('-------------------------------');
-      if (siloTemp) {
-        setState(() {
-          resultDocument!.documentStatus = "Scan Completed";
-        });
-      } else {
-        setState(() {
-          resultDocument!.documentStatus = "In Progress";
-        });
-      }
 
-      tempAPI = configs + '/api/api/document/updatemobile';
-      final uri3 = Uri.parse(tempAPI);
-      final headers3 = {'Content-Type': 'application/json'};
-      var jsonBody3 = jsonEncode(resultDocument?.toJson());
-      final encoding3 = Encoding.getByName('utf-8');
-      print("call post api update document when first post");
-      http.Response response3 = await http.post(
-        uri3,
-        headers: headers3,
-        body: jsonBody3,
-        encoding: encoding3,
-      );
-
-      if (response.statusCode != 200) {
+      if (resultPalletitem!.isDeleted == true) {
         await showProgressLoading(true);
-        showErrorDialog('Error Http Requests submitGI3 GI');
-        return;
-      }
-      print("success call post api update document when first post");
-      var data3 = json.decode(response3.body);
-      setState(() {
-        resultDocument = Document.fromJson(data3);
-      });
+        showErrorDialog(resultPalletitem!.damageBy.toString());
+      } else if (((resultPalletitem!.isDeleted == false &&
+                  resultPalletitem!.isPosted == true) &&
+              temp6 == false) ||
+          ((resultPalletitem!.isDeleted == false &&
+                  resultPalletitem!.isPosted == false) &&
+              temp6 == true)) {
+        if (siloTemp) {
+          setState(() {
+            resultDocument!.documentStatus = "Scan Completed";
+          });
+        } else {
+          setState(() {
+            resultDocument!.documentStatus = "In Progress";
+          });
+        }
 
-      bool? temp7 = resultDocument?.silo;
-      bool siloTemp2 = temp7!;
-      double? temp8 = resultValPallet?.remainingdocument;
-      double remainingtemp = temp8!;
-      double? temp9 = resultPalletitem?.weight;
-      double wieghttemp = temp9!;
+        tempAPI = configs + '/api/api/document/updatemobile';
+        final uri3 = Uri.parse(tempAPI);
+        final headers3 = {'Content-Type': 'application/json'};
+        var jsonBody3 = jsonEncode(resultDocument?.toJson());
+        final encoding3 = Encoding.getByName('utf-8');
+        print("call post api update document when first post");
+        http.Response response3 = await http.post(
+          uri3,
+          headers: headers3,
+          body: jsonBody3,
+          encoding: encoding3,
+        );
 
-      if (!siloTemp2 && remainingtemp - wieghttemp <= 0) {
+        if (response.statusCode != 200) {
+          await showProgressLoading(true);
+          showErrorDialog('Error Http Requests submitGI3 GI');
+          return;
+        }
+        print("success call post api update document when first post");
+        var data3 = json.decode(response3.body);
         setState(() {
-          step++;
+          resultDocument = Document.fromJson(data3);
         });
-      } else if (siloTemp2) {
-        setState(() {
-          step = 0;
-        });
+
+        bool? temp7 = resultDocument?.silo;
+        bool siloTemp2 = temp7!;
+        double? temp8 = resultValPallet?.remainingdocument;
+        double remainingtemp = temp8!;
+        double? temp9 = resultPalletitem?.weight;
+        double wieghttemp = temp9!;
+
+        if (!siloTemp2 && remainingtemp - wieghttemp <= 0) {
+          setState(() {
+            step++;
+          });
+        } else if (siloTemp2) {
+          setState(() {
+            step = 0;
+          });
+        } else {
+          setState(() {
+            step--;
+          });
+        }
+        await showProgressLoading(true);
+        showSuccessDialog('Post Complete');
       } else {
-        setState(() {
-          step--;
-        });
+        await showProgressLoading(true);
+        showErrorDialog('Post Failed');
       }
-      await showProgressLoading(true);
-      showSuccessDialog('Post Complete');
     }
     setVisible();
     setReadOnly();
