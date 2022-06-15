@@ -1072,56 +1072,61 @@ class _ReLabelState extends State<ReLabel> {
     var data = json.decode(response.body);
     bool result = data;
 
-    if (resultDocument!.documentStatus == "Created") {
-      resultDocument!.documentStatus = "In Progress";
-    }
-    String tempAPI2 = configs + '/api/api/document/updatemobile';
-    final uri2 = Uri.parse(tempAPI2);
-    final headers2 = {'Content-Type': 'application/json'};
-    var jsonBody2 = jsonEncode(resultDocument?.toJson());
-    final encoding2 = Encoding.getByName('utf-8');
-    print("call post api update document");
-    http.Response response2 = await http.post(
-      uri2,
-      headers: headers2,
-      body: jsonBody2,
-      encoding: encoding2,
-    );
-
-    if (response.statusCode != 200) {
+    if (!result) {
       await showProgressLoading(true);
-      showErrorDialog('Error Http Requests finishReLabel2 ReLabel');
-      return;
-    }
-
-    print("success call post api update document");
-
-    var data2 = json.decode(response2.body);
-    setState(() {
-      resultDocument = Document.fromJson(data2);
-    });
-    double totalpalletweight304 = 0;
-    for (int i = 0; i < listPalletitem.length; i++) {
-      if (listPalletitem[i]!.movementTypeId == 304) {
-        double? tempWeight = listPalletitem[i]?.weight;
-        totalpalletweight304 += tempWeight!;
-      }
-    }
-
-    double? temp5 = resultValPallet?.remainingdocument;
-    double remainingdocument = temp5!;
-    if (remainingdocument - totalpalletweight304 <= 0) {
-      setState(() {
-        step = 0;
-      });
-      await showProgressLoading(true);
-      showSuccessDialog('Scan Complete');
+      showErrorDialog('Post Failed');
     } else {
+      if (resultDocument!.documentStatus == "Created") {
+        resultDocument!.documentStatus = "In Progress";
+      }
+      String tempAPI2 = configs + '/api/api/document/updatemobile';
+      final uri2 = Uri.parse(tempAPI2);
+      final headers2 = {'Content-Type': 'application/json'};
+      var jsonBody2 = jsonEncode(resultDocument?.toJson());
+      final encoding2 = Encoding.getByName('utf-8');
+      print("call post api update document");
+      http.Response response2 = await http.post(
+        uri2,
+        headers: headers2,
+        body: jsonBody2,
+        encoding: encoding2,
+      );
+
+      if (response.statusCode != 200) {
+        await showProgressLoading(true);
+        showErrorDialog('Error Http Requests finishReLabel2 ReLabel');
+        return;
+      }
+
+      print("success call post api update document");
+
+      var data2 = json.decode(response2.body);
       setState(() {
-        step = 2;
+        resultDocument = Document.fromJson(data2);
       });
-      await showProgressLoading(true);
-      showSuccessDialog('Post Complete');
+      double totalpalletweight304 = 0;
+      for (int i = 0; i < listPalletitem.length; i++) {
+        if (listPalletitem[i]!.movementTypeId == 304) {
+          double? tempWeight = listPalletitem[i]?.weight;
+          totalpalletweight304 += tempWeight!;
+        }
+      }
+
+      double? temp5 = resultValPallet?.remainingdocument;
+      double remainingdocument = temp5!;
+      if (remainingdocument - totalpalletweight304 <= 0) {
+        setState(() {
+          step = 0;
+        });
+        await showProgressLoading(true);
+        showSuccessDialog('Scan Complete');
+      } else {
+        setState(() {
+          step = 2;
+        });
+        await showProgressLoading(true);
+        showSuccessDialog('Post Complete');
+      }
     }
 
     setVisible();

@@ -880,30 +880,33 @@ class _DamageState extends State<Damage> {
     var data = json.decode(response.body);
     bool result = data;
 
-    resultDocument!.documentStatus = "Document Completed";
-    String tempAPI2 = configs + '/api/api/document/updatemobile';
-    final uri2 = Uri.parse(tempAPI2);
-    final headers2 = {'Content-Type': 'application/json'};
-    var jsonBody2 = jsonEncode(resultDocument?.toJson());
-    final encoding2 = Encoding.getByName('utf-8');
-    print("call post api update document");
-    http.Response response2 = await http.post(
-      uri2,
-      headers: headers2,
-      body: jsonBody2,
-      encoding: encoding2,
-    );
-
-    print("success call post api update document");
-
-    if (response.statusCode != 200) {
+    if (!result) {
       await showProgressLoading(true);
-      showErrorDialog('Error Http Requests finishDamage2 Damage');
-      return;
-    }
-    var data2 = json.decode(response2.body);
+      showErrorDialog('Post Failed');
+    } else {
+      resultDocument!.documentStatus = "Document Completed";
+      String tempAPI2 = configs + '/api/api/document/updatemobile';
+      final uri2 = Uri.parse(tempAPI2);
+      final headers2 = {'Content-Type': 'application/json'};
+      var jsonBody2 = jsonEncode(resultDocument?.toJson());
+      final encoding2 = Encoding.getByName('utf-8');
+      print("call post api update document");
+      http.Response response2 = await http.post(
+        uri2,
+        headers: headers2,
+        body: jsonBody2,
+        encoding: encoding2,
+      );
 
-    if (result) {
+      print("success call post api update document");
+
+      if (response.statusCode != 200) {
+        await showProgressLoading(true);
+        showErrorDialog('Error Http Requests finishDamage2 Damage');
+        return;
+      }
+      var data2 = json.decode(response2.body);
+
       await showProgressLoading(true);
       showSuccessDialog('Scan Complete');
 
@@ -913,9 +916,6 @@ class _DamageState extends State<Damage> {
         weight2Input = '';
         weight3Input = '';
       });
-    } else {
-      await showProgressLoading(true);
-      showErrorDialog('Failed');
     }
 
     setVisible();

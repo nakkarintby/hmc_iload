@@ -778,7 +778,7 @@ class _GoodIssueState extends State<GoodIssue> {
         resultPalletitem = Palletitem.fromJson(data2);
       });
 
-      print('-------------------------------');
+      /* print('-------------------------------');
       print('palletItemId : ' + resultPalletitem!.palletItemId.toString());
       print('palletNo : ' + resultPalletitem!.palletNo.toString());
       print('documentId :' + resultPalletitem!.documentId.toString());
@@ -803,7 +803,7 @@ class _GoodIssueState extends State<GoodIssue> {
       print('reprintOn : ' + resultPalletitem!.reprintOn.toString());
       print('damageBy : ' + resultPalletitem!.damageBy.toString());
       print('deviceInfo : ' + resultPalletitem!.deviceInfo.toString());
-      print('-------------------------------');
+      print('-------------------------------'); */
 
       if (resultPalletitem!.isDeleted == true) {
         await showProgressLoading(true);

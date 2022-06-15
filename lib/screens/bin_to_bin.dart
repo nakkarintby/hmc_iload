@@ -885,8 +885,7 @@ class _BinToBinState extends State<BinToBin> {
       });
     } else {
       await showProgressLoading(true);
-      showErrorDialog('Failed');
-      return;
+      showErrorDialog('Post Failed');
     }
     setVisible();
     setReadOnly();

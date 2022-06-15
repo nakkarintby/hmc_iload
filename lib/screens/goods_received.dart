@@ -747,65 +747,78 @@ class _GoodReceivedState extends State<GoodReceived> {
         resultPalletitem = Palletitem.fromJson(data2);
       });
 
-      if (resultDocument!.documentStatus == "Created") {
-        if (siloTemp) {
+      if (resultPalletitem!.isDeleted == true) {
+        await showProgressLoading(true);
+        showErrorDialog(resultPalletitem!.damageBy.toString());
+      } else if (((resultPalletitem!.isDeleted == false &&
+                  resultPalletitem!.isPosted == true) &&
+              temp6 == false) ||
+          ((resultPalletitem!.isDeleted == false &&
+                  resultPalletitem!.isPosted == false) &&
+              temp6 == true)) {
+        if (resultDocument!.documentStatus == "Created") {
+          if (siloTemp) {
+            setState(() {
+              resultDocument!.documentStatus = "Scan Completed";
+            });
+          } else {
+            setState(() {
+              resultDocument!.documentStatus = "In Progress";
+            });
+          }
+
+          tempAPI = configs + '/api/api/document/updatemobile';
+          final uri3 = Uri.parse(tempAPI);
+          final headers3 = {'Content-Type': 'application/json'};
+          var jsonBody3 = jsonEncode(resultDocument?.toJson());
+          final encoding3 = Encoding.getByName('utf-8');
+          print("call post api update document when first post");
+          http.Response response3 = await http.post(
+            uri3,
+            headers: headers3,
+            body: jsonBody3,
+            encoding: encoding3,
+          );
+
+          if (response.statusCode != 200) {
+            await showProgressLoading(true);
+            showErrorDialog('Error Http Requests submitGR3 GR');
+            return;
+          }
+
+          print("success call post api update document when first post");
+          var data3 = json.decode(response3.body);
           setState(() {
-            resultDocument!.documentStatus = "Scan Completed";
+            resultDocument = Document.fromJson(data3);
+          });
+        }
+
+        bool? temp7 = resultDocument?.silo;
+        bool siloTemp2 = temp7!;
+        double? temp8 = resultValPallet?.remainingdocument;
+        double remainingtemp = temp8!;
+        double? temp9 = resultPalletitem?.weight;
+        double wieghttemp = temp9!;
+
+        if (!siloTemp2 && remainingtemp - wieghttemp <= 0) {
+          setState(() {
+            step++;
+          });
+        } else if (siloTemp2) {
+          setState(() {
+            step = 0;
           });
         } else {
           setState(() {
-            resultDocument!.documentStatus = "In Progress";
+            step--;
           });
         }
-
-        tempAPI = configs + '/api/api/document/updatemobile';
-        final uri3 = Uri.parse(tempAPI);
-        final headers3 = {'Content-Type': 'application/json'};
-        var jsonBody3 = jsonEncode(resultDocument?.toJson());
-        final encoding3 = Encoding.getByName('utf-8');
-        print("call post api update document when first post");
-        http.Response response3 = await http.post(
-          uri3,
-          headers: headers3,
-          body: jsonBody3,
-          encoding: encoding3,
-        );
-
-        if (response.statusCode != 200) {
-          await showProgressLoading(true);
-          showErrorDialog('Error Http Requests submitGR3 GR');
-          return;
-        }
-
-        print("success call post api update document when first post");
-        var data3 = json.decode(response3.body);
-        setState(() {
-          resultDocument = Document.fromJson(data3);
-        });
-      }
-
-      bool? temp7 = resultDocument?.silo;
-      bool siloTemp2 = temp7!;
-      double? temp8 = resultValPallet?.remainingdocument;
-      double remainingtemp = temp8!;
-      double? temp9 = resultPalletitem?.weight;
-      double wieghttemp = temp9!;
-
-      if (!siloTemp2 && remainingtemp - wieghttemp <= 0) {
-        setState(() {
-          step++;
-        });
-      } else if (siloTemp2) {
-        setState(() {
-          step = 0;
-        });
+        await showProgressLoading(true);
+        showSuccessDialog('Post Complete');
       } else {
-        setState(() {
-          step--;
-        });
+        await showProgressLoading(true);
+        showErrorDialog('Post Failed');
       }
-      await showProgressLoading(true);
-      showSuccessDialog('Post Complete');
     }
     setVisible();
     setReadOnly();

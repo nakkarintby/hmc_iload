@@ -315,10 +315,18 @@ class _HistoryState extends State<History> {
     var data = json.decode(response.body);
     setState(() {
       resultPalletCheckCancel = Palletitem.fromJson(data);
-      step = 0;
     });
-    await showProgressLoading(true);
-    showSuccessDialog('Cancel Order Complete');
+
+    if (resultPalletCheckCancel!.damageBy != '') {
+      await showProgressLoading(true);
+      showErrorDialog('Cancel Order Failed');
+    } else {
+      await showProgressLoading(true);
+      showSuccessDialog('Cancel Order Complete');
+      setState(() {
+        step = 0;
+      });
+    }
     onload();
     setVisible();
     setReadOnly();
