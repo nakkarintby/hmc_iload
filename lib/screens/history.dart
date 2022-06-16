@@ -317,7 +317,9 @@ class _HistoryState extends State<History> {
       resultPalletCheckCancel = Palletitem.fromJson(data);
     });
 
-    if (resultPalletCheckCancel!.damageBy != '') {
+    print("damage : " + resultPalletCheckCancel!.damageBy.toString());
+
+    if (resultPalletCheckCancel!.damageBy != null) {
       await showProgressLoading(true);
       showErrorDialog('Cancel Order Failed');
     } else {
