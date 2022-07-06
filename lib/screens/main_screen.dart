@@ -15,7 +15,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Welcome to Flutter',
+      title: 'Welcome to Flutters',
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Welcome to Flutter'),
