@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:test/screens/home.dart';
-import 'package:test/screens/menu.dart';
-import 'package:test/screens/setting.dart';
 
 class MainScreen extends StatefulWidget {
   static String routeName = "/mainscreen";
@@ -10,112 +7,22 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-
-  List<GlobalKey<NavigatorState>> _navigatorKeys = [
-    //GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        final isFirstRouteInCurrentTab =
-            !await _navigatorKeys[_selectedIndex].currentState!.maybePop();
-
-        // let system handle back button if we're on the first route
-        return isFirstRouteInCurrentTab;
-      },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: [
-            /*BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home_outlined,
-                size: 40,
-                color: Colors.grey,
-              ),
-              title: new Text('HOME'),
-              activeIcon: Icon(
-                Icons.home_rounded,
-                size: 40,
-                color: Colors.blue,
-              ),
-            ),*/
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.menu_outlined,
-                size: 25,
-                color: Colors.grey,
-              ),
-              title: Text('MENU'),
-              activeIcon: Icon(
-                Icons.menu_rounded,
-                size: 25,
-                color: Colors.blue,
-              ),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.settings_outlined,
-                size: 25,
-                color: Colors.grey,
-              ),
-              title: Text('SETTING'),
-              activeIcon: Icon(
-                Icons.settings_rounded,
-                size: 25,
-                color: Colors.blue,
-              ),
-            ),
-          ],
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
+    return MaterialApp(
+      title: 'Welcome to Flutter',
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Welcome to Flutter'),
         ),
-        body: Stack(
-          children: [
-            //_buildOffstageNavigator(0),
-            _buildOffstageNavigator(0),
-            _buildOffstageNavigator(1),
-          ],
+        body: const Center(
+          child: Text('Hello World'),
         ),
-      ),
-    );
-  }
-
-  Map<String, WidgetBuilder> _routeBuilders(BuildContext context, int index) {
-    return {
-      '/': (context) {
-        return [
-          //Home(),
-          Menu(),
-          Setting(),
-        ].elementAt(index);
-      },
-    };
-  }
-
-  Widget _buildOffstageNavigator(int index) {
-    var routeBuilders = _routeBuilders(context, index);
-
-    return Offstage(
-      offstage: _selectedIndex != index,
-      child: Navigator(
-        key: _navigatorKeys[index],
-        onGenerateRoute: (routeSettings) {
-          return MaterialPageRoute(
-            builder: (context) => routeBuilders[routeSettings.name]!(context),
-          );
-        },
       ),
     );
   }
