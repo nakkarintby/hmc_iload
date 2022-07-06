@@ -15,6 +15,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _activeIndex = 0;
+  int _activeIndex2 = 0;
 
   @override
   void initState() {

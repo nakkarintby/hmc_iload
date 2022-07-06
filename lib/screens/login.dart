@@ -24,6 +24,7 @@ class _LoginState extends State<Login> {
   TextEditingController usernameController = TextEditingController();
   late Timer timer;
   String configs = '';
+  String configs2 = '';
 
   late List<FocusNode> focusNodes = List.generate(1, (index) => FocusNode());
 
