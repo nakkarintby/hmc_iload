@@ -91,35 +91,32 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> loginCheck() async {
-    print('yrss');
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
         configs = prefs.getString('configs');
       });
-      print(configs.toString());
       var username = usernameController.text;
       var url = Uri.parse(configs + '/User/GetUser/' + username);
       http.Response response = await http.get(url);
+
       if (response.statusCode != 200) {
-        showErrorDialog('Error Http Requests loginCheck');
-        return;
-      }
-
-      var data = json.decode(response.body);
-      User msg = User.fromJson(data);
-      print(msg.toString());
-
-      Timer(Duration(seconds: 3), () async {
-        if (msg != null) {
-          _btnController.reset();
-          Navigator.pushReplacementNamed(context, MainScreen.routeName);
-        } else {
+        _btnController.reset();
+        usernameController.text = '';
+        showErrorDialog('Username Incorrect');
+      } else {
+        var data = json.decode(response.body);
+        User msg = User.fromJson(data);
+        Timer(Duration(seconds: 3), () async {
           _btnController.reset();
           usernameController.text = '';
-          showErrorDialog('Username Incorrect');
-        }
-      });
+          Navigator.pushReplacementNamed(context, MainScreen.routeName);
+        });
+      }
+      /*if (response.statusCode != 200) {
+        showErrorDialog('Error Http Requests loginCheck');
+        return;
+      }*/
     } catch (e) {
       Navigator.pushReplacementNamed(context, Login.routeName);
     }
