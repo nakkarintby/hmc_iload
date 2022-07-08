@@ -51,6 +51,8 @@ dependencies:
   url_launcher: ^6.0.0
   url_launcher_web: ^2.0.6
   device_info_plus: ^0.7.2
+  firebase_messaging: ^7.0.3
+  flutter_local_notifications: ^4.0.1+2
   
 
 flutter_native_splash:
@@ -104,6 +106,7 @@ flutter:
     - assets/water1.jpg
     - assets/water2.jpg
     - assets/profile.jpg
+    - assets/Mqtt_logo.png
 
     
   # An image asset can refer to one or more resolution-specific "variants", see
