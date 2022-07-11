@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:test/screens/signin.dart';
 import 'package:test/routes.dart';
 import 'package:test/screens/signup.dart';
-import 'package:test/screens/welcome.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,7 +83,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: SignUpPage.routeName,
+      initialRoute: SigninPage.routeName,
       routes: routes,
     );
   }

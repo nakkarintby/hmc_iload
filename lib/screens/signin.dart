@@ -146,7 +146,7 @@ class _SigninPageState extends State<SigninPage> {
   }
 
   Widget _titleWidget() {
-    return RichText(
+    /*return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
           text: 'H',
@@ -163,6 +163,12 @@ class _SigninPageState extends State<SigninPage> {
               style: TextStyle(color: Colors.amber.shade900, fontSize: 42),
             ),
           ]),
+    );*/
+    return Image.asset(
+      'assets/RTLS_logo.png',
+      height: MediaQuery.of(context).size.height * .15,
+      width: MediaQuery.of(context).size.width * .75,
+      fit: BoxFit.cover,
     );
   }
 
@@ -329,7 +335,7 @@ class _SigninPageState extends State<SigninPage> {
   Widget _signUpLabelWidget() {
     return InkWell(
       onTap: () {
-        Navigator.pushReplacementNamed(context, SignUpPage.routeName);
+        Navigator.pushReplacementNamed(context, SignupPage.routeName);
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 20),
@@ -377,13 +383,13 @@ class _SigninPageState extends State<SigninPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(height: height * .18),
+                  SizedBox(height: height * .12),
                   _titleWidget(),
                   SizedBox(height: 50),
                   _contextWidget(),
                   SizedBox(height: 20),
                   _signInButtonWidget(),
-                  SizedBox(height: 8),
+                  //SizedBox(height: 2),
                   /*Container(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     alignment: Alignment.centerRight,

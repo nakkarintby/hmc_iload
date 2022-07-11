@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:test/class/myuser.dart';
 import 'package:test/screens/main_screen.dart';
-import 'package:test/screens/signup.dart';
+import 'package:test/screens/signin.dart';
 import 'package:test/screens/signup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:test/screens/welcome.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -382,7 +381,7 @@ class _SigninPageState extends State<SigninPage> {
   Widget _signUpLabelWidget() {
     return InkWell(
       onTap: () {
-        Navigator.pushReplacementNamed(context, SignUpPage.routeName);
+        Navigator.pushReplacementNamed(context, SignupPage.routeName);
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 20),

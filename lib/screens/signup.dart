@@ -7,17 +7,17 @@ import 'package:test/class/myuser.dart';
 import 'package:test/screens/signin.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
-class SignUpPage extends StatefulWidget {
+class SignupPage extends StatefulWidget {
   static String routeName = "/signup";
-  SignUpPage({Key? key, this.title}) : super(key: key);
+  SignupPage({Key? key, this.title}) : super(key: key);
 
   final String? title;
 
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  _SignupPageState createState() => _SignupPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignupPageState extends State<SignupPage> {
   TextEditingController idCardController = TextEditingController();
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -116,7 +116,7 @@ class _SignUpPageState extends State<SignUpPage> {
         user = MyUser.fromJson(data);
       });
     } catch (e) {
-      Navigator.pushReplacementNamed(context, SignUpPage.routeName);
+      Navigator.pushReplacementNamed(context, SignupPage.routeName);
     }
   }
 
@@ -142,7 +142,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Widget _titleWidget() {
-    return RichText(
+    /*return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
           text: 'H',
@@ -158,6 +158,13 @@ class _SignUpPageState extends State<SignUpPage> {
               style: TextStyle(color: Colors.amber.shade900, fontSize: 42),
             ),
           ]),
+    );*/
+
+    return Image.asset(
+      'assets/RTLS_logo.png',
+      height: MediaQuery.of(context).size.height * .15,
+      width: MediaQuery.of(context).size.width * .75,
+      fit: BoxFit.cover,
     );
   }
 
@@ -396,8 +403,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(height: height * 0.1),
-                    _titleWidget(),
+                    SizedBox(height: height * 0.05),
+                    //_titleWidget(),
                     SizedBox(
                       height: 20,
                     ),
