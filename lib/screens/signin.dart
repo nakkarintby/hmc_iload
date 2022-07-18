@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_session/flutter_session.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test/class/checklogin.dart';
 import 'package:test/class/myuser.dart';
+import 'package:test/screens/main_screen.dart';
 import 'package:test/screens/signup.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
@@ -83,41 +86,51 @@ class _SigninPageState extends State<SigninPage> {
 
   Future<void> signInCheck() async {
     try {
+      if (userNameController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter Username');
+        return;
+      } else if (passwordController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter Password');
+        return;
+      }
+
       var username = userNameController.text;
       var password = passwordController.text;
-      var ans = username + '/' + password;
+      var token = await FlutterSession().get("token");
 
-      var url = Uri.parse(configs + '/' + ans);
+      var url =
+          Uri.parse(configs + '/' + username + '/' + password + '/' + token);
       http.Response response = await http.get(url);
 
       if (response.statusCode != 200) {
+        _btnController.reset();
+        showErrorDialog('Error Http Requests signInCheck');
+        return;
+      }
+
+      var data = json.decode(response.body);
+      CheckLogin checkResult = CheckLogin.fromJson(data);
+      if (checkResult.status == "200") {
         setState(() {
           userNameController.text = '';
           passwordController.text = '';
-          _btnController.reset();
         });
-        showErrorDialog('Error Http Requests signInCheck');
-      } else {
-        var data = json.decode(response.body);
-        MyUser myuser = MyUser.fromJson(data);
-
-        if (myuser != null) {
-          setState(() {
-            userNameController.text = '';
-            passwordController.text = '';
-            _btnController.reset();
-          });
-          Timer(Duration(seconds: 3), () async {
-            Navigator.pushReplacementNamed(context, SigninPage.routeName);
-          });
-        } else {
-          setState(() {
-            userNameController.text = '';
-            passwordController.text = '';
-            _btnController.reset();
-          });
-          showErrorDialog('Username or Password Incorrect');
-        }
+        _btnController.reset();
+        showSuccessDialog(checkResult.message.toString());
+        await FlutterSession().set('uid', checkResult.result!.uid);
+        await FlutterSession().set('username', checkResult.result!.userName);
+        Navigator.pushReplacementNamed(context, MainScreen.routeName);
+        return;
+      } else if (checkResult.status == '404') {
+        setState(() {
+          userNameController.text = '';
+          passwordController.text = '';
+        });
+        _btnController.reset();
+        showErrorDialog(checkResult.message.toString());
+        return;
       }
     } catch (e) {
       Navigator.pushReplacementNamed(context, SigninPage.routeName);

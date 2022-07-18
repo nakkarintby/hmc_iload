@@ -1,5 +1,6 @@
 // @dart=2.9
 import 'package:flutter/material.dart';
+import 'package:flutter_session/flutter_session.dart';
 import 'package:test/screens/signin.dart';
 import 'package:test/routes.dart';
 import 'package:test/screens/signup.dart';
@@ -35,6 +36,7 @@ class _MyAppState extends State<MyApp> {
   void firebaseCloudMessaging_Listeners() {
     firebaseMessaging.getToken().then((token) {
       print(token);
+      setSessionToken(token);
     });
 
     firebaseMessaging.configure(
@@ -73,6 +75,10 @@ class _MyAppState extends State<MyApp> {
     } else {
       prefs.setString('configs', 'http://phoebe.hms-cloud.com:147');
     }
+  }
+
+  Future<void> setSessionToken(String token) async {
+    await FlutterSession().set('token', token);
   }
 
   @override

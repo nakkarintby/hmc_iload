@@ -150,6 +150,7 @@ class _SignupPageState extends State<SignupPage> {
       );
 
       if (response.statusCode != 200) {
+        _btnController.reset();
         showErrorDialog('Error Http Requests signUpCheck');
         return;
       }
