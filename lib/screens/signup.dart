@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test/class/checkregister.dart';
 import 'package:test/class/myuser.dart';
 import 'package:test/screens/signin.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
@@ -21,6 +22,7 @@ class _SignupPageState extends State<SignupPage> {
   TextEditingController idCardController = TextEditingController();
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController rePasswordController = TextEditingController();
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController mobileNoController = TextEditingController();
@@ -89,14 +91,55 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<void> signUpCheck() async {
     try {
-      MyUser user = new MyUser();
+      if (idCardController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter IDcard');
+        return;
+      } else if (userNameController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter Username');
+        return;
+      } else if (passwordController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter Password');
+        return;
+      } else if (rePasswordController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter Re-Password');
+        return;
+      } else if (firstNameController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter FirstName');
+        return;
+      } else if (lastNameController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter LastName');
+        return;
+      } else if (mobileNoController.text == '') {
+        _btnController.reset();
+        showErrorDialog('Please Enter MobileNo');
+        return;
+      } else if (passwordController.text != rePasswordController.text) {
+        _btnController.reset();
+        showErrorDialog('Password Not Match Re-Password');
+        passwordController.text = '';
+        rePasswordController.text = '';
+        return;
+      }
+
+      MyUser userRegister = new MyUser();
       setState(() {
-        user.userName = 'a';
+        userRegister.idCard = idCardController.text;
+        userRegister.userName = userNameController.text;
+        userRegister.password = passwordController.text;
+        userRegister.firstName = firstNameController.text;
+        userRegister.lastName = lastNameController.text;
+        userRegister.mobileNo = mobileNoController.text;
       });
 
-      final uri = Uri.parse(configs);
+      final uri = Uri.parse(configs + '/RTLS/CheckRegister');
       final headers = {'Content-Type': 'application/json'};
-      var jsonBody = jsonEncode(user.toJson());
+      var jsonBody = jsonEncode(userRegister.toJson());
       final encoding = Encoding.getByName('utf-8');
 
       http.Response response = await http.post(
@@ -111,10 +154,32 @@ class _SignupPageState extends State<SignupPage> {
         return;
       }
 
-      var data = json.decode(response.body);
-      setState(() {
-        user = MyUser.fromJson(data);
-      });
+      var result = json.decode(response.body);
+      CheckRegister checkResult = CheckRegister.fromJson(result);
+      if (checkResult.status == '200') {
+        setState(() {
+          idCardController.text = '';
+          userNameController.text = '';
+          passwordController.text = '';
+          rePasswordController.text = '';
+          firstNameController.text = '';
+          lastNameController.text = '';
+          mobileNoController.text = '';
+        });
+        _btnController.reset();
+        showSuccessDialog(checkResult.message.toString());
+        Navigator.pushReplacementNamed(context, SigninPage.routeName);
+        return;
+      } else if (checkResult.status == '404') {
+        setState(() {
+          userNameController.text = '';
+          passwordController.text = '';
+          rePasswordController.text = '';
+        });
+        _btnController.reset();
+        showErrorDialog(checkResult.message.toString());
+        return;
+      }
     } catch (e) {
       Navigator.pushReplacementNamed(context, SignupPage.routeName);
     }
@@ -174,6 +239,7 @@ class _SignupPageState extends State<SignupPage> {
         _entryFieldIDcard("IDcard"),
         _entryFieldUserName("UserName"),
         _entryFieldPassword("Password", isPassword: true),
+        _entryFieldRePassword("Re-Password", isPassword: true),
         _entryFieldFirstName("FirstName"),
         _entryFieldLastName("LastName"),
         _entryFieldMobileNo("MobileNo"),
@@ -246,6 +312,31 @@ class _SignupPageState extends State<SignupPage> {
           ),
           TextField(
               controller: passwordController,
+              obscureText: isPassword,
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  fillColor: Color(0xfff3f3f4),
+                  filled: true))
+        ],
+      ),
+    );
+  }
+
+  Widget _entryFieldRePassword(String title, {bool isPassword = false}) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+              controller: rePasswordController,
               obscureText: isPassword,
               decoration: InputDecoration(
                   border: InputBorder.none,
