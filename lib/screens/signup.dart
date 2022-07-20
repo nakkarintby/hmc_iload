@@ -127,20 +127,48 @@ class _SignupPageState extends State<SignupPage> {
         return;
       }
 
-      MyUser userRegister = new MyUser();
+      MyUser a = new MyUser();
       setState(() {
-        userRegister.idCard = idCardController.text;
-        userRegister.userName = userNameController.text;
-        userRegister.password = passwordController.text;
-        userRegister.firstName = firstNameController.text;
-        userRegister.lastName = lastNameController.text;
-        userRegister.mobileNo = mobileNoController.text;
+        a.id = 1;
+        a.uid = "No-Data";
+        a.idCard = idCardController.text.toString();
+        a.userName = userNameController.text.toString();
+        a.password = passwordController.text.toString();
+        a.firstName = firstNameController.text.toString();
+        a.lastName = lastNameController.text.toString();
+        a.mobileNo = mobileNoController.text.toString();
+        a.token = "No-Data";
+        a.deviceMAC = "No-Data";
+        a.status = 1;
+        a.createdBy = "Adminsitrator";
+        a.createdOn = "2022-07-20T11:57:26";
+        a.modifiedBy = "No-Data";
+        a.modifiedOn = "2022-07-20T11:57:26";
       });
 
       final uri = Uri.parse(configs + '/RTLS/CheckRegister');
       final headers = {'Content-Type': 'application/json'};
-      var jsonBody = jsonEncode(userRegister.toJson());
+      final jsonBody = jsonEncode(a.toJson());
       final encoding = Encoding.getByName('utf-8');
+
+      /*Map data = {
+        "id": 1,
+        "uid": "No-Data",
+        "idCard": idCardController.text.toString(),
+        "userName": userNameController.text.toString(),
+        "password": passwordController.text.toString(),
+        "firstName": firstNameController.text.toString(),
+        "lastName": lastNameController.text.toString(),
+        "mobileNo": mobileNoController.text.toString(),
+        "token": "No-Data",
+        "deviceMAC": "No-Data",
+        "status": 1,
+        "createdBy": "Adminsitrator",
+        "createdOn": "2022-07-20T11:57:26",
+        "modifiedBy": "No-Data",
+        "modifiedOn": "2022-07-20T11:57:26"
+      };
+      String body = json.encode(data);*/
 
       http.Response response = await http.post(
         uri,
@@ -149,15 +177,15 @@ class _SignupPageState extends State<SignupPage> {
         encoding: encoding,
       );
 
-      if (response.statusCode != 200) {
-        _btnController.reset();
+      var result = json.decode(response.body);
+      CheckRegister checkResult = CheckRegister.fromJson(result);
+
+      if (response.statusCode != 200 && response.statusCode != 404) {
         showErrorDialog('Error Http Requests signUpCheck');
         return;
       }
 
-      var result = json.decode(response.body);
-      CheckRegister checkResult = CheckRegister.fromJson(result);
-      if (checkResult.status == '200') {
+      if (checkResult.status == "200") {
         setState(() {
           idCardController.text = '';
           userNameController.text = '';
@@ -169,9 +197,8 @@ class _SignupPageState extends State<SignupPage> {
         });
         _btnController.reset();
         showSuccessDialog(checkResult.message.toString());
-        Navigator.pushReplacementNamed(context, SigninPage.routeName);
         return;
-      } else if (checkResult.status == '404') {
+      } else if (checkResult.status == "404") {
         setState(() {
           userNameController.text = '';
           passwordController.text = '';

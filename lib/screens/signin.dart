@@ -100,30 +100,34 @@ class _SigninPageState extends State<SigninPage> {
       var password = passwordController.text;
       var token = await FlutterSession().get("token");
 
-      var url =
-          Uri.parse(configs + '/' + username + '/' + password + '/' + token);
+      var url = Uri.parse(configs +
+          '/RTLS/CheckLogin/' +
+          username +
+          '/' +
+          password +
+          '/' +
+          token);
       http.Response response = await http.get(url);
 
-      if (response.statusCode != 200) {
-        _btnController.reset();
+      var data = json.decode(response.body);
+      CheckLogin checkResult = CheckLogin.fromJson(data);
+
+      if (response.statusCode != 200 && response.statusCode != 404) {
         showErrorDialog('Error Http Requests signInCheck');
         return;
       }
 
-      var data = json.decode(response.body);
-      CheckLogin checkResult = CheckLogin.fromJson(data);
       if (checkResult.status == "200") {
         setState(() {
           userNameController.text = '';
           passwordController.text = '';
         });
-        _btnController.reset();
-        showSuccessDialog(checkResult.message.toString());
         await FlutterSession().set('uid', checkResult.result!.uid);
         await FlutterSession().set('username', checkResult.result!.userName);
+        _btnController.reset();
         Navigator.pushReplacementNamed(context, MainScreen.routeName);
         return;
-      } else if (checkResult.status == '404') {
+      } else if (checkResult.status == "404") {
         setState(() {
           userNameController.text = '';
           passwordController.text = '';

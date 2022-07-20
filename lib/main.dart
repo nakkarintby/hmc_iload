@@ -71,9 +71,9 @@ class _MyAppState extends State<MyApp> {
     bool checkConfigsPrefs = prefs.containsKey('configs');
 
     if (checkConfigsPrefs) {
-      prefs.setString('configs', 'http://phoebe.hms-cloud.com:147');
+      prefs.setString('configs', 'http://phoebe.hms-cloud.com:911');
     } else {
-      prefs.setString('configs', 'http://phoebe.hms-cloud.com:147');
+      prefs.setString('configs', 'http://phoebe.hms-cloud.com:911');
     }
   }
 
