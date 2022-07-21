@@ -130,19 +130,19 @@ class _SignupPageState extends State<SignupPage> {
       MyUser a = new MyUser();
       setState(() {
         a.id = 1;
-        a.uid = "No-Data";
+        a.uid = "-";
         a.idCard = idCardController.text.toString();
         a.userName = userNameController.text.toString();
         a.password = passwordController.text.toString();
         a.firstName = firstNameController.text.toString();
         a.lastName = lastNameController.text.toString();
         a.mobileNo = mobileNoController.text.toString();
-        a.token = "No-Data";
-        a.deviceMAC = "No-Data";
+        a.token = "-";
+        a.deviceMAC = "-";
         a.status = 1;
         a.createdBy = "Adminsitrator";
         a.createdOn = "2022-07-20T11:57:26";
-        a.modifiedBy = "No-Data";
+        a.modifiedBy = "Adminsitrator";
         a.modifiedOn = "2022-07-20T11:57:26";
       });
 
