@@ -110,6 +110,11 @@ flutter:
     - assets/RTLS_logo.png
     - assets/RTLS-logo.png
     - assets/RTLS_logo2.png
+    - assets/cm0.jpg
+    - assets/cm1.jpg
+    - assets/cm2.jpg
+    - assets/cm3.jpg
+    - assets/map.png
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

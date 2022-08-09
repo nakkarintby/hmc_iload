@@ -1,6 +1,8 @@
 // @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:flutter_session/flutter_session.dart';
+import 'package:test/screens/main_screen.dart';
+import 'package:test/screens/notification.dart';
 import 'package:test/screens/signin.dart';
 import 'package:test/routes.dart';
 import 'package:test/screens/signup.dart';
@@ -20,6 +22,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
+  final GlobalKey<NavigatorState> navigatorKey =
+      new GlobalKey<NavigatorState>();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       new FlutterLocalNotificationsPlugin();
 
@@ -41,9 +45,11 @@ class _MyAppState extends State<MyApp> {
 
     firebaseMessaging.configure(
       onLaunch: (Map<String, dynamic> msg) async {
+        handleClickedNotification(msg);
         print(" onLaunch called ${(msg)}");
       },
       onResume: (Map<String, dynamic> msg) async {
+        handleClickedNotification(msg);
         print(" onResume called ${(msg)}");
       },
       onMessage: (Map<String, dynamic> msg) async {
@@ -51,6 +57,12 @@ class _MyAppState extends State<MyApp> {
         print(" onMessage called ${(msg)}");
       },
     );
+  }
+
+  handleClickedNotification(message) {
+    // Put your logic here before redirecting to your material page route if you want too
+    navigatorKey.currentState
+        .push(MaterialPageRoute(builder: (context) => Notifications()));
   }
 
   showNotification(Map<String, dynamic> msg) async {
@@ -65,6 +77,23 @@ class _MyAppState extends State<MyApp> {
     var platform = new NotificationDetails(android: android);
     await flutterLocalNotificationsPlugin.show(0, title, body, platform);
   }
+
+  /*Future<void> _demoNotification(String title, String body) async {
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'channel_ID', 'channel name', 'channel description',
+        importance: Importance.Max,
+        playSound: true,
+        sound: 'sound',
+        showProgress: true,
+        priority: Priority.High,
+        ticker: 'test ticker');
+
+    var iOSChannelSpecifics = IOSNotificationDetails();
+    var platformChannelSpecifics = NotificationDetails(
+        androidPlatformChannelSpecifics, iOSChannelSpecifics);
+    await flutterLocalNotificationsPlugin
+        .show(0, title, body, platformChannelSpecifics, payload: 'test');
+  }*/
 
   Future<void> setSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -89,6 +118,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      navigatorKey: navigatorKey,
       initialRoute: SigninPage.routeName,
       routes: routes,
     );
