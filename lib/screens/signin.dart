@@ -123,7 +123,6 @@ class _SigninPageState extends State<SigninPage> {
           passwordController.text = '';
         });
         await FlutterSession().set('uid', checkResult.result!.uid);
-        await FlutterSession().set('username', checkResult.result!.userName);
         _btnController.reset();
         Navigator.pushReplacementNamed(context, MainScreen.routeName);
         return;

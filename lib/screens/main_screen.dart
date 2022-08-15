@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test/screens/notification.dart';
-import 'package:test/screens/profile.dart';
+import 'package:test/screens/profile2.dart';
 
 import 'home.dart';
 
@@ -28,7 +28,7 @@ class _MainScreenState extends State<MainScreen> {
         controller: _pageController,
         onPageChanged: onPageChanged,
         children: <Widget>[
-          Profile(),
+          Profile2(),
           Home(),
           Notifications(),
         ],

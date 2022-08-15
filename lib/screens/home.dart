@@ -10,14 +10,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    int a = 10;
-    List conversation = List.generate(
-        a,
-        (index) => {
-              "username": "Group ",
-              "time": "min ago",
-            });
-    print(conversation.length);
   }
 
   @override

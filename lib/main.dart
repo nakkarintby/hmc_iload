@@ -30,14 +30,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    var android = new AndroidInitializationSettings('mipmap/ic_launcher');
-    var platform = new InitializationSettings(android: android);
-    flutterLocalNotificationsPlugin.initialize(platform);
-    firebaseCloudMessaging_Listeners();
-    setSharedPrefs();
-  }
-
-  void firebaseCloudMessaging_Listeners() {
+    var initializationSettingsAndroid =
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
     firebaseMessaging.getToken().then((token) {
       print(token);
       setSessionToken(token);
@@ -45,55 +44,60 @@ class _MyAppState extends State<MyApp> {
 
     firebaseMessaging.configure(
       onLaunch: (Map<String, dynamic> msg) async {
-        handleClickedNotification(msg);
+        handleClickedNotification();
         print(" onLaunch called ${(msg)}");
       },
       onResume: (Map<String, dynamic> msg) async {
-        handleClickedNotification(msg);
+        handleClickedNotification();
         print(" onResume called ${(msg)}");
       },
       onMessage: (Map<String, dynamic> msg) async {
-        showNotification(msg);
+        showNotification(
+            msg['notification']['title'], msg['notification']['body']);
         print(" onMessage called ${(msg)}");
+      },
+    );
+    setSharedPrefs();
+  }
+
+  Future onSelectNotification(String payload) async {
+    handleClickedNotification();
+    showDialog(
+      context: context,
+      builder: (_) {
+        return new AlertDialog(
+          title: Text("PayLoad"),
+          content: Text("Payload : $payload"),
+        );
       },
     );
   }
 
-  handleClickedNotification(message) {
-    // Put your logic here before redirecting to your material page route if you want too
-    navigatorKey.currentState
-        .push(MaterialPageRoute(builder: (context) => Notifications()));
+  void showNotification(String title, String body) async {
+    await _demoNotification(title, body);
   }
 
-  showNotification(Map<String, dynamic> msg) async {
-    var title = msg['notification']['title'].toString();
-    var body = msg['notification']['body'].toString();
-
-    var android = new AndroidNotificationDetails(
-      'CHANNLE ID',
-      "CHANNLE NAME",
-      "CHANNLE lDescription",
-    );
-    var platform = new NotificationDetails(android: android);
-    await flutterLocalNotificationsPlugin.show(0, title, body, platform);
-  }
-
-  /*Future<void> _demoNotification(String title, String body) async {
+  Future<void> _demoNotification(String title, String body) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         'channel_ID', 'channel name', 'channel description',
-        importance: Importance.Max,
+        importance: Importance.max,
         playSound: true,
-        sound: 'sound',
         showProgress: true,
-        priority: Priority.High,
+        priority: Priority.high,
         ticker: 'test ticker');
 
     var iOSChannelSpecifics = IOSNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
-        androidPlatformChannelSpecifics, iOSChannelSpecifics);
+        android: androidPlatformChannelSpecifics, iOS: iOSChannelSpecifics);
     await flutterLocalNotificationsPlugin
         .show(0, title, body, platformChannelSpecifics, payload: 'test');
-  }*/
+  }
+
+  handleClickedNotification() {
+    // Put your logic here before redirecting to your material page route if you want too
+    navigatorKey.currentState
+        .push(MaterialPageRoute(builder: (context) => Notifications()));
+  }
 
   Future<void> setSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
