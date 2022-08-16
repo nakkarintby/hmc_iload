@@ -1,6 +1,7 @@
 import 'package:test/screens/main_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:test/screens/notification.dart';
+import 'package:test/screens/profile.dart';
 import 'package:test/screens/signin.dart';
 import 'package:test/screens/signup.dart';
 
@@ -11,4 +12,5 @@ final Map<String, WidgetBuilder> routes = {
   SigninPage.routeName: (context) => SigninPage(),
   SignupPage.routeName: (context) => SignupPage(),
   Notifications.routeName: (context) => Notifications(),
+  Profile.routeName: (context) => Profile()
 };

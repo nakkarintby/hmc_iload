@@ -115,6 +115,12 @@ flutter:
     - assets/cm2.jpg
     - assets/cm3.jpg
     - assets/map.png
+    - assets/profile0.png
+    - assets/profile1.png
+    - assets/profile2.png
+    - assets/profile3.png
+    - assets/profile4.png
+    - assets/profile5.png
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

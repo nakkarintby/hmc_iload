@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test/screens/notification.dart';
-import 'package:test/screens/profile2.dart';
-
+import 'package:test/screens/profile.dart';
 import 'home.dart';
 
 class MainScreen extends StatefulWidget {
@@ -28,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
         controller: _pageController,
         onPageChanged: onPageChanged,
         children: <Widget>[
-          Profile2(),
+          Profile(),
           Home(),
           Notifications(),
         ],

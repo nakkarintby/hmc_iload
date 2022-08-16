@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_session/flutter_session.dart';
 import 'package:test/screens/main_screen.dart';
 import 'package:test/screens/notification.dart';
+import 'package:test/screens/profile.dart';
 import 'package:test/screens/signin.dart';
 import 'package:test/routes.dart';
 import 'package:test/screens/signup.dart';
