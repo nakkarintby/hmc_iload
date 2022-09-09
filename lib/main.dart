@@ -1,17 +1,26 @@
 // @dart=2.9
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_session/flutter_session.dart';
-import 'package:test/screens/main_screen.dart';
-import 'package:test/screens/notification.dart';
-import 'package:test/screens/profile.dart';
-import 'package:test/screens/signin.dart';
+import 'package:test/screens/register.dart';
 import 'package:test/routes.dart';
-import 'package:test/screens/signup.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test/screens/test.dart';
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 void main() async {
+  HttpOverrides.global = new MyHttpOverrides();
   await Future.delayed(Duration(seconds: 3));
   runApp(MyApp());
 }
@@ -39,8 +48,8 @@ class _MyAppState extends State<MyApp> {
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: onSelectNotification);
     firebaseMessaging.getToken().then((token) {
-      print(token);
       setSessionToken(token);
+      print(token);
     });
 
     firebaseMessaging.configure(
@@ -58,7 +67,7 @@ class _MyAppState extends State<MyApp> {
         print(" onMessage called ${(msg)}");
       },
     );
-    setSharedPrefs();
+    //setSharedPrefs();
   }
 
   Future onSelectNotification(String payload) async {
@@ -96,35 +105,31 @@ class _MyAppState extends State<MyApp> {
 
   handleClickedNotification() {
     // Put your logic here before redirecting to your material page route if you want too
-    navigatorKey.currentState
-        .push(MaterialPageRoute(builder: (context) => Notifications()));
-  }
-
-  Future<void> setSharedPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool checkConfigsPrefs = prefs.containsKey('configs');
-
-    if (checkConfigsPrefs) {
-      prefs.setString('configs', 'http://phoebe.hms-cloud.com:911');
-    } else {
-      prefs.setString('configs', 'http://phoebe.hms-cloud.com:911');
-    }
+    /*navigatorKey.currentState
+        .push(MaterialPageRoute(builder: (context) => Notifications()));*/
   }
 
   Future<void> setSessionToken(String token) async {
     await FlutterSession().set('token', token);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool checkTokenPrefs = prefs.containsKey('token');
+    if (checkTokenPrefs) {
+      prefs.setString('token', token);
+    } else {
+      prefs.setString('token', token);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'RTLS',
+      title: 'HMC',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       navigatorKey: navigatorKey,
-      initialRoute: SigninPage.routeName,
+      initialRoute: Register.routeName,
       routes: routes,
     );
   }

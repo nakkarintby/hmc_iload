@@ -21,7 +21,7 @@
     </intent>
     </queries>
    <application
-        android:label="RTLS"
+        android:label="HMC"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

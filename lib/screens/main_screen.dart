@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:test/screens/notification.dart';
-import 'package:test/screens/profile.dart';
-import 'home.dart';
+import 'package:test/screens/menu_hmc.dart';
+import 'package:test/screens/setting.dart';
 
 class MainScreen extends StatefulWidget {
   static String routeName = "/mainscreen";
@@ -10,84 +9,97 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  late PageController _pageController = PageController();
-  int _page = 1;
+  int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(initialPage: 1);
-  }
+  List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView(
-        physics: NeverScrollableScrollPhysics(),
-        controller: _pageController,
-        onPageChanged: onPageChanged,
-        children: <Widget>[
-          Profile(),
-          Home(),
-          Notifications(),
-        ],
-      ),
-      bottomNavigationBar: Theme(
-        data: Theme.of(context).copyWith(
-          // sets the background color of the `BottomNavigationBar`
-          canvasColor: Theme.of(context).primaryColor,
-          // sets the active color of the `BottomNavigationBar` if `Brightness` is light
-          primaryColor: Theme.of(context).accentColor,
-          textTheme: Theme.of(context).textTheme.copyWith(
-                caption: TextStyle(color: Colors.grey[500]),
-              ),
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          // <-- This works for fixed
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey.shade600,
-          items: <BottomNavigationBarItem>[
+    return WillPopScope(
+      onWillPop: () async {
+        final isFirstRouteInCurrentTab =
+            !await _navigatorKeys[_selectedIndex].currentState!.maybePop();
+
+        // let system handle back button if we're on the first route
+        return isFirstRouteInCurrentTab;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          items: [
             BottomNavigationBarItem(
               icon: Icon(
-                Icons.person,
+                Icons.menu_outlined,
+                size: 25,
+                color: Colors.grey,
               ),
-              title: Container(height: 0.0),
+              title: Text('MENU'),
+              activeIcon: Icon(
+                Icons.menu_rounded,
+                size: 25,
+                color: Colors.blue,
+              ),
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                Icons.home,
+                Icons.settings_outlined,
+                size: 25,
+                color: Colors.grey,
               ),
-              title: Container(height: 0.0),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.notifications,
+              title: Text('SETTING'),
+              activeIcon: Icon(
+                Icons.settings_rounded,
+                size: 25,
+                color: Colors.blue,
               ),
-              title: Container(height: 0.0),
             ),
           ],
-          onTap: navigationTapped,
-          currentIndex: _page,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+        ),
+        body: Stack(
+          children: [
+            _buildOffstageNavigator(0),
+            _buildOffstageNavigator(1),
+          ],
         ),
       ),
     );
   }
 
-  void navigationTapped(int page) {
-    _pageController.jumpToPage(page);
+  Map<String, WidgetBuilder> _routeBuilders(BuildContext context, int index) {
+    return {
+      '/': (context) {
+        return [
+          MenuHMC(),
+          Setting(),
+        ].elementAt(index);
+      },
+    };
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _pageController.dispose();
-  }
+  Widget _buildOffstageNavigator(int index) {
+    var routeBuilders = _routeBuilders(context, index);
 
-  void onPageChanged(int page) {
-    setState(() {
-      this._page = page;
-    });
+    return Offstage(
+      offstage: _selectedIndex != index,
+      child: Navigator(
+        key: _navigatorKeys[index],
+        onGenerateRoute: (routeSettings) {
+          return MaterialPageRoute(
+            builder: (context) => routeBuilders[routeSettings.name]!(context),
+          );
+        },
+      ),
+    );
   }
 }
