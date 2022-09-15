@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/checkOTP.dart';
+import 'package:test/class/checkupdatepin.dart';
 import 'package:test/screens/main_screen.dart';
 import 'package:test/screens/register.dart';
 import 'package:passcode_screen/circle.dart';
@@ -32,10 +33,50 @@ class _OtpState extends State<Otp> {
   final StreamController<bool> _verificationNotifier =
       StreamController<bool>.broadcast();
 
+  Timer? countdownTimer;
+  Duration myDuration = Duration(seconds: 10);
+  int confictsOTP = 0;
+
   @override
   void initState() {
     super.initState();
     sendOTP();
+    startTimer();
+  }
+
+  void startTimer() {
+    setState(() {
+      confictsOTP = 60;
+    });
+    setState(() => myDuration = Duration(seconds: confictsOTP));
+    countdownTimer =
+        Timer.periodic(Duration(seconds: 1), (_) => setCountDown());
+  }
+
+  void stopTimer() {
+    setState(() => countdownTimer!.cancel());
+  }
+
+  void resetTimer() {
+    stopTimer();
+    setState(() => myDuration = Duration(seconds: confictsOTP));
+    startTimer();
+  }
+
+  void setCountDown() {
+    final reduceSecondsBy = 1;
+    setState(() {
+      final seconds = myDuration.inSeconds - reduceSecondsBy;
+      if (seconds < 0) {
+        countdownTimer!.cancel();
+        setState(() {
+          otp = "";
+        });
+        showErrorDialog("Time Out Otp!");
+      } else {
+        myDuration = Duration(seconds: seconds);
+      }
+    });
   }
 
   Future<void> sendOTP() async {
@@ -45,7 +86,8 @@ class _OtpState extends State<Otp> {
         configs = prefs.getString('configs');
         token = prefs.getString('token');
       });
-      var url = Uri.parse(configs + '/HMC/SendNotify/' + token);
+      var url = Uri.parse(
+          'https://phoebe.hms-cloud.com:2745/HMC/SendNotify/' + token);
       http.Response response = await http.get(url);
 
       if (response.statusCode != 200) {
@@ -112,9 +154,6 @@ class _OtpState extends State<Otp> {
         otp2Controller.text +
         otp3Controller.text +
         otp4Controller.text;
-
-    print('otp' + otp);
-    print('otpinput' + otpInput);
     if (otp == otpInput) {
       _btnController.reset();
       setState(() {
@@ -123,9 +162,6 @@ class _OtpState extends State<Otp> {
         otp3Controller.text = '';
         otp4Controller.text = '';
       });
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setBool('verify', true);
-
       showLockScreenSecond();
       showLockScreenFirst();
     } else {
@@ -249,10 +285,41 @@ class _OtpState extends State<Otp> {
         ));
   }
 
-  _onPasscodeEnteredSecond(String enteredPasscode) {
+  _onPasscodeEnteredSecond(String enteredPasscode) async {
     bool isValid = passcodeFirst == enteredPasscode;
     _verificationNotifier.add(isValid);
     if (isValid) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      stopTimer();
+      //call api update pin
+      try {
+        String mobile = '';
+        setState(() {
+          configs = prefs.getString('configs');
+          mobile = prefs.getString('mobile');
+        });
+
+        var url = Uri.parse(configs +
+            '/api/Mobile/CreatePin/' +
+            mobile.toString() +
+            '/' +
+            passcodeFirst.toString() +
+            '?modifiedBy=user');
+
+        http.Response response = await http.put(url);
+        var data = json.decode(response.body);
+        CheckUpdatePin checkAns = CheckUpdatePin.fromJson(data);
+
+        if (response.statusCode == 200) {
+          prefs.setBool('verify', true);
+          prefs.setString('pin', passcodeFirst.toString());
+        } else if (response.statusCode == 400) {
+          showErrorDialog(checkAns.msg.toString());
+        }
+      } catch (e) {
+        Navigator.pushReplacementNamed(context, Register.routeName);
+      }
+
       timer = Timer(Duration(seconds: 1), () {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => MainScreen()));
@@ -266,6 +333,8 @@ class _OtpState extends State<Otp> {
 
   @override
   Widget build(BuildContext context) {
+    String strDigits(int n) => n.toString().padLeft(2, '0');
+    final seconds = strDigits(myDuration.inSeconds.remainder(1000));
     return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Color(0xfff7f6fb),
@@ -344,9 +413,19 @@ class _OtpState extends State<Otp> {
                           ],
                         ),
                         SizedBox(
-                          height: 22,
+                          height: 18,
                         ),
                         _VerifyButtonWidget(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          '$seconds',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 30),
+                        ),
                       ],
                     ),
                   ),
@@ -365,14 +444,23 @@ class _OtpState extends State<Otp> {
                   SizedBox(
                     height: 18,
                   ),
-                  Text(
-                    "Resend New Code",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.purple,
+                  new InkWell(
+                    onTap: () {
+                      resetTimer();
+                      sendOTP();
+                    },
+                    child: new Padding(
+                      padding: new EdgeInsets.all(10.0),
+                      child: new Text(
+                        "Resend New Code",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.purple,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -393,12 +481,10 @@ class _OtpState extends State<Otp> {
             if (value.length == 1 && otp.length < 4) {
               setState(() {
                 otp = otp + value.toString();
-                print(otp);
               });
             } else if (value.length == 0 && otp.length <= 4) {
               setState(() {
                 otp = otp.substring(0, otp.length - 1);
-                print(otp);
               });
             }
 

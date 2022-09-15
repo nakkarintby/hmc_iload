@@ -1,11 +1,11 @@
-class CheckRegister {
+class CheckUpdatePin {
   User? user;
   String? msg;
   String? status;
 
-  CheckRegister({this.user, this.msg, this.status});
+  CheckUpdatePin({this.user, this.msg, this.status});
 
-  CheckRegister.fromJson(Map<String, dynamic> json) {
+  CheckUpdatePin.fromJson(Map<String, dynamic> json) {
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     msg = json['msg'];
     status = json['status'];

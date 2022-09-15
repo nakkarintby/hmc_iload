@@ -8,7 +8,6 @@ import 'package:test/routes.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:test/screens/test.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override

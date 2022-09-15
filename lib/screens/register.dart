@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-//0987654321
 import 'package:flutter/material.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,18 +26,16 @@ class _RegisterState extends State<Register> {
   late Timer timer;
   String configs = '';
   String token = '';
-  bool firsttime = true;
+  String mobile = '';
+  bool verify = false;
   String passcodeAns = "";
   final StreamController<bool> _verificationNotifier =
       StreamController<bool>.broadcast();
-  bool verify = false;
-  String mobileVerify = '';
 
   @override
   void initState() {
     super.initState();
     setSharedPrefs();
-    getSharedPrefs();
     WidgetsBinding.instance
         ?.addPostFrameCallback((_) => checkPasscode(context));
   }
@@ -51,24 +48,21 @@ class _RegisterState extends State<Register> {
 
   Future<void> setSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    //https://phoebe.hms-cloud.com:2745
     bool checkConfigsPrefs = prefs.containsKey('configs');
     bool checkVerify = prefs.containsKey('verify');
+    bool checkMobile = prefs.containsKey('mobile');
     if (!checkConfigsPrefs) {
-      prefs.setString('configs', 'https://phoebe.hms-cloud.com:2745');
+      prefs.setString('configs', 'https://smcapi.harmonious.co.th:421');
     } else {
-      prefs.setString('configs', 'https://phoebe.hms-cloud.com:2745');
+      prefs.setString('configs', 'https://smcapi.harmonious.co.th:421');
     }
     if (!checkVerify) {
       prefs.setBool('verify', false);
     }
-  }
-
-  Future<void> getSharedPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      configs = prefs.getString('configs');
-      token = prefs.getString('token');
-    });
+    if (!checkMobile) {
+      prefs.setString('mobile', '');
+    }
   }
 
   Future<void> checkPasscode(BuildContext contexts) async {
@@ -78,7 +72,7 @@ class _RegisterState extends State<Register> {
     });
     if (verify == true) {
       setState(() {
-        passcodeAns = "1234";
+        passcodeAns = prefs.getString('pin');
       });
       _showLockScreen(
         context,
@@ -89,8 +83,6 @@ class _RegisterState extends State<Register> {
           semanticsLabel: 'Cancel',
         ),
       );
-    } else {
-      showErrorDialog("Not Verify!");
     }
   }
 
@@ -204,22 +196,23 @@ class _RegisterState extends State<Register> {
         configs = prefs.getString('configs');
       });
       var mobile = mobileController.text;
-      var url = Uri.parse(configs + '/HMC/CheckRegister/' + mobile);
+      var url = Uri.parse(configs + '/api/Mobile/Register?phoneNo=' + mobile);
       http.Response response = await http.get(url);
 
       var data = json.decode(response.body);
       CheckRegister checkAns = CheckRegister.fromJson(data);
 
       Timer(Duration(seconds: 3), () async {
-        if (checkAns.status == "200") {
+        if (response.statusCode == 200) {
+          prefs.setString('mobile', mobileController.text.toString());
           _btnController.reset();
           mobileController.text = '';
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => Otp()));
-        } else if (checkAns.status == "404") {
+        } else if ((response.statusCode == 404)) {
           _btnController.reset();
           mobileController.text = '';
-          showErrorDialog(checkAns.message.toString());
+          showErrorDialog(checkAns.msg.toString());
         }
       });
     } catch (e) {
