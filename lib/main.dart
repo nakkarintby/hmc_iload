@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_session/flutter_session.dart';
+import 'package:test/screens/main_screen.dart';
 import 'package:test/screens/register.dart';
 import 'package:test/routes.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -61,12 +62,10 @@ class _MyAppState extends State<MyApp> {
         print(" onResume called ${(msg)}");
       },
       onMessage: (Map<String, dynamic> msg) async {
-        showNotification(
-            msg['notification']['title'], msg['notification']['body']);
+        showNotification('OTP', msg['notification']['body']);
         print(" onMessage called ${(msg)}");
       },
     );
-    //setSharedPrefs();
   }
 
   Future onSelectNotification(String payload) async {
@@ -123,7 +122,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'HMC',
+      title: 'SMC',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:test/components/menu_list2.dart';
+import 'package:test/screens/container.dart';
 
 class MenuHMC extends StatefulWidget {
   static String routeName = "/menuhmc";
@@ -45,7 +46,10 @@ class _MenuHMCPageState extends State<MenuHMC> {
                     size: 45,
                     color: Colors.blue,
                   ),
-                  press: () => {},
+                  press: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Containers()))
+                  },
                 ),
               ),
               Visibility(

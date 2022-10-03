@@ -4,8 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:test/class/checkOTP.dart';
-import 'package:test/class/checkupdatepin.dart';
+import 'package:test/class/updatepin.dart';
 import 'package:test/screens/main_screen.dart';
 import 'package:test/screens/register.dart';
 import 'package:passcode_screen/circle.dart';
@@ -86,19 +85,19 @@ class _OtpState extends State<Otp> {
         configs = prefs.getString('configs');
         token = prefs.getString('token');
       });
-      var url = Uri.parse(
-          'https://phoebe.hms-cloud.com:2745/HMC/SendNotify/' + token);
+      var url = Uri.parse(configs + '/api/Mobile/GetOTP?token=' + token);
       http.Response response = await http.get(url);
-
-      if (response.statusCode != 200) {
-        showErrorDialog('Error Http Requests sendOTP');
-        return;
-      }
       var data = json.decode(response.body);
-      checkOTP checkAns = checkOTP.fromJson(data);
-      setState(() {
-        otp = checkAns.otp.toString();
-      });
+
+      if (response.statusCode == 200) {
+        var otpTemp = response.body.toString();
+        var otpTemp2 = otpTemp[8] + otpTemp[9] + otpTemp[10] + otpTemp[11];
+        setState(() {
+          otp = otpTemp2.toString();
+        });
+      } else {
+        showErrorDialog("Error Https SendOTP!");
+      }
     } catch (e) {
       Navigator.pushReplacementNamed(context, Register.routeName);
     }
@@ -291,16 +290,15 @@ class _OtpState extends State<Otp> {
     if (isValid) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       stopTimer();
-      //call api update pin
       try {
         String mobile = '';
         setState(() {
           configs = prefs.getString('configs');
-          mobile = prefs.getString('mobile');
+          mobile = prefs.getString('mobileTemp');
         });
 
         var url = Uri.parse(configs +
-            '/api/Mobile/CreatePin/' +
+            '/api/Mobile/UpdatePin/' +
             mobile.toString() +
             '/' +
             passcodeFirst.toString() +
@@ -308,12 +306,13 @@ class _OtpState extends State<Otp> {
 
         http.Response response = await http.put(url);
         var data = json.decode(response.body);
-        CheckUpdatePin checkAns = CheckUpdatePin.fromJson(data);
+        UpdatePin checkAns = UpdatePin.fromJson(data);
 
         if (response.statusCode == 200) {
           prefs.setBool('verify', true);
-          prefs.setString('pin', passcodeFirst.toString());
-        } else if (response.statusCode == 400) {
+          prefs.setString('mobile', mobile);
+          showSuccessDialog('Verify Done!');
+        } else {
           showErrorDialog(checkAns.msg.toString());
         }
       } catch (e) {
@@ -322,7 +321,7 @@ class _OtpState extends State<Otp> {
 
       timer = Timer(Duration(seconds: 1), () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => MainScreen()));
+            context, MaterialPageRoute(builder: (context) => Register()));
       });
     }
   }

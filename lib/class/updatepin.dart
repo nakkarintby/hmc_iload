@@ -1,11 +1,11 @@
-class CheckUpdatePin {
+class UpdatePin {
   User? user;
   String? msg;
   String? status;
 
-  CheckUpdatePin({this.user, this.msg, this.status});
+  UpdatePin({this.user, this.msg, this.status});
 
-  CheckUpdatePin.fromJson(Map<String, dynamic> json) {
+  UpdatePin.fromJson(Map<String, dynamic> json) {
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     msg = json['msg'];
     status = json['status'];
@@ -27,14 +27,17 @@ class User {
   String? lastName;
   String? refreshToken;
   String? refreshTokenExpiryTime;
-  Null? device;
-  Null? licensePlate;
-  Null? licensExpiredDateTime;
+  String? uid;
+  String? deviceInfo;
+  String? osInfo;
+  String? firebaseToken;
+  String? licensePlate;
+  String? licensExpiredDateTime;
   String? role;
   String? pin;
   bool? isDeleted;
-  Null? createdBy;
-  Null? createdTime;
+  String? createdBy;
+  String? createdTime;
   String? modifiedBy;
   String? modifiedOn;
   int? id;
@@ -49,7 +52,7 @@ class User {
   String? phoneNumber;
   bool? phoneNumberConfirmed;
   bool? twoFactorEnabled;
-  Null? lockoutEnd;
+  bool? lockoutEnd;
   bool? lockoutEnabled;
   int? accessFailedCount;
 
@@ -58,7 +61,10 @@ class User {
       this.lastName,
       this.refreshToken,
       this.refreshTokenExpiryTime,
-      this.device,
+      this.uid,
+      this.deviceInfo,
+      this.osInfo,
+      this.firebaseToken,
       this.licensePlate,
       this.licensExpiredDateTime,
       this.role,
@@ -89,7 +95,10 @@ class User {
     lastName = json['lastName'];
     refreshToken = json['refreshToken'];
     refreshTokenExpiryTime = json['refreshTokenExpiryTime'];
-    device = json['device'];
+    uid = json['uid'];
+    deviceInfo = json['deviceInfo'];
+    osInfo = json['osInfo'];
+    firebaseToken = json['firebaseToken'];
     licensePlate = json['licensePlate'];
     licensExpiredDateTime = json['licensExpiredDateTime'];
     role = json['role'];
@@ -122,7 +131,10 @@ class User {
     data['lastName'] = this.lastName;
     data['refreshToken'] = this.refreshToken;
     data['refreshTokenExpiryTime'] = this.refreshTokenExpiryTime;
-    data['device'] = this.device;
+    data['uid'] = this.uid;
+    data['deviceInfo'] = this.deviceInfo;
+    data['osInfo'] = this.osInfo;
+    data['firebaseToken'] = this.firebaseToken;
     data['licensePlate'] = this.licensePlate;
     data['licensExpiredDateTime'] = this.licensExpiredDateTime;
     data['role'] = this.role;

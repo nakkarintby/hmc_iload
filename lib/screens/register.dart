@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:test/class/checkregister.dart';
-import 'package:test/class/user.dart';
+import 'package:test/class/login.dart';
+import 'package:test/class/phonenocheck.dart';
 import 'package:test/screens/main_screen.dart';
-import 'package:test/screens/otp.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:passcode_screen/circle.dart';
 import 'package:passcode_screen/keyboard.dart';
 import 'package:passcode_screen/passcode_screen.dart';
+import 'package:location/location.dart';
+import 'package:test/screens/otp.dart';
 
 class Register extends StatefulWidget {
   static String routeName = "/register";
@@ -25,17 +27,20 @@ class _RegisterState extends State<Register> {
       RoundedLoadingButtonController();
   late Timer timer;
   String configs = '';
-  String token = '';
-  String mobile = '';
   bool verify = false;
-  String passcodeAns = "";
+  String deviceId = "";
+  String deviceInfo = "";
+  String osVersion = "";
   final StreamController<bool> _verificationNotifier =
       StreamController<bool>.broadcast();
+  LocationData? _currentPosition;
+  Location location = Location();
 
   @override
   void initState() {
     super.initState();
     setSharedPrefs();
+    getDeviceInfo();
     WidgetsBinding.instance
         ?.addPostFrameCallback((_) => checkPasscode(context));
   }
@@ -48,13 +53,14 @@ class _RegisterState extends State<Register> {
 
   Future<void> setSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //https://phoebe.hms-cloud.com:2745
     bool checkConfigsPrefs = prefs.containsKey('configs');
     bool checkVerify = prefs.containsKey('verify');
     bool checkMobile = prefs.containsKey('mobile');
+    bool checkMobileTemp = prefs.containsKey('mobileTemp');
+    bool checkAccessToken = prefs.containsKey('accessToken');
+    bool checkUsername = prefs.containsKey('username');
+
     if (!checkConfigsPrefs) {
-      prefs.setString('configs', 'https://smcapi.harmonious.co.th:421');
-    } else {
       prefs.setString('configs', 'https://smcapi.harmonious.co.th:421');
     }
     if (!checkVerify) {
@@ -63,6 +69,48 @@ class _RegisterState extends State<Register> {
     if (!checkMobile) {
       prefs.setString('mobile', '');
     }
+    if (!checkMobileTemp) {
+      prefs.setString('mobileTemp', '');
+    }
+    if (!checkAccessToken) {
+      prefs.setString('accessToken', '');
+    }
+    if (!checkUsername) {
+      prefs.setString('username', '');
+    }
+  }
+
+  Future<void> getLocation() async {
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.DENIED) {
+      _permissionGranted = await location.requestPermission();
+    }
+
+    _currentPosition = await location.getLocation();
+    print('' +
+        _currentPosition!.latitude.toString() +
+        ',' +
+        _currentPosition!.longitude.toString());
+  }
+
+  Future<void> getDeviceInfo() async {
+    var androidInfo = await DeviceInfoPlugin().androidInfo;
+    setState(() {
+      deviceId = androidInfo.androidId;
+      osVersion = 'Android(' + androidInfo.version.release + ')';
+      deviceInfo = androidInfo.manufacturer + '(' + androidInfo.model + ')';
+    });
+    print(deviceId);
+    print(osVersion);
+    print(deviceInfo);
   }
 
   Future<void> checkPasscode(BuildContext contexts) async {
@@ -71,9 +119,6 @@ class _RegisterState extends State<Register> {
       verify = prefs.getBool('verify');
     });
     if (verify == true) {
-      setState(() {
-        passcodeAns = prefs.getString('pin');
-      });
       _showLockScreen(
         context,
         opaque: false,
@@ -123,14 +168,44 @@ class _RegisterState extends State<Register> {
         ));
   }
 
-  _onPasscodeEntered(String enteredPasscode) {
-    bool isValid = passcodeAns == enteredPasscode;
-    _verificationNotifier.add(isValid);
-    if (isValid) {
-      timer = Timer(Duration(seconds: 1), () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => MainScreen()));
+  _onPasscodeEntered(String enteredPasscode) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String mobile = '';
+      setState(() {
+        configs = prefs.getString('configs');
+        mobile = prefs.getString('mobile');
       });
+
+      var url = Uri.parse(configs +
+          '/api/Mobile/Login/' +
+          mobile.toString() +
+          '/' +
+          enteredPasscode.toString() +
+          '/' +
+          deviceId +
+          '/' +
+          deviceInfo +
+          '/' +
+          osVersion);
+
+      http.Response response = await http.post(url);
+      var data = json.decode(response.body);
+      Login checkAns = Login.fromJson(data);
+
+      if (response.statusCode == 200) {
+        _verificationNotifier.add(true);
+        prefs.setString('accessToken', checkAns.accessToken.toString());
+        prefs.setString('username', checkAns.user!.userName.toString());
+        timer = Timer(Duration(seconds: 1), () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => MainScreen()));
+        });
+      } else {
+        _verificationNotifier.add(false);
+      }
+    } catch (e) {
+      Navigator.pushReplacementNamed(context, Register.routeName);
     }
   }
 
@@ -174,12 +249,10 @@ class _RegisterState extends State<Register> {
   }
 
   void showErrorDialog(String error) {
-    //MyWidget.showMyAlertDialog(context, "Error", error);
     alertDialog(error, 'Error');
   }
 
   void showSuccessDialog(String success) {
-    //MyWidget.showMyAlertDialog(context, "Success", success);
     alertDialog(success, 'Success');
   }
 
@@ -196,20 +269,23 @@ class _RegisterState extends State<Register> {
         configs = prefs.getString('configs');
       });
       var mobile = mobileController.text;
-      var url = Uri.parse(configs + '/api/Mobile/Register?phoneNo=' + mobile);
+      var url =
+          Uri.parse(configs + '/api/Mobile/PhoneNoCheck?phoneNo=' + mobile);
       http.Response response = await http.get(url);
 
+      print(url);
+
       var data = json.decode(response.body);
-      CheckRegister checkAns = CheckRegister.fromJson(data);
+      PhoneNoCheck checkAns = PhoneNoCheck.fromJson(data);
 
       Timer(Duration(seconds: 3), () async {
         if (response.statusCode == 200) {
-          prefs.setString('mobile', mobileController.text.toString());
+          prefs.setString('mobileTemp', mobileController.text.toString());
           _btnController.reset();
           mobileController.text = '';
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => Otp()));
-        } else if ((response.statusCode == 404)) {
+        } else {
           _btnController.reset();
           mobileController.text = '';
           showErrorDialog(checkAns.msg.toString());
@@ -229,11 +305,42 @@ class _RegisterState extends State<Register> {
           shape: BoxShape.circle,
         ),
         child: Image.asset(
-          'assets/hmc_logo.png',
+          'assets/SMC_logo.png',
           height: MediaQuery.of(context).size.height * .25,
           width: MediaQuery.of(context).size.width * 1.5,
           fit: BoxFit.cover,
         ));
+  }
+
+  Widget _bottomWidget() {
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      width: double.infinity,
+      height: size.height / 6,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Positioned(
+            //top: MediaQuery.of(context).size.height / 1.135,
+            right: MediaQuery.of(context).size.width / 2.5,
+            child: Image.asset("assets/shms1.png", width: size.width * 0.38),
+          ),
+          Positioned(
+            //top: MediaQuery.of(context).size.height / 1.135,
+            right: MediaQuery.of(context).size.width / 80,
+            child: ElevatedButton(
+              onPressed: () {},
+              child: Text('1.0'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red[400], //
+                shape: CircleBorder(),
+                padding: EdgeInsets.all(12),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   Widget _contextWidget() {
@@ -285,11 +392,9 @@ class _RegisterState extends State<Register> {
         child: RoundedLoadingButton(
             color: Colors.blue.shade300,
             successColor: Color(0xfffbb448).withAlpha(100),
-            //width: 200,
             controller: _btnController,
             onPressed: () => checkRegister(),
             valueColor: Colors.black,
-            //borderRadius: 30,
             child: Text('Register', style: TextStyle(color: Colors.white))),
       ),
     );
@@ -324,10 +429,11 @@ class _RegisterState extends State<Register> {
                           children: [
                             _contextWidget(),
                             SizedBox(height: 12),
-                            _RegisterButtonWidget()
+                            _RegisterButtonWidget(),
                           ],
                         ),
                       ),
+                      _bottomWidget(),
                     ],
                   ),
                 ),
