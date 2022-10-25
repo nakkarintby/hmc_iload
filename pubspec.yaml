@@ -55,6 +55,8 @@ dependencies:
   flutter_local_notifications: ^4.0.1+2
   passcode_screen: ^2.0.1
   location: ^2.5.4
+  google_ml_kit: ^0.7.3
+
   
 
 flutter_native_splash:
