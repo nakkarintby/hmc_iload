@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class OCR extends StatefulWidget {
   static String routeName = "/ocr";
@@ -12,14 +13,16 @@ class OCR extends StatefulWidget {
 }
 
 class _OCRState extends State<OCR> {
-  bool textScanning = false;
-
   File? imageFile;
-
   String scannedText = "";
   final ImagePicker _picker = ImagePicker();
 
-  void getImage() async {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _pickCamera() async {
     try {
       PickedFile? selectedImage = await _picker.getImage(
           source: ImageSource.camera,
@@ -27,18 +30,62 @@ class _OCRState extends State<OCR> {
           maxHeight: 2000,
           maxWidth: 2000);
 
-      File? temp;
       if (selectedImage != null) {
-        temp = File(selectedImage.path);
-        if (selectedImage.path.isNotEmpty) {
-          textScanning = true;
+        File temp;
+        setState(() {
+          temp = File(selectedImage.path);
           imageFile = temp;
-          getRecognisedText(temp);
-        }
+        });
+        _cropImage();
+        //getRecognisedText(imageFile!);
       }
     } catch (e) {
       print("Error occured while scanning");
     }
+  }
+
+  Future<void> _cropImage() async {
+    File? croppedFile = await ImageCropper().cropImage(
+        sourcePath: imageFile!.path,
+        aspectRatioPresets: Platform.isAndroid
+            ? [
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio16x9
+              ]
+            : [
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio5x3,
+                CropAspectRatioPreset.ratio5x4,
+                CropAspectRatioPreset.ratio7x5,
+                CropAspectRatioPreset.ratio16x9
+              ],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: 'Cropper',
+        ));
+    if (croppedFile != null) {
+      setState(() {
+        imageFile = croppedFile;
+      });
+      getRecognisedText(imageFile!);
+    }
+  }
+
+  void _clearImage() {
+    setState(() {
+      imageFile = null;
+    });
   }
 
   void getRecognisedText(File image) async {
@@ -49,10 +96,11 @@ class _OCRState extends State<OCR> {
     scannedText = "";
     for (TextBlock block in recognisedText.blocks) {
       for (TextLine line in block.lines) {
-        scannedText = scannedText + line.text + "\n";
+        setState(() {
+          scannedText = scannedText + line.text + "\n";
+        });
       }
     }
-    textScanning = false;
     print(scannedText);
   }
 
@@ -70,6 +118,10 @@ class _OCRState extends State<OCR> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Center(
+                  child:
+                      imageFile != null ? Image.file(imageFile!) : Container(),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -86,7 +138,7 @@ class _OCRState extends State<OCR> {
                                 borderRadius: BorderRadius.circular(8.0)),
                           ),
                           onPressed: () {
-                            getImage();
+                            _pickCamera();
                           },
                           child: Container(
                             margin: const EdgeInsets.symmetric(

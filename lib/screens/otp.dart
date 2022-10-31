@@ -86,6 +86,7 @@ class _OtpState extends State<Otp> {
         token = prefs.getString('token');
       });
       var url = Uri.parse(configs + '/api/Mobile/GetOTP?token=' + token);
+      print(url);
       http.Response response = await http.get(url);
       var data = json.decode(response.body);
 

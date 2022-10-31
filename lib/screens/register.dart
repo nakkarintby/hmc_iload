@@ -61,7 +61,7 @@ class _RegisterState extends State<Register> {
     bool checkUsername = prefs.containsKey('username');
 
     if (!checkConfigsPrefs) {
-      prefs.setString('configs', 'https://smcapi.harmonious.co.th:421');
+      prefs.setString('configs', 'https://smcapi.harmonious.co.th:422');
     }
     if (!checkVerify) {
       prefs.setBool('verify', false);

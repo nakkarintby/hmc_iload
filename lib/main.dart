@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_session/flutter_session.dart';
+import 'package:test/screens/home.dart';
 import 'package:test/screens/main_screen.dart';
 import 'package:test/screens/ocr.dart';
 import 'package:test/screens/register.dart';
@@ -50,7 +51,7 @@ class _MyAppState extends State<MyApp> {
         onSelectNotification: onSelectNotification);
     firebaseMessaging.getToken().then((token) {
       setSessionToken(token);
-      print(token);
+      print('Token : ' + token);
     });
 
     firebaseMessaging.configure(
@@ -128,7 +129,7 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       navigatorKey: navigatorKey,
-      initialRoute: OCR.routeName,
+      initialRoute: Register.routeName,
       routes: routes,
     );
   }
