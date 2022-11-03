@@ -2,14 +2,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:test/components/menu_list2.dart';
 import 'package:test/screens/container.dart';
+import 'package:test/screens/ocr.dart';
 
-class MenuHMC extends StatefulWidget {
+class Menu extends StatefulWidget {
   static String routeName = "/menuhmc";
   @override
-  _MenuHMCPageState createState() => _MenuHMCPageState();
+  _MenuPageState createState() => _MenuPageState();
 }
 
-class _MenuHMCPageState extends State<MenuHMC> {
+class _MenuPageState extends State<Menu> {
   bool containerVisible = true;
   bool transportationVisible = true;
   bool checkupVisible = true;
@@ -61,7 +62,10 @@ class _MenuHMCPageState extends State<MenuHMC> {
                     size: 45,
                     color: Colors.blue,
                   ),
-                  press: () => {},
+                  press: () => {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => OCR()))
+                  },
                 ),
               ),
               Visibility(

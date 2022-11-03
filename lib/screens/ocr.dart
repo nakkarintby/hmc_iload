@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:location/location.dart';
 
 class OCR extends StatefulWidget {
   static String routeName = "/ocr";
@@ -16,10 +17,40 @@ class _OCRState extends State<OCR> {
   File? imageFile;
   String scannedText = "";
   final ImagePicker _picker = ImagePicker();
+  LocationData? _currentPosition;
+  Location location = Location();
 
   @override
   void initState() {
     super.initState();
+    getLocation();
+  }
+
+  Future<void> getLocation() async {
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.DENIED) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.GRANTED) {
+        return;
+      }
+    }
+
+    _currentPosition = await location.getLocation();
+    print('' +
+        _currentPosition!.latitude.toString() +
+        ',' +
+        _currentPosition!.longitude.toString());
   }
 
   Future<void> _pickCamera() async {

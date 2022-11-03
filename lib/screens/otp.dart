@@ -92,9 +92,9 @@ class _OtpState extends State<Otp> {
 
       if (response.statusCode == 200) {
         var otpTemp = response.body.toString();
-        var otpTemp2 = otpTemp[8] + otpTemp[9] + otpTemp[10] + otpTemp[11];
+        //var otpTemp2 = otpTemp[8] + otpTemp[9] + otpTemp[10] + otpTemp[11];
         setState(() {
-          otp = otpTemp2.toString();
+          otp = otpTemp.toString();
         });
       } else {
         showErrorDialog("Error Https SendOTP!");

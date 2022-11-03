@@ -16,6 +16,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:image/image.dart' as img;
 import 'package:location/location.dart';
 import 'package:test/class/containerdocument.dart';
+import 'package:test/class/createimage.dart';
+import 'package:test/class/getsequnce.dart';
 import 'package:test/class/imagesequence.dart';
 import 'package:test/class/uploadimage.dart';
 import 'package:test/screens/register.dart';
@@ -40,7 +42,9 @@ class _ContainersState extends State<Containers> {
   String statusUpload = '';
   String fileInBase64 = '';
   bool documentWillUpload = false;
+  bool documentWillUploadOrWillFinish = false;
   bool documentWillFinish = false;
+
   int step = 0;
   final ImagePicker _picker = ImagePicker();
   late File? _image = null;
@@ -50,12 +54,14 @@ class _ContainersState extends State<Containers> {
   String accessToken = '';
   int quality = 30;
   int sequence = 0;
+  int min = 0;
   int max = 0;
   String deviceId = "";
   String deviceInfo = "";
   String osVersion = "";
   LocationData? _currentPosition;
   Location location = Location();
+  String gps = "";
 
   late Uint8List img;
   String username = '';
@@ -63,7 +69,6 @@ class _ContainersState extends State<Containers> {
   @override
   void initState() {
     super.initState();
-    getDeviceInfo();
     setState(() {
       step = 0;
     });
@@ -99,6 +104,11 @@ class _ContainersState extends State<Containers> {
         _currentPosition!.latitude.toString() +
         ',' +
         _currentPosition!.longitude.toString());
+    setState(() {
+      gps = (_currentPosition!.latitude.toString() +
+          ',' +
+          _currentPosition!.longitude.toString());
+    });
   }
 
   Future<void> getDeviceInfo() async {
@@ -170,6 +180,7 @@ class _ContainersState extends State<Containers> {
         uploadEnabled = false;
         finishEnabled = false;
         documentWillUpload = false;
+        documentWillUploadOrWillFinish = false;
         documentWillFinish = false;
       });
     } else if (step == 1) {
@@ -189,13 +200,24 @@ class _ContainersState extends State<Containers> {
         finishEnabled = false;
       });
     } else if (step == 3) {
-      setState(() {
-        documentReadonly = true;
-        backEnabled = true;
-        takePhotoEnabled = false;
-        uploadEnabled = false;
-        finishEnabled = true;
-      });
+      if (documentWillUploadOrWillFinish) {
+        setState(() {
+          documentReadonly = true;
+          backEnabled = true;
+          takePhotoEnabled = true;
+          uploadEnabled = false;
+          finishEnabled = true;
+        });
+      } else if (documentWillFinish) {
+        setState(() {
+          documentReadonly = true;
+          backEnabled = true;
+          takePhotoEnabled = false;
+
+          uploadEnabled = false;
+          finishEnabled = true;
+        });
+      }
     }
   }
 
@@ -308,8 +330,8 @@ class _ContainersState extends State<Containers> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url = Uri.parse(
-          configs + '/api/ContainerDocument/GetByQRCode/' + documentIdInput);
+      var url =
+          Uri.parse(configs + '/api/ContainerDocument/Get/' + documentIdInput);
 
       var headers = {
         "Content-Type": "application/json",
@@ -320,22 +342,11 @@ class _ContainersState extends State<Containers> {
       http.Response response = await http.get(url, headers: headers);
       var data = json.decode(response.body);
       ContainerDocument checkAns = ContainerDocument.fromJson(data);
-
       if (response.statusCode == 200) {
-        if (checkAns.containerDoc!.isCompletedPhoto!) {
+        if (checkAns.isCompletedPhoto!) {
           showSuccessDialog('Document Complete!');
         } else {
-          await getImageSequence();
-          if (sequence > max) {
-            setState(() {
-              step = 3;
-              statusUpload = "Add Image Finish";
-            });
-          } else {
-            setState(() {
-              step++;
-            });
-          }
+          await getImageSequenceAfterDocCheck();
         }
       } else {
         setState(() {
@@ -354,7 +365,7 @@ class _ContainersState extends State<Containers> {
     setFocus();
   }
 
-  Future<void> getImageSequence() async {
+  Future<void> getImageSequenceAfterUpload() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
@@ -363,28 +374,152 @@ class _ContainersState extends State<Containers> {
       });
 
       var url = Uri.parse(configs +
-          '/api/Image/GetSeqImage?docID=' +
+          '/api/Image/GetSequnce/' +
           documentIdInput +
-          '&type=' +
-          eventType);
+          '/' +
+          eventType +
+          '/' +
+          'test');
 
-      var headers = {
+      /*var headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
         "Authorization": "Bearer " + accessToken
       };
 
-      http.Response response = await http.get(url, headers: headers);
+      http.Response response = await http.get(url, headers: headers);*/
+      http.Response response = await http.get(url);
       var data = json.decode(response.body);
-      ImageSequence checkAns = ImageSequence.fromJson(data);
+      GetSequnce checkAns = GetSequnce.fromJson(data);
 
       if (response.statusCode == 200) {
         setState(() {
-          sequence = checkAns.seq!;
+          sequence = checkAns.sequence!;
+          min = checkAns.min!;
           max = checkAns.max!;
         });
+        print('-----------getImageSequenceAfterUpload------------');
+        print('canUpload : ' + checkAns.canUpload.toString());
+        print('canComplete : ' + checkAns.canComplete.toString());
         print('sequence : ' + sequence.toString());
-        print('max :' + max.toString());
+        print('min : ' + min.toString());
+        print('max : ' + max.toString());
+        if (!checkAns.canUpload! && checkAns.canComplete!) {
+          setState(() {
+            documentWillUpload = false;
+            documentWillUploadOrWillFinish = false;
+            documentWillFinish = true;
+            _image = null;
+            int tempSeq = sequence - 1;
+            statusUpload = 'upload successful';
+            step++;
+          });
+        } else if (checkAns.canUpload! && !checkAns.canComplete!) {
+          setState(() {
+            documentWillUpload = true;
+            documentWillUploadOrWillFinish = false;
+            documentWillFinish = false;
+            _image = null;
+            int tempSeq = sequence - 1;
+            statusUpload = 'upload successful but not enough : ' +
+                tempSeq.toString() +
+                ' / ' +
+                min.toString();
+            step--;
+          });
+        } else if (checkAns.canUpload! && checkAns.canComplete!) {
+          setState(() {
+            documentWillUpload = false;
+            documentWillUploadOrWillFinish = true;
+            documentWillFinish = false;
+            _image = null;
+            int tempSeq = sequence - 1;
+            statusUpload = 'upload successful but can add more : ' +
+                tempSeq.toString() +
+                ' / ' +
+                min.toString();
+            step++;
+          });
+        }
+      } else {
+        showErrorDialog('Https Error getImageSequence');
+      }
+    } catch (e) {
+      Navigator.pushReplacementNamed(context, Register.routeName);
+    }
+  }
+
+  Future<void> getImageSequenceAfterDocCheck() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        accessToken = prefs.getString('accessToken');
+      });
+
+      var url = Uri.parse(configs +
+          '/api/Image/GetSequnce/' +
+          documentIdInput +
+          '/' +
+          eventType +
+          '/' +
+          'test');
+
+      /*var headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + accessToken
+      };
+
+      http.Response response = await http.get(url, headers: headers);*/
+      http.Response response = await http.get(url);
+      var data = json.decode(response.body);
+      GetSequnce checkAns = GetSequnce.fromJson(data);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          sequence = checkAns.sequence!;
+          min = checkAns.min!;
+          max = checkAns.max!;
+        });
+        print('-----------getImageSequenceAfterDocCheck------------');
+        print('canUpload : ' + checkAns.canUpload.toString());
+        print('canComplete : ' + checkAns.canComplete.toString());
+        print('sequence : ' + sequence.toString());
+        print('min : ' + min.toString());
+        print('max : ' + max.toString());
+        if (!checkAns.canUpload! && checkAns.canComplete!) {
+          setState(() {
+            documentWillUpload = false;
+            documentWillUploadOrWillFinish = false;
+            documentWillFinish = true;
+            _image = null;
+            statusUpload = 'Upload Finish';
+            step = 3;
+            documentReadonly = true;
+            documentColor = Color(0xFFEEEEEE);
+          });
+        } else if (checkAns.canUpload! && !checkAns.canComplete!) {
+          setState(() {
+            documentWillUpload = true;
+            documentWillUploadOrWillFinish = false;
+            documentWillFinish = false;
+            _image = null;
+            statusUpload = 'Images Not Enough';
+            step++;
+          });
+        } else if (checkAns.canUpload! && checkAns.canComplete!) {
+          setState(() {
+            documentWillUpload = false;
+            documentWillUploadOrWillFinish = true;
+            documentWillFinish = false;
+            _image = null;
+            statusUpload = 'Add More Images Or Finish';
+            step = 3;
+            documentReadonly = true;
+            documentColor = Color(0xFFEEEEEE);
+          });
+        }
       } else {
         showErrorDialog('Https Error getImageSequence');
       }
@@ -394,6 +529,9 @@ class _ContainersState extends State<Containers> {
   }
 
   Future<void> imageFromCamera() async {
+    setState(() {
+      step = 1;
+    });
     //open camera device
     PickedFile? selectedImage = await _picker.getImage(
         source: ImageSource.camera,
@@ -431,6 +569,8 @@ class _ContainersState extends State<Containers> {
       uploadEnabled = false;
     });
     await showProgressLoading(false);
+    await getDeviceInfo();
+    //await getLocation();
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
@@ -439,26 +579,28 @@ class _ContainersState extends State<Containers> {
         username = prefs.getString('username');
       });
 
-      var url = Uri.parse(configs + '/api/Image/UploadImage');
+      var url = Uri.parse(configs + '/api/Image/Create');
 
-      var headers = {
+      /*var headers = { 
         "Content-Type": "application/json",
         "Accept": "application/json",
         "Authorization": "Bearer " + accessToken
-      };
-      late UploadImage? imageupload = new UploadImage();
-      imageupload.imageDetail = new ImageDetail();
+      };*/
+
+      var headers = {'Content-Type': 'application/json'};
+      late CreateImage? imageupload = new CreateImage();
 
       setState(() {
+        imageupload.documentType = eventType;
+        imageupload.eventType = eventType;
+        imageupload.documentID = int.parse(documentIdInput);
+        imageupload.sequence = sequence;
+        imageupload.deviceInfo = deviceInfo;
+        imageupload.osInfo = osVersion;
         imageupload.gps = eventType;
-        imageupload.imageDetail!.type = eventType;
-        imageupload.imageDetail!.docID = int.parse(documentIdInput);
-        imageupload.imageDetail!.sequence = sequence;
-        imageupload.imageDetail!.deviceInfo = deviceInfo;
-        imageupload.imageDetail!.osInfo = osVersion;
-        imageupload.imageDetail!.isDeleted = false;
-        imageupload.imageDetail!.createdBy = username;
-        imageupload.imageDetail!.imageBase64 = fileInBase64;
+        imageupload.isDeleted = false;
+        imageupload.createdBy = username;
+        imageupload.imageBase64 = fileInBase64;
       });
 
       var jsonBody = jsonEncode(imageupload);
@@ -473,22 +615,8 @@ class _ContainersState extends State<Containers> {
       var data = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        await getImageSequence();
-        if (sequence > max) {
-          setState(() {
-            _image = null;
-            step++;
-          });
-          await showProgressLoading(true);
-        } else {
-          setState(() {
-            _image = null;
-            step--;
-          });
-          await showProgressLoading(true);
-        }
-        int a = sequence - 1;
-        statusUpload = "Add image : " + a.toString() + ' / ' + max.toString();
+        await getImageSequenceAfterUpload();
+        print(step);
       } else {
         await showProgressLoading(true);
         showErrorDialog('Https Error upload');
@@ -502,6 +630,7 @@ class _ContainersState extends State<Containers> {
     setColor();
     setText();
     setFocus();
+    showProgressLoading(true);
   }
 
   Future<void> finish() async {
@@ -601,6 +730,7 @@ class _ContainersState extends State<Containers> {
               child: Visibility(
                   visible: documentVisible,
                   child: TextFormField(
+                    keyboardType: TextInputType.number,
                     focusNode: focusNodes[0],
                     readOnly: documentReadonly,
                     textInputAction: TextInputAction.go,

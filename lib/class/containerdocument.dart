@@ -1,25 +1,6 @@
 class ContainerDocument {
-  ContainerDoc? containerDoc;
-
-  ContainerDocument({this.containerDoc});
-
-  ContainerDocument.fromJson(Map<String, dynamic> json) {
-    containerDoc = json['containerDoc'] != null
-        ? new ContainerDoc.fromJson(json['containerDoc'])
-        : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.containerDoc != null) {
-      data['containerDoc'] = this.containerDoc!.toJson();
-    }
-    return data;
-  }
-}
-
-class ContainerDoc {
   int? containerDocID;
+  int? shipmentAdviceID;
   String? bookingNo;
   String? shipmentNo;
   String? customer;
@@ -51,8 +32,9 @@ class ContainerDoc {
   String? modifiedBy;
   String? modifiedTime;
 
-  ContainerDoc(
+  ContainerDocument(
       {this.containerDocID,
+      this.shipmentAdviceID,
       this.bookingNo,
       this.shipmentNo,
       this.customer,
@@ -84,8 +66,9 @@ class ContainerDoc {
       this.modifiedBy,
       this.modifiedTime});
 
-  ContainerDoc.fromJson(Map<String, dynamic> json) {
+  ContainerDocument.fromJson(Map<String, dynamic> json) {
     containerDocID = json['containerDocID'];
+    shipmentAdviceID = json['shipmentAdviceID'];
     bookingNo = json['bookingNo'];
     shipmentNo = json['shipmentNo'];
     customer = json['customer'];
@@ -121,6 +104,7 @@ class ContainerDoc {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['containerDocID'] = this.containerDocID;
+    data['shipmentAdviceID'] = this.shipmentAdviceID;
     data['bookingNo'] = this.bookingNo;
     data['shipmentNo'] = this.shipmentNo;
     data['customer'] = this.customer;

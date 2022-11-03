@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test/screens/menu_hmc.dart';
+import 'package:test/screens/menu.dart';
 import 'package:test/screens/setting.dart';
 
 class MainScreen extends StatefulWidget {
@@ -80,7 +80,7 @@ class _MainScreenState extends State<MainScreen> {
     return {
       '/': (context) {
         return [
-          MenuHMC(),
+          Menu(),
           Setting(),
         ].elementAt(index);
       },
