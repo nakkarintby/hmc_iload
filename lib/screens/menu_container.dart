@@ -1,20 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:test/components/menu_list2.dart';
+import 'package:test/screens/container_number.dart';
 import 'package:test/screens/container_pickup.dart';
-import 'package:test/screens/menu_container.dart';
 import 'package:test/screens/ocr.dart';
 
-class Menu extends StatefulWidget {
-  static String routeName = "/menu";
+class MenuContainer extends StatefulWidget {
+  static String routeName = "/menucontainer";
   @override
-  _MenuPageState createState() => _MenuPageState();
+  _MenuContainerPageState createState() => _MenuContainerPageState();
 }
 
-class _MenuPageState extends State<Menu> {
+class _MenuContainerPageState extends State<MenuContainer> {
   bool containerVisible = true;
-  bool transportationVisible = true;
-  bool checkupVisible = true;
+  bool ocrVisible = true;
 
   @override
   void initState() {
@@ -42,9 +41,9 @@ class _MenuPageState extends State<Menu> {
               Visibility(
                 visible: containerVisible,
                 child: MenuList2(
-                  text: "Container",
+                  text: "Container Pick-up",
                   imageIcon: ImageIcon(
-                    AssetImage('assets/container.png'),
+                    AssetImage('assets/desccon.png'),
                     size: 45,
                     color: Colors.blue,
                   ),
@@ -52,32 +51,25 @@ class _MenuPageState extends State<Menu> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => MenuContainer()))
+                            builder: (context) => ContainerPickup()))
                   },
                 ),
               ),
               Visibility(
-                visible: transportationVisible,
+                visible: ocrVisible,
                 child: MenuList2(
-                  text: "Transportation",
+                  text: "Container Numbers",
                   imageIcon: ImageIcon(
-                    AssetImage('assets/transportation.png'),
+                    AssetImage('assets/number.png'),
                     size: 45,
                     color: Colors.blue,
                   ),
-                  press: () => {},
-                ),
-              ),
-              Visibility(
-                visible: checkupVisible,
-                child: MenuList2(
-                  text: "Check-up",
-                  imageIcon: ImageIcon(
-                    AssetImage('assets/checkup.png'),
-                    size: 45,
-                    color: Colors.blue,
-                  ),
-                  press: () => {},
+                  press: () => {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ContainerNumber()))
+                  },
                 ),
               ),
             ],

@@ -21,13 +21,16 @@ import 'package:test/class/getsequnce.dart';
 import 'package:test/class/imagesequence.dart';
 import 'package:test/class/uploadimage.dart';
 import 'package:test/screens/register.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
-class Containers extends StatefulWidget {
+class ContainerNumber extends StatefulWidget {
   @override
-  _ContainersState createState() => _ContainersState();
+  _ContainerNumberState createState() => _ContainerNumberState();
 }
 
-class _ContainersState extends State<Containers> {
+class _ContainerNumberState extends State<ContainerNumber> {
   TextEditingController documentController = TextEditingController();
   bool documentVisible = false;
   bool documentReadonly = false;
@@ -62,6 +65,7 @@ class _ContainersState extends State<Containers> {
   LocationData? _currentPosition;
   Location location = Location();
   String gps = "";
+  String scannedText = "";
 
   late Uint8List img;
   String username = '';
@@ -340,6 +344,19 @@ class _ContainersState extends State<Containers> {
       };
 
       http.Response response = await http.get(url, headers: headers);
+      if (response.statusCode == 204) {
+        setState(() {
+          documentController.text = '';
+          documentIdInput = '';
+        });
+        showErrorDialog('DocumentID Not Found!');
+        setVisible();
+        setReadOnly();
+        setColor();
+        setText();
+        setFocus();
+        return;
+      }
       var data = json.decode(response.body);
       ContainerDocument checkAns = ContainerDocument.fromJson(data);
       if (response.statusCode == 200) {
@@ -564,13 +581,115 @@ class _ContainersState extends State<Containers> {
     }
   }
 
+  Future<void> _pickCamera() async {
+    setState(() {
+      step = 1;
+    });
+    try {
+      PickedFile? selectedImage = await _picker.getImage(
+          source: ImageSource.camera,
+          imageQuality: quality,
+          maxHeight: 2000,
+          maxWidth: 2000);
+
+      File? temp;
+      if (selectedImage != null) {
+        temp = File(selectedImage.path);
+        if (selectedImage.path.isNotEmpty) {
+          await showProgressLoading(false);
+          await _cropImage(temp);
+          await getRecognisedText(_image!);
+          setState(() {
+            final encodedBytes = _image!.readAsBytesSync();
+            fileInBase64 = base64Encode(encodedBytes);
+          });
+        }
+      }
+      if (_image != null) {
+        showProgressImageFromCamera();
+        setState(() {
+          step++;
+        });
+        setVisible();
+        setReadOnly();
+        setColor();
+        setText();
+        setFocus();
+      }
+    } catch (e) {
+      print("Error occured while PickCamera");
+    }
+  }
+
+  Future<void> _cropImage(File image) async {
+    await showProgressLoading(true);
+    File? croppedFile = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        aspectRatioPresets: Platform.isAndroid
+            ? [
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio16x9
+              ]
+            : [
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio5x3,
+                CropAspectRatioPreset.ratio5x4,
+                CropAspectRatioPreset.ratio7x5,
+                CropAspectRatioPreset.ratio16x9
+              ],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: 'Cropper',
+        ));
+    if (croppedFile != null) {
+      setState(() {
+        _image = croppedFile;
+      });
+    }
+  }
+
+  void _clearImage() {
+    setState(() {
+      _image = null;
+    });
+  }
+
+  Future<void> getRecognisedText(File image) async {
+    final inputImage = InputImage.fromFilePath(image.path);
+    final textDetector = GoogleMlKit.vision.textDetector();
+    RecognisedText recognisedText = await textDetector.processImage(inputImage);
+    await textDetector.close();
+    setState(() {
+      scannedText = "";
+    });
+    for (TextBlock block in recognisedText.blocks) {
+      for (TextLine line in block.lines) {
+        setState(() {
+          scannedText = scannedText + line.text + "\n";
+        });
+      }
+    }
+    print(scannedText);
+  }
+
   Future<void> upload() async {
     setState(() {
       uploadEnabled = false;
     });
     await showProgressLoading(false);
     await getDeviceInfo();
-    //await getLocation();
+    await getLocation();
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
@@ -597,7 +716,7 @@ class _ContainersState extends State<Containers> {
         imageupload.sequence = sequence;
         imageupload.deviceInfo = deviceInfo;
         imageupload.osInfo = osVersion;
-        imageupload.gps = eventType;
+        imageupload.gps = gps;
         imageupload.isDeleted = false;
         imageupload.createdBy = username;
         imageupload.imageBase64 = fileInBase64;
@@ -616,7 +735,6 @@ class _ContainersState extends State<Containers> {
 
       if (response.statusCode == 200) {
         await getImageSequenceAfterUpload();
-        print(step);
       } else {
         await showProgressLoading(true);
         showErrorDialog('Https Error upload');
@@ -647,10 +765,8 @@ class _ContainersState extends State<Containers> {
       });
 
       var url = Uri.parse(configs +
-          '/api/Image/Completed/' +
-          documentIdInput +
-          '/' +
-          eventType);
+          '/api/ContainerDocument/Complete?containerdocumentid=' +
+          documentIdInput);
 
       var headers = {
         "Content-Type": "application/json",
@@ -658,7 +774,7 @@ class _ContainersState extends State<Containers> {
         "Authorization": "Bearer " + accessToken
       };
 
-      http.Response response = await http.put(url, headers: headers);
+      http.Response response = await http.post(url, headers: headers);
       var data = json.decode(response.body);
 
       if (response.statusCode == 200) {
@@ -706,7 +822,7 @@ class _ContainersState extends State<Containers> {
           leading: BackButton(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
-            'Container Pick-up',
+            'Container Number',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -780,7 +896,7 @@ class _ContainersState extends State<Containers> {
                   ),
                   onPressed: takePhotoEnabled
                       ? () {
-                          imageFromCamera();
+                          _pickCamera();
                         }
                       : null,
                 ),

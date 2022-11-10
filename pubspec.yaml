@@ -117,6 +117,8 @@ flutter:
     - assets/illustration-3.png 
     - assets/otp.png
     - assets/shms1.png
+    - assets/number.png
+    - assets/desccon.png
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
