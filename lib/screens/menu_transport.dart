@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:test/components/menu_list2.dart';
+import 'package:test/screens/container_number.dart';
 import 'package:test/screens/container_pickup.dart';
-import 'package:test/screens/menu_container.dart';
-import 'package:test/screens/menu_transport.dart';
+import 'package:test/screens/loading.dart';
 import 'package:test/screens/ocr.dart';
+import 'package:test/screens/unloading.dart';
 
-class Menu extends StatefulWidget {
-  static String routeName = "/menu";
+class MenuTransport extends StatefulWidget {
+  static String routeName = "/menutransport";
   @override
-  _MenuPageState createState() => _MenuPageState();
+  _MenuTransportPageState createState() => _MenuTransportPageState();
 }
 
-class _MenuPageState extends State<Menu> {
-  bool containerVisible = true;
-  bool transportationVisible = true;
-  bool checkupVisible = true;
+class _MenuTransportPageState extends State<MenuTransport> {
+  bool loadingVisible = true;
+  bool unloadingVisible = true;
 
   @override
   void initState() {
@@ -41,49 +41,33 @@ class _MenuPageState extends State<Menu> {
             children: [
               SizedBox(height: 10),
               Visibility(
-                visible: containerVisible,
+                visible: loadingVisible,
                 child: MenuList2(
-                  text: "Container",
+                  text: "Loading",
                   imageIcon: ImageIcon(
-                    AssetImage('assets/container.png'),
+                    AssetImage('assets/loading.png'),
                     size: 45,
                     color: Colors.blue,
                   ),
                   press: () => {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MenuContainer()))
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Loading()))
                   },
                 ),
               ),
               Visibility(
-                visible: transportationVisible,
+                visible: unloadingVisible,
                 child: MenuList2(
-                  text: "Transportation",
+                  text: "Unloading",
                   imageIcon: ImageIcon(
-                    AssetImage('assets/transportation.png'),
+                    AssetImage('assets/unloading.png'),
                     size: 45,
                     color: Colors.blue,
                   ),
                   press: () => {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MenuTransport()))
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Unloading()))
                   },
-                ),
-              ),
-              Visibility(
-                visible: checkupVisible,
-                child: MenuList2(
-                  text: "Check-up",
-                  imageIcon: ImageIcon(
-                    AssetImage('assets/checkup.png'),
-                    size: 45,
-                    color: Colors.blue,
-                  ),
-                  press: () => {},
                 ),
               ),
             ],

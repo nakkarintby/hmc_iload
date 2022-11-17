@@ -62,6 +62,7 @@ class _ContainerPickupState extends State<ContainerPickup> {
   LocationData? _currentPosition;
   Location location = Location();
   String gps = "";
+  String documentType = "";
 
   late Uint8List img;
   String username = '';
@@ -71,6 +72,8 @@ class _ContainerPickupState extends State<ContainerPickup> {
     super.initState();
     setState(() {
       step = 0;
+      documentType = 'Container';
+      eventType = 'Pickup';
     });
     setVisible();
     setReadOnly();
@@ -100,10 +103,10 @@ class _ContainerPickupState extends State<ContainerPickup> {
     }
 
     _currentPosition = await location.getLocation();
-    print('' +
+    /*print('' +
         _currentPosition!.latitude.toString() +
         ',' +
-        _currentPosition!.longitude.toString());
+        _currentPosition!.longitude.toString());*/
     setState(() {
       gps = (_currentPosition!.latitude.toString() +
           ',' +
@@ -319,7 +322,6 @@ class _ContainerPickupState extends State<ContainerPickup> {
 
   Future<void> documentIDCheck() async {
     setState(() {
-      eventType = 'Container';
       documentIdInput = documentController.text;
     });
 
@@ -390,9 +392,9 @@ class _ContainerPickupState extends State<ContainerPickup> {
           '/api/Image/GetSequnce/' +
           documentIdInput +
           '/' +
-          eventType +
+          documentType +
           '/' +
-          'test');
+          eventType);
 
       /*var headers = {
         "Content-Type": "application/json",
@@ -474,9 +476,9 @@ class _ContainerPickupState extends State<ContainerPickup> {
           '/api/Image/GetSequnce/' +
           documentIdInput +
           '/' +
-          eventType +
+          documentType +
           '/' +
-          'test');
+          eventType);
 
       /*var headers = {
         "Content-Type": "application/json",
@@ -604,7 +606,7 @@ class _ContainerPickupState extends State<ContainerPickup> {
       late CreateImage? imageupload = new CreateImage();
 
       setState(() {
-        imageupload.documentType = eventType;
+        imageupload.documentType = documentType;
         imageupload.eventType = eventType;
         imageupload.documentID = int.parse(documentIdInput);
         imageupload.sequence = sequence;

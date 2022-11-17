@@ -47,10 +47,10 @@ class _OCRState extends State<OCR> {
     }
 
     _currentPosition = await location.getLocation();
-    print('' +
+    /*print('' +
         _currentPosition!.latitude.toString() +
         ',' +
-        _currentPosition!.longitude.toString());
+        _currentPosition!.longitude.toString());*/
   }
 
   Future<void> _pickCamera() async {

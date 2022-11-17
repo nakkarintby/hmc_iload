@@ -95,10 +95,10 @@ class _RegisterState extends State<Register> {
     }
 
     _currentPosition = await location.getLocation();
-    print('' +
+    /*print('' +
         _currentPosition!.latitude.toString() +
         ',' +
-        _currentPosition!.longitude.toString());
+        _currentPosition!.longitude.toString());*/
   }
 
   Future<void> getDeviceInfo() async {
@@ -108,9 +108,6 @@ class _RegisterState extends State<Register> {
       osVersion = 'Android(' + androidInfo.version.release + ')';
       deviceInfo = androidInfo.manufacturer + '(' + androidInfo.model + ')';
     });
-    print(deviceId);
-    print(osVersion);
-    print(deviceInfo);
   }
 
   Future<void> checkPasscode(BuildContext contexts) async {
@@ -273,7 +270,7 @@ class _RegisterState extends State<Register> {
           Uri.parse(configs + '/api/Mobile/PhoneNoCheck?phoneNo=' + mobile);
       http.Response response = await http.get(url);
 
-      print(url);
+      //print(url);
 
       var data = json.decode(response.body);
       PhoneNoCheck checkAns = PhoneNoCheck.fromJson(data);
