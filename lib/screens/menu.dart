@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:test/components/menu_list2.dart';
+import 'package:test/screens/checkup_header.dart';
 import 'package:test/screens/container_pickup.dart';
 import 'package:test/screens/menu_container.dart';
 import 'package:test/screens/menu_transport.dart';
@@ -83,7 +84,12 @@ class _MenuPageState extends State<Menu> {
                     size: 45,
                     color: Colors.blue,
                   ),
-                  press: () => {},
+                  press: () => {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CheckupHeader()))
+                  },
                 ),
               ),
             ],
