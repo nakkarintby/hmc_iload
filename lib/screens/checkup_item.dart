@@ -61,8 +61,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
           '/api/CheckUpItem/GetByCheckUpHeaderId/' +
           checkupHeaderID.toString());
 
-      print(url);
-
       var headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -93,7 +91,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
       if (list[i].modifiedBy == null) {
         setState(() {
           count = i;
-          print('count is : ' + count.toString());
         });
         return;
       }
@@ -242,11 +239,63 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
   }
 
   Future<void> saveButtonCheckupItem() async {
+    await saveListCheckupItem();
     if (value == 2 && dateController.text.isEmpty) {
       showErrorDialog('Please Select Date');
       return;
     }
-    showSuccessDialog('Save Sucessful');
+    //post list checkupitem
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        accessToken = prefs.getString('accessToken');
+        username = prefs.getString('username');
+      });
+
+      var url = Uri.parse(configs + '/api/CheckUpItem/UpdateList');
+
+      var headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + accessToken
+      };
+
+      //set temp list
+      List<CheckUpItemClass> templist = list;
+      for (int i = 0; i < templist.length; i++) {
+        if (templist[i].remark == "") {
+          setState(() {
+            templist[i].remark = null;
+          });
+        }
+        if (templist[i].dueDate == "") {
+          setState(() {
+            templist[i].dueDate = null;
+          });
+        }
+        print('remark : ' + i.toString() + templist[i].remark.toString());
+        print('duedate : ' + i.toString() + templist[i].dueDate.toString());
+      }
+      var jsonBody = jsonEncode(templist);
+      final encoding = Encoding.getByName('utf-8');
+
+      http.Response response = await http.post(
+        url,
+        headers: headers,
+        body: jsonBody,
+        encoding: encoding,
+      );
+      var data = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        showSuccessDialog('yyyyyyyyyyyyyyyyy Succesful');
+      } else {
+        showErrorDialog('Https Error Save');
+      }
+    } catch (e) {
+      print("Error occured while SaveList");
+    }
   }
 
   Future<void> nextButtonCheckupItem() async {
