@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/checkupitem.dart';
 
 class CheckupItemPage extends StatefulWidget {
@@ -12,42 +15,256 @@ class CheckupItemPage extends StatefulWidget {
 class _CheckupItemPageState extends State<CheckupItemPage> {
   int value = 0;
   bool radio = false;
-  bool backEnable = true;
+  bool backEnable = false;
+  bool saveEnable = false;
   bool nextEnable = false;
+
   TextEditingController remarkController = TextEditingController();
   TextEditingController dateController = TextEditingController();
-  List<CheckupItem> list = [];
+  List<CheckUpItemClass> list = [];
   late Timer timer;
   int count = 0;
+
+  String configs = "";
+  String accessToken = "";
+  String username = "";
+  int checkupHeaderID = 0;
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      value = 0;
-      radio = false;
-      backEnable = true;
-      nextEnable = false;
-      dateController.text = "";
-      remarkController.text = "";
       list = [];
-      count = 3;
+      count = 0;
+      radio = false;
+      value = 0;
+      remarkController.text = "";
+      dateController.text = "";
+      backEnable = false;
+      saveEnable = false;
+      nextEnable = false;
     });
-    setCheckupItem();
+    setListCheckupItem();
   }
 
-  void setCheckupItem() {
-    for (int i = 1; i <= 10; i++) {
-      late CheckupItem? a = new CheckupItem();
+  Future<void> setListCheckupItem() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
-        a.checkUpItemID = i;
-        a.checkUpHeaderID = 1;
-        a.detailNo = i;
-        a.detailName = 'ข้อนี้คือข้อที่ ' + i.toString();
-        a.modifiedBy = "";
-        list.add(a);
+        configs = prefs.getString('configs');
+        accessToken = prefs.getString('accessToken');
+        username = prefs.getString('username');
+        checkupHeaderID = prefs.getInt('checkupHeaderID');
+      });
+
+      var url = Uri.parse(configs +
+          '/api/CheckUpItem/GetByCheckUpHeaderId/' +
+          checkupHeaderID.toString());
+
+      print(url);
+
+      var headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + accessToken
+      };
+
+      http.Response response = await http.get(url, headers: headers);
+
+      if (response.statusCode != 200) {
+        showErrorDialog('Not found setCheckupItem');
+        return;
+      }
+
+      setState(() {
+        list = (json.decode(response.body) as List)
+            .map((data) => CheckUpItemClass.fromJson(data))
+            .toList();
+      });
+      await setCountListCheckupItem();
+      await updateListCheckupItem();
+    } catch (e) {
+      print("Error occured while setCheckupItem");
+    }
+  }
+
+  Future<void> setCountListCheckupItem() async {
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].modifiedBy == null) {
+        setState(() {
+          count = i;
+          print('count is : ' + count.toString());
+        });
+        return;
+      }
+    }
+  }
+
+  Future<void> updateListCheckupItem() async {
+    if (list.length > 0) {
+      if (list[count].modifiedBy == null) {
+        setState(() {
+          radio = false;
+          value = 0;
+          remarkController.text = "";
+          dateController.text = "";
+          backEnable = true;
+          saveEnable = false;
+          nextEnable = false;
+        });
+      } else if (list[count].modifiedBy != null) {
+        //set radio
+        if (list[count].isChecked == true) {
+          setState(() {
+            radio = true;
+            value = 1;
+          });
+        } else if (list[count].isChecked == false) {
+          setState(() {
+            radio = true;
+            value = 2;
+          });
+        }
+
+        //set remark
+        if (list[count].remark == null) {
+          setState(() {
+            remarkController.text = "";
+          });
+        } else if (list[count].remark != null) {
+          setState(() {
+            remarkController.text = list[count].remark!;
+          });
+        }
+
+        //set date
+        if (list[count].dueDate == null) {
+          setState(() {
+            dateController.text = "";
+          });
+        } else if (list[count].dueDate != null) {
+          var tempdate = list[count].dueDate.toString();
+          var splitdate = tempdate.split('T');
+          setState(() {
+            dateController.text = splitdate[0];
+          });
+        }
+
+        //set button
+        setState(() {
+          backEnable = true;
+          saveEnable = true;
+          nextEnable = true;
+        });
+      }
+    }
+  }
+
+  Future<void> saveListCheckupItem() async {
+    if (list.length > 0) {
+      setState(() {
+        if (value == 1) {
+          list[count].isChecked = true;
+        } else if (value == 2) {
+          list[count].isChecked = false;
+        }
+        list[count].remark = remarkController.text;
+        list[count].dueDate = dateController.text;
+        list[count].modifiedBy = username;
       });
     }
+  }
+
+  Future<void> confirmDialog() async {
+    // set up the buttons
+    Widget noButton = FlatButton(
+      child: Text("No"),
+      onPressed: () async {
+        setState(() {
+          count--;
+          backEnable = true;
+          saveEnable = true;
+          nextEnable = true;
+        });
+        await updateListCheckupItem();
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+    Widget yesButton = FlatButton(
+      child: Text("Yes"),
+      onPressed: () async {
+        if (value == 2 && dateController.text.isEmpty) {
+          Navigator.of(context, rootNavigator: true).pop();
+          showErrorDialog('Please Select Date');
+          return;
+        } else if (value == 0) {
+          Navigator.of(context, rootNavigator: true).pop();
+          showErrorDialog('Please Select Data');
+          return;
+        }
+        await saveListCheckupItem();
+        setState(() {
+          count--;
+          backEnable = true;
+          saveEnable = true;
+          nextEnable = true;
+        });
+        await updateListCheckupItem();
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Row(children: [
+        Icon(Icons.warning_amber_outlined, color: Colors.orangeAccent),
+        Text("Warning")
+      ]),
+      content: Text("Would you like save?"),
+      actions: [
+        noButton,
+        yesButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  Future<void> backButtonCheckupItem() async {
+    if (count == 0) {
+      return;
+    }
+    await confirmDialog();
+  }
+
+  Future<void> saveButtonCheckupItem() async {
+    if (value == 2 && dateController.text.isEmpty) {
+      showErrorDialog('Please Select Date');
+      return;
+    }
+    showSuccessDialog('Save Sucessful');
+  }
+
+  Future<void> nextButtonCheckupItem() async {
+    if (value == 2 && dateController.text.isEmpty) {
+      showErrorDialog('Please Select Date');
+      return;
+    }
+    if (list.length - 1 == count) {
+      await saveListCheckupItem();
+      showSuccessDialog('Check Finish Please Save!');
+      return;
+    }
+
+    await saveListCheckupItem();
+    setState(() {
+      count++;
+    });
+    await updateListCheckupItem();
   }
 
   void alertDialog(String msg, String type) {
@@ -95,161 +312,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
     alertDialog(success, 'Success');
   }
 
-  Future<void> confirmDialog() async {
-    // set up the buttons
-    Widget noButton = FlatButton(
-      child: Text("No"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-        setState(() {
-          count--;
-          radio = true;
-          backEnable = true;
-          nextEnable = true;
-          if (list[count].isChecked == true) {
-            value = 1;
-          } else {
-            value = 2;
-          }
-          dateController.text = list[count].dueDate!;
-          remarkController.text = list[count].remark!;
-        });
-      },
-    );
-    Widget yesButton = FlatButton(
-      child: Text("Yes"),
-      onPressed: () {
-        if (value == 2 && dateController.text.isEmpty) {
-          Navigator.of(context, rootNavigator: true).pop();
-          showErrorDialog('Please Select Date');
-          return;
-        } else if (value == 0) {
-          Navigator.of(context, rootNavigator: true).pop();
-          showErrorDialog('Please Select Data');
-          return;
-        }
-        setState(() {
-          if (value == 1) {
-            list[count].isChecked = true;
-          } else if (value == 2) {
-            list[count].isChecked = false;
-          }
-          list[count].remark = remarkController.text;
-          list[count].dueDate = dateController.text;
-          list[count].modifiedBy = "a";
-        });
-
-        setState(() {
-          count--;
-          radio = true;
-          backEnable = true;
-          nextEnable = true;
-          if (list[count].isChecked == true) {
-            value = 1;
-          } else {
-            value = 2;
-          }
-          dateController.text = list[count].dueDate!;
-          remarkController.text = list[count].remark!;
-        });
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-    );
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Row(children: [
-        Icon(Icons.warning_amber_outlined, color: Colors.orangeAccent),
-        Text("Warning")
-      ]),
-      content: Text("Would you like save?"),
-      actions: [
-        noButton,
-        yesButton,
-      ],
-    );
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
-  Future<void> backCheckupItem() async {
-    if (count == 0) {
-      return;
-    }
-    await confirmDialog();
-  }
-
-  Future<void> saveCheckupItem() async {
-    if (value == 2 && dateController.text.isEmpty) {
-      showErrorDialog('Please Select Date');
-      return;
-    }
-    showSuccessDialog('Save Sucessful');
-  }
-
-  Future<void> nextCheckupItem() async {
-    if (value == 2 && dateController.text.isEmpty) {
-      showErrorDialog('Please Select Date');
-      return;
-    }
-    if (list.length - 1 == count) {
-      setState(() {
-        if (value == 1) {
-          list[count].isChecked = true;
-        } else if (value == 2) {
-          list[count].isChecked = false;
-        }
-        list[count].remark = remarkController.text;
-        list[count].dueDate = dateController.text;
-        list[count].modifiedBy = "a";
-      });
-      showSuccessDialog('Check Finish Please Save!');
-      return;
-    }
-
-    setState(() {
-      if (value == 1) {
-        list[count].isChecked = true;
-      } else if (value == 2) {
-        list[count].isChecked = false;
-      }
-      list[count].remark = remarkController.text;
-      list[count].dueDate = dateController.text;
-      list[count].modifiedBy = "a";
-    });
-
-    setState(() {
-      count++;
-    });
-    if (list[count].modifiedBy == "") {
-      setState(() {
-        radio = false;
-        backEnable = true;
-        nextEnable = false;
-        value = 0;
-        dateController.text = "";
-        remarkController.text = "";
-      });
-    } else {
-      setState(() {
-        radio = true;
-        backEnable = true;
-        nextEnable = true;
-        if (list[count].isChecked == true) {
-          value = 1;
-        } else {
-          value = 2;
-        }
-        dateController.text = list[count].dueDate!;
-        remarkController.text = list[count].remark!;
-      });
-    }
-  }
-
   Widget RadioButtonYes(String text, int index) {
     return new SizedBox(
         width: 200.0,
@@ -257,8 +319,9 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         child: OutlineButton(
           onPressed: () {
             setState(() {
-              value = index;
               radio = true;
+              value = index;
+              saveEnable = true;
               nextEnable = true;
             });
           },
@@ -282,8 +345,9 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         child: OutlineButton(
           onPressed: () {
             setState(() {
-              value = index;
               radio = true;
+              value = index;
+              saveEnable = true;
               nextEnable = true;
             });
           },
@@ -328,10 +392,12 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
               SizedBox(
                   width: MediaQuery.of(context).size.width / 1.25,
                   child: Text(
-                    list[count].detailNo.toString() +
-                        ". " +
-                        list[count].detailName.toString(),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    (list.length > 0
+                        ? (count + 1).toString() +
+                            ". " +
+                            list[count].detailName.toString()
+                        : 'N/A'),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.left,
                   )),
               SizedBox(height: 25),
@@ -387,12 +453,12 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
                         lastDate: DateTime(2040));
 
                     if (pickedDate != null) {
-                      print(
-                          pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
+                      /*print(
+                          pickedDate);*/ //pickedDate output format => 2021-03-10 00:00:00.000
                       String formattedDate =
                           DateFormat('yyyy-MM-dd').format(pickedDate);
-                      print(
-                          formattedDate); //formatted date output using intl package =>  2021-03-16
+                      /*print(
+                          formattedDate);*/ //formatted date output using intl package =>  2021-03-16
                       setState(() {
                         dateController.text =
                             formattedDate; //set output date to TextField value.
@@ -419,40 +485,40 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
                     CrossAxisAlignment.center, //Center Row contents vertically,
                 children: <Widget>[
                   new RaisedButton(
-                    color: Colors.red,
+                    color: count == 0 ? Colors.grey : Colors.red,
                     child: const Text('Back',
                         style: TextStyle(
                           color: Colors.white,
                         )),
                     onPressed: backEnable
-                        ? () {
-                            backCheckupItem();
+                        ? () async {
+                            await backButtonCheckupItem();
                           }
                         : null,
                   ),
                   SizedBox(width: MediaQuery.of(context).size.width * 0.05),
                   new RaisedButton(
-                    color: radio == true ? Colors.blue : Colors.grey,
+                    color: saveEnable == true ? Colors.blue : Colors.grey,
                     child: const Text('Save',
                         style: TextStyle(
                           color: Colors.white,
                         )),
-                    onPressed: nextEnable
-                        ? () {
-                            saveCheckupItem();
+                    onPressed: saveEnable
+                        ? () async {
+                            await saveButtonCheckupItem();
                           }
                         : null,
                   ),
                   SizedBox(width: MediaQuery.of(context).size.width * 0.05),
                   new RaisedButton(
-                    color: radio == true ? Colors.green : Colors.grey,
+                    color: nextEnable == true ? Colors.green : Colors.grey,
                     child: const Text('Next',
                         style: TextStyle(
                           color: Colors.white,
                         )),
                     onPressed: nextEnable
-                        ? () {
-                            nextCheckupItem();
+                        ? () async {
+                            await nextButtonCheckupItem();
                           }
                         : null,
                   ),

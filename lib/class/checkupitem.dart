@@ -1,4 +1,4 @@
-class CheckupItem {
+class CheckUpItemClass {
   int? checkUpItemID;
   int? checkUpHeaderID;
   String? truckType;
@@ -14,7 +14,7 @@ class CheckupItem {
   String? modifiedBy;
   String? modifiedTime;
 
-  CheckupItem(
+  CheckUpItemClass(
       {this.checkUpItemID,
       this.checkUpHeaderID,
       this.truckType,
@@ -30,7 +30,7 @@ class CheckupItem {
       this.modifiedBy,
       this.modifiedTime});
 
-  CheckupItem.fromJson(Map<String, dynamic> json) {
+  CheckUpItemClass.fromJson(Map<String, dynamic> json) {
     checkUpItemID = json['checkUpItemID'];
     checkUpHeaderID = json['checkUpHeaderID'];
     truckType = json['truckType'];

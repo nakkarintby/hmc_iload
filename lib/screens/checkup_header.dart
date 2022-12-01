@@ -1,6 +1,9 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test/class/checkupheader.dart';
 import 'package:test/screens/checkup_item.dart';
 
 class CheckupHeader extends StatefulWidget {
@@ -14,6 +17,10 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
   TextEditingController licenseTController = TextEditingController();
   bool enableNext = true;
   late Timer timer;
+
+  String configs = '';
+  String accessToken = '';
+  String username = '';
 
   @override
   void initState() {
@@ -67,20 +74,79 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
 
   Future<void> checkLicense() async {
     try {
+      String path = "";
       if (licenseHController.text.toString() != "" ||
           licenseTController.text.toString() != "") {
+        //set url
+        if (licenseHController.text.toString() != "" &&
+            licenseTController.text.toString() == "") {
+          setState(() {
+            path = "/api/CheckUpHeader/GetByLicensePlate?licenseplateh=" +
+                licenseHController.text.toString();
+          });
+        } else if (licenseHController.text.toString() == "" &&
+            licenseTController.text.toString() != "") {
+          setState(() {
+            path = "/api/CheckUpHeader/GetByLicensePlate?licenseplatet=" +
+                licenseTController.text.toString();
+          });
+        } else if (licenseHController.text.toString() != "" &&
+            licenseTController.text.toString() != "") {
+          setState(() {
+            path = "/api/CheckUpHeader/GetByLicensePlate?licenseplateh=" +
+                licenseHController.text.toString() +
+                "&licenseplatet=" +
+                licenseTController.text.toString();
+          });
+        }
+
+        //call api
+        SharedPreferences prefs = await SharedPreferences.getInstance();
         setState(() {
-          licenseHController.text = "";
-          licenseTController.text = "";
+          configs = prefs.getString('configs');
+          //accessToken = prefs.getString('accessToken');
         });
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => CheckupItemPage()));
+
+        var url = Uri.parse(configs + path);
+
+        var headers = {"Content-Type": "application/json"};
+
+        http.Response response = await http.get(url, headers: headers);
+        if (response.statusCode == 204) {
+          setState(() {
+            licenseHController.text = "";
+            licenseTController.text = "";
+          });
+          showErrorDialog('License Not Found!');
+          return;
+        }
+        var data = json.decode(response.body);
+        CheckUpHeaderClass checkHeader = CheckUpHeaderClass.fromJson(data);
+
+        if (response.statusCode == 200) {
+          setState(() {
+            prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
+            licenseHController.text = "";
+            licenseTController.text = "";
+          });
+          //print(prefs.getInt('checkupHeaderID').toString());
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CheckupItemPage()));
+        } else {
+          setState(() {
+            licenseHController.text = "";
+            licenseTController.text = "";
+          });
+          showErrorDialog('License Not Found!');
+          return;
+        }
       } else {
         setState(() {
           licenseHController.text = "";
           licenseTController.text = "";
         });
         showErrorDialog('Please Enter Data!');
+        return;
       }
     } catch (e) {
       print("Error occured while checkLicense");
