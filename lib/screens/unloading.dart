@@ -74,7 +74,7 @@ class _UnloadingState extends State<Unloading> {
     setState(() {
       step = 0;
       documentType = 'Transportation';
-      eventType = 'Unloading';
+      eventType = 'UnLoading';
     });
     setVisible();
     setReadOnly();
@@ -361,6 +361,8 @@ class _UnloadingState extends State<Unloading> {
       if (response.statusCode == 200) {
         if (checkAns.isCompletedPhotoUnload!) {
           showSuccessDialog('Document Complete!');
+        } else if (!checkAns.isCompletedPhotoLoad!) {
+          showErrorDialog('Please Scan Loading!');
         } else {
           await getImageSequenceAfterDocCheck();
         }
@@ -665,7 +667,7 @@ class _UnloadingState extends State<Unloading> {
           '/api/TransportationDocument/Complete?transportationdocumentid=' +
           documentIdInput +
           '&type=' +
-          eventType);
+          'Unloading');
 
       var headers = {
         "Content-Type": "application/json",

@@ -838,10 +838,10 @@ class _ContainerNumberState extends State<ContainerNumber> {
             )
           ]),
           SizedBox(height: 5),
-          Text(scannedText,
+          /*Text(scannedText,
               style: TextStyle(
                 color: Colors.black,
-              )),
+              )),*/
         ])))));
   }
 }
