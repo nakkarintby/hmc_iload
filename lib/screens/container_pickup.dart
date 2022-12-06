@@ -332,8 +332,10 @@ class _ContainerPickupState extends State<ContainerPickup> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url =
-          Uri.parse(configs + '/api/ContainerDocument/Get/' + documentIdInput);
+      var url = Uri.parse('https://' +
+          configs +
+          '/api/ContainerDocument/Get/' +
+          documentIdInput);
 
       var headers = {
         "Content-Type": "application/json",
@@ -388,7 +390,8 @@ class _ContainerPickupState extends State<ContainerPickup> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url = Uri.parse(configs +
+      var url = Uri.parse('https://' +
+          configs +
           '/api/Image/GetSequnce/' +
           documentIdInput +
           '/' +
@@ -472,7 +475,8 @@ class _ContainerPickupState extends State<ContainerPickup> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url = Uri.parse(configs +
+      var url = Uri.parse('https://' +
+          configs +
           '/api/Image/GetSequnce/' +
           documentIdInput +
           '/' +
@@ -594,7 +598,7 @@ class _ContainerPickupState extends State<ContainerPickup> {
         username = prefs.getString('username');
       });
 
-      var url = Uri.parse(configs + '/api/Image/Create');
+      var url = Uri.parse('https://' + configs + '/api/Image/Create');
 
       /*var headers = { 
         "Content-Type": "application/json",
@@ -660,7 +664,8 @@ class _ContainerPickupState extends State<ContainerPickup> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url = Uri.parse(configs +
+      var url = Uri.parse('https://' +
+          configs +
           '/api/ContainerDocument/Complete?containerdocumentid=' +
           documentIdInput);
 

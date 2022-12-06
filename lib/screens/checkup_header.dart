@@ -107,7 +107,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           //accessToken = prefs.getString('accessToken');
         });
 
-        var url = Uri.parse(configs + path);
+        var url = Uri.parse('https://' + configs + path);
 
         var headers = {"Content-Type": "application/json"};
 

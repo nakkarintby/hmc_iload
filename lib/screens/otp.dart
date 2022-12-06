@@ -85,7 +85,8 @@ class _OtpState extends State<Otp> {
         configs = prefs.getString('configs');
         token = prefs.getString('token');
       });
-      var url = Uri.parse(configs + '/api/Mobile/GetOTP?token=' + token);
+      var url =
+          Uri.parse('https://' + configs + '/api/Mobile/GetOTP?token=' + token);
       http.Response response = await http.get(url);
       var data = json.decode(response.body);
 
@@ -297,7 +298,8 @@ class _OtpState extends State<Otp> {
           mobile = prefs.getString('mobileTemp');
         });
 
-        var url = Uri.parse(configs +
+        var url = Uri.parse('https://' +
+            configs +
             '/api/Mobile/UpdatePin/' +
             mobile.toString() +
             '/' +

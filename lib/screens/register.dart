@@ -25,6 +25,8 @@ class _RegisterState extends State<Register> {
   TextEditingController mobileController = TextEditingController();
   final RoundedLoadingButtonController _btnController =
       RoundedLoadingButtonController();
+  final RoundedLoadingButtonController _btn2Controller =
+      RoundedLoadingButtonController();
   late Timer timer;
   String configs = '';
   bool verify = false;
@@ -35,14 +37,15 @@ class _RegisterState extends State<Register> {
       StreamController<bool>.broadcast();
   LocationData? _currentPosition;
   Location location = Location();
+  TextEditingController configsController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     setSharedPrefs();
     getDeviceInfo();
-    WidgetsBinding.instance
-        ?.addPostFrameCallback((_) => checkPasscode(context));
+    /*WidgetsBinding.instance
+        ?.addPostFrameCallback((_) => checkPasscode(context));*/
   }
 
   @override
@@ -61,7 +64,7 @@ class _RegisterState extends State<Register> {
     bool checkUsername = prefs.containsKey('username');
 
     if (!checkConfigsPrefs) {
-      prefs.setString('configs', 'https://smcapi.harmonious.co.th:422');
+      prefs.setString('configs', 'smcapi.harmonious.co.th:422');
     }
     if (!checkVerify) {
       prefs.setBool('verify', false);
@@ -116,6 +119,7 @@ class _RegisterState extends State<Register> {
       verify = prefs.getBool('verify');
     });
     if (verify == true) {
+      _btn2Controller.reset();
       _showLockScreen(
         context,
         opaque: false,
@@ -125,6 +129,10 @@ class _RegisterState extends State<Register> {
           semanticsLabel: 'Cancel',
         ),
       );
+    } else {
+      _btn2Controller.reset();
+      showErrorDialog('Please Verify Register');
+      return;
     }
   }
 
@@ -174,7 +182,8 @@ class _RegisterState extends State<Register> {
         mobile = prefs.getString('mobile');
       });
 
-      var url = Uri.parse(configs +
+      var url = Uri.parse('https://' +
+          configs +
           '/api/Mobile/Login/' +
           mobile.toString() +
           '/' +
@@ -266,8 +275,8 @@ class _RegisterState extends State<Register> {
         configs = prefs.getString('configs');
       });
       var mobile = mobileController.text;
-      var url =
-          Uri.parse(configs + '/api/Mobile/PhoneNoCheck?phoneNo=' + mobile);
+      var url = Uri.parse(
+          'https://' + configs + '/api/Mobile/PhoneNoCheck?phoneNo=' + mobile);
       http.Response response = await http.get(url);
 
       //print(url);
@@ -293,6 +302,63 @@ class _RegisterState extends State<Register> {
     }
   }
 
+  Future<void> editConfigs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Icon icon = Icon(Icons.edit, color: Colors.lightBlue);
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Row(children: [icon, Text(" " + 'Edit Configs')]),
+            content: SingleChildScrollView(
+                child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                TextFormField(
+                  //focusNode: focusNodes[3],
+                  //autofocus: true, //set initail focus on dialog
+                  //keyboardType: TextInputType.number,
+                  readOnly: false,
+                  controller: configsController
+                    ..text = prefs.getString('configs').toString(),
+                  decoration: InputDecoration(
+                      labelText: 'Configs', hintText: "Enter Url"),
+                  textInputAction: TextInputAction.next,
+                  onEditingComplete: () {},
+                ),
+              ],
+            )),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.red,
+                textColor: Colors.white,
+                child: Text('Cancel'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              FlatButton(
+                //focusNode: focusNodes[5],
+                color: Colors.green,
+                textColor: Colors.white,
+                child: Text('Save'),
+                onPressed: () {
+                  setState(() {
+                    prefs.setString('configs', configsController.text);
+                    Navigator.pop(context);
+                  });
+                  alertDialog('Edit Successful', 'Success');
+                },
+              ),
+            ],
+          );
+        });
+  }
+
   Widget _titleWidget() {
     return Container(
         height: MediaQuery.of(context).size.height * .25,
@@ -313,7 +379,7 @@ class _RegisterState extends State<Register> {
     Size size = MediaQuery.of(context).size;
     return Container(
       width: double.infinity,
-      height: size.height / 6,
+      height: size.height / 10,
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
@@ -383,7 +449,7 @@ class _RegisterState extends State<Register> {
     return InkWell(
       child: Container(
         width: MediaQuery.of(context).size.width / 1.5,
-        padding: EdgeInsets.symmetric(vertical: 13),
+        padding: EdgeInsets.symmetric(vertical: 1),
         alignment: Alignment.center,
         margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         child: RoundedLoadingButton(
@@ -393,6 +459,55 @@ class _RegisterState extends State<Register> {
             onPressed: () => checkRegister(),
             valueColor: Colors.black,
             child: Text('Register', style: TextStyle(color: Colors.white))),
+      ),
+    );
+  }
+
+  Widget _LoginButtonWidget() {
+    return InkWell(
+      child: Container(
+        width: MediaQuery.of(context).size.width / 1.5,
+        padding: EdgeInsets.symmetric(vertical: 1),
+        alignment: Alignment.center,
+        margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        child: RoundedLoadingButton(
+            color: Colors.blue.shade300,
+            successColor: Color(0xfffbb448).withAlpha(100),
+            controller: _btn2Controller,
+            onPressed: () => checkPasscode(context),
+            valueColor: Colors.black,
+            child: Text('Login', style: TextStyle(color: Colors.white))),
+      ),
+    );
+  }
+
+  Widget _editWidget() {
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      width: double.infinity,
+      height: size.height / 12,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Positioned(
+            //top: MediaQuery.of(context).size.height / 1.135,
+            right: MediaQuery.of(context).size.width / 4,
+            child: ElevatedButton(
+              onPressed: () {
+                editConfigs();
+              },
+              child: const Icon(
+                Icons.settings,
+                size: 30,
+                color: Colors.white,
+              ),
+              style: ElevatedButton.styleFrom(
+                shape: CircleBorder(),
+                padding: EdgeInsets.all(10),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -413,9 +528,9 @@ class _RegisterState extends State<Register> {
                   padding: EdgeInsets.symmetric(vertical: 24, horizontal: 32),
                   child: Column(
                     children: [
-                      SizedBox(height: 20),
+                      SizedBox(height: 6),
                       _titleWidget(),
-                      SizedBox(height: 36),
+                      SizedBox(height: 24),
                       Container(
                         padding: EdgeInsets.all(28),
                         decoration: BoxDecoration(
@@ -427,6 +542,10 @@ class _RegisterState extends State<Register> {
                             _contextWidget(),
                             SizedBox(height: 12),
                             _RegisterButtonWidget(),
+                            SizedBox(height: 8),
+                            _LoginButtonWidget(),
+                            SizedBox(height: 8),
+                            _editWidget(),
                           ],
                         ),
                       ),

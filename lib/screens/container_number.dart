@@ -345,8 +345,10 @@ class _ContainerNumberState extends State<ContainerNumber> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url =
-          Uri.parse(configs + '/api/ContainerDocument/Get/' + documentIdInput);
+      var url = Uri.parse('https://' +
+          configs +
+          '/api/ContainerDocument/Get/' +
+          documentIdInput);
 
       var headers = {
         "Content-Type": "application/json",
@@ -576,7 +578,8 @@ class _ContainerNumberState extends State<ContainerNumber> {
         username = prefs.getString('username');
       });
 
-      var url = Uri.parse(configs + '/api/ContainerDocument/Update');
+      var url =
+          Uri.parse('https://' + configs + '/api/ContainerDocument/Update');
 
       var headers = {
         "Content-Type": "application/json",
@@ -628,7 +631,7 @@ class _ContainerNumberState extends State<ContainerNumber> {
         username = prefs.getString('username');
       });
 
-      var url = Uri.parse(configs + '/api/Image/CreateList');
+      var url = Uri.parse('https://' + configs + '/api/Image/CreateList');
 
       /*var headers = { 
         "Content-Type": "application/json",

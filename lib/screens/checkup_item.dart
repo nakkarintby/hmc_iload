@@ -57,7 +57,8 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         checkupHeaderID = prefs.getInt('checkupHeaderID');
       });
 
-      var url = Uri.parse(configs +
+      var url = Uri.parse('https://' +
+          configs +
           '/api/CheckUpItem/GetByCheckUpHeaderId/' +
           checkupHeaderID.toString());
 
@@ -253,7 +254,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         username = prefs.getString('username');
       });
 
-      var url = Uri.parse(configs + '/api/CheckUpItem/UpdateList');
+      var url = Uri.parse('https://' + configs + '/api/CheckUpItem/UpdateList');
 
       var headers = {
         "Content-Type": "application/json",
@@ -274,8 +275,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
             templist[i].dueDate = null;
           });
         }
-        print('remark : ' + i.toString() + templist[i].remark.toString());
-        print('duedate : ' + i.toString() + templist[i].dueDate.toString());
       }
       var jsonBody = jsonEncode(templist);
       final encoding = Encoding.getByName('utf-8');

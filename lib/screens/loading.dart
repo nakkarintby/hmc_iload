@@ -333,8 +333,10 @@ class _LoadingState extends State<Loading> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url = Uri.parse(
-          configs + '/api/TransportationDocument/Get/' + documentIdInput);
+      var url = Uri.parse('https://' +
+          configs +
+          '/api/TransportationDocument/Get/' +
+          documentIdInput);
 
       var headers = {
         "Content-Type": "application/json",
@@ -389,7 +391,8 @@ class _LoadingState extends State<Loading> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url = Uri.parse(configs +
+      var url = Uri.parse('https://' +
+          configs +
           '/api/Image/GetSequnce/' +
           documentIdInput +
           '/' +
@@ -473,7 +476,8 @@ class _LoadingState extends State<Loading> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url = Uri.parse(configs +
+      var url = Uri.parse('https://' +
+          configs +
           '/api/Image/GetSequnce/' +
           documentIdInput +
           '/' +
@@ -595,7 +599,7 @@ class _LoadingState extends State<Loading> {
         username = prefs.getString('username');
       });
 
-      var url = Uri.parse(configs + '/api/Image/Create');
+      var url = Uri.parse('https://' + configs + '/api/Image/Create');
 
       /*var headers = { 
         "Content-Type": "application/json",
@@ -661,7 +665,8 @@ class _LoadingState extends State<Loading> {
         accessToken = prefs.getString('accessToken');
       });
 
-      var url = Uri.parse(configs +
+      var url = Uri.parse('https://' +
+          configs +
           '/api/TransportationDocument/Complete?transportationdocumentid=' +
           documentIdInput +
           '&type=' +

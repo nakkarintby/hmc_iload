@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
         onSelectNotification: onSelectNotification);
     firebaseMessaging.getToken().then((token) {
       setSessionToken(token);
-      //print('Token : ' + token);
+      print('Token : ' + token);
     });
 
     firebaseMessaging.configure(
