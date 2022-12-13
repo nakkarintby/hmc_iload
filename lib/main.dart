@@ -1,11 +1,7 @@
 // @dart=2.9
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_session/flutter_session.dart';
-import 'package:test/screens/home.dart';
-import 'package:test/screens/main_screen.dart';
-import 'package:test/screens/ocr.dart';
 import 'package:test/screens/register.dart';
 import 'package:test/routes.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

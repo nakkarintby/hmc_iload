@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:test/components/menu_list2.dart';
 import 'package:test/screens/container_number.dart';
 import 'package:test/screens/container_pickup.dart';
-import 'package:test/screens/ocr.dart';
 
 class MenuContainer extends StatefulWidget {
   static String routeName = "/menucontainer";

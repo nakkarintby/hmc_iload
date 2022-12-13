@@ -81,6 +81,9 @@ class _RegisterState extends State<Register> {
     if (!checkUsername) {
       prefs.setString('username', '');
     }
+    setState(() {
+      verify = prefs.getBool('verify');
+    });
   }
 
   Future<void> getLocation() async {
@@ -415,38 +418,42 @@ class _RegisterState extends State<Register> {
   }
 
   Widget _entryFieldMobile(String title, {bool isPassword = false}) {
-    return TextFormField(
-      keyboardType: TextInputType.number,
-      maxLength: 10,
-      controller: mobileController,
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-      decoration: InputDecoration(
-        prefixIcon: Icon(Icons.phone),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black12),
-            borderRadius: BorderRadius.circular(10)),
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black12),
-            borderRadius: BorderRadius.circular(10)),
-        prefix: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            '(+66)',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+    return Visibility(
+        visible: !verify,
+        child: TextFormField(
+          keyboardType: TextInputType.number,
+          maxLength: 10,
+          controller: mobileController,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.phone),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black12),
+                borderRadius: BorderRadius.circular(10)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black12),
+                borderRadius: BorderRadius.circular(10)),
+            prefix: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                '(+66)',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _RegisterButtonWidget() {
     return InkWell(
+        child: Visibility(
+      visible: !verify,
       child: Container(
         width: MediaQuery.of(context).size.width / 1.5,
         padding: EdgeInsets.symmetric(vertical: 1),
@@ -460,11 +467,13 @@ class _RegisterState extends State<Register> {
             valueColor: Colors.black,
             child: Text('Register', style: TextStyle(color: Colors.white))),
       ),
-    );
+    ));
   }
 
   Widget _LoginButtonWidget() {
     return InkWell(
+        child: Visibility(
+      visible: verify,
       child: Container(
         width: MediaQuery.of(context).size.width / 1.5,
         padding: EdgeInsets.symmetric(vertical: 1),
@@ -478,14 +487,14 @@ class _RegisterState extends State<Register> {
             valueColor: Colors.black,
             child: Text('Login', style: TextStyle(color: Colors.white))),
       ),
-    );
+    ));
   }
 
   Widget _editWidget() {
     Size size = MediaQuery.of(context).size;
     return Container(
       width: double.infinity,
-      height: size.height / 12,
+      height: size.height / 11,
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
@@ -510,6 +519,36 @@ class _RegisterState extends State<Register> {
         ],
       ),
     );
+  }
+
+  Widget _forgetWidget() {
+    return Visibility(
+        visible: verify,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            new GestureDetector(
+                onTap: () {
+                  setState(() {
+                    verify = !verify;
+                  });
+                },
+                child: Text(
+                  "Don't have pin account? ",
+                  style: TextStyle(fontSize: 14),
+                )),
+            new GestureDetector(
+                onTap: () {
+                  setState(() {
+                    verify = !verify;
+                  });
+                },
+                child: Text(
+                  "Register",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                )),
+          ],
+        ));
   }
 
   @override
@@ -542,10 +581,12 @@ class _RegisterState extends State<Register> {
                             _contextWidget(),
                             SizedBox(height: 12),
                             _RegisterButtonWidget(),
-                            SizedBox(height: 8),
+                            SizedBox(height: 12),
                             _LoginButtonWidget(),
-                            SizedBox(height: 8),
+                            SizedBox(height: 12),
                             _editWidget(),
+                            SizedBox(height: 12),
+                            _forgetWidget(),
                           ],
                         ),
                       ),

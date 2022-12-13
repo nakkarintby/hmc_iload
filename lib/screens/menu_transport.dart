@@ -4,7 +4,6 @@ import 'package:test/components/menu_list2.dart';
 import 'package:test/screens/container_number.dart';
 import 'package:test/screens/container_pickup.dart';
 import 'package:test/screens/loading.dart';
-import 'package:test/screens/ocr.dart';
 import 'package:test/screens/unloading.dart';
 
 class MenuTransport extends StatefulWidget {

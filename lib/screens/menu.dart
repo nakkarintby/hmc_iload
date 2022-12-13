@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:test/components/menu_list2.dart';
 import 'package:test/screens/checkup_header.dart';
+import 'package:test/screens/checkup_itembulkhead.dart';
 import 'package:test/screens/container_pickup.dart';
 import 'package:test/screens/menu_container.dart';
 import 'package:test/screens/menu_transport.dart';
-import 'package:test/screens/ocr.dart';
 
 class Menu extends StatefulWidget {
   static String routeName = "/menu";

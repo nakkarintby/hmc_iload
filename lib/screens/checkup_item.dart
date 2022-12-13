@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/checkupitem.dart';
+import 'package:test/screens/menu.dart';
 
 class CheckupItemPage extends StatefulWidget {
   static String routeName = "/checkupitem";
@@ -16,7 +17,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
   int value = 0;
   bool radio = false;
   bool backEnable = false;
-  bool saveEnable = false;
   bool nextEnable = false;
 
   TextEditingController remarkController = TextEditingController();
@@ -41,7 +41,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
       remarkController.text = "";
       dateController.text = "";
       backEnable = false;
-      saveEnable = false;
       nextEnable = false;
     });
     setListCheckupItem();
@@ -80,6 +79,21 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
             .map((data) => CheckUpItemClass.fromJson(data))
             .toList();
       });
+
+      //check bulk and delete
+      String temp = prefs.getString('truckType');
+      if (temp == 'BulkTruck') {
+        for (int i = list.length - 1; i >= 0; i--) {
+          if (list[i].detailNo == 0) {
+            print('remove :' + list[i].detailName.toString());
+            list.removeAt(i);
+          }
+        }
+        print(list.length);
+        await setCountListCheckupItem();
+        await updateListCheckupItem();
+        return;
+      }
       await setCountListCheckupItem();
       await updateListCheckupItem();
     } catch (e) {
@@ -96,6 +110,8 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         return;
       }
     }
+    Navigator.of(context).pop();
+    showSuccessDialog('Document Successful');
   }
 
   Future<void> updateListCheckupItem() async {
@@ -107,7 +123,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
           remarkController.text = "";
           dateController.text = "";
           backEnable = true;
-          saveEnable = false;
           nextEnable = false;
         });
       } else if (list[count].modifiedBy != null) {
@@ -151,7 +166,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         //set button
         setState(() {
           backEnable = true;
-          saveEnable = true;
           nextEnable = true;
         });
       }
@@ -178,10 +192,14 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
     Widget noButton = FlatButton(
       child: Text("No"),
       onPressed: () async {
+        if (count == 0) {
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.pop(context);
+          return;
+        }
         setState(() {
           count--;
           backEnable = true;
-          saveEnable = true;
           nextEnable = true;
         });
         await updateListCheckupItem();
@@ -191,6 +209,22 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
     Widget yesButton = FlatButton(
       child: Text("Yes"),
       onPressed: () async {
+        if (count == 0) {
+          if (value == 2 && dateController.text.isEmpty) {
+            Navigator.of(context, rootNavigator: true).pop();
+            showErrorDialog('Please Select Date');
+            return;
+          } else if (value == 0) {
+            Navigator.of(context, rootNavigator: true).pop();
+            showErrorDialog('Please Select Data');
+            return;
+          }
+          await saveListCheckupItem();
+          await postList();
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.pop(context);
+          return;
+        }
         if (value == 2 && dateController.text.isEmpty) {
           Navigator.of(context, rootNavigator: true).pop();
           showErrorDialog('Please Select Date');
@@ -201,10 +235,10 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
           return;
         }
         await saveListCheckupItem();
+        await postList();
         setState(() {
           count--;
           backEnable = true;
-          saveEnable = true;
           nextEnable = true;
         });
         await updateListCheckupItem();
@@ -233,18 +267,42 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
   }
 
   Future<void> backButtonCheckupItem() async {
-    if (count == 0) {
-      return;
-    }
     await confirmDialog();
   }
 
-  Future<void> saveButtonCheckupItem() async {
-    await saveListCheckupItem();
-    if (value == 2 && dateController.text.isEmpty) {
-      showErrorDialog('Please Select Date');
-      return;
+  Future<void> nextButtonCheckupItem() async {
+    if (list.length > 0) {
+      if (value == 2 && dateController.text.isEmpty) {
+        showErrorDialog('Please Select Date');
+        return;
+      }
+      if (list.length - 1 == count) {
+        await saveListCheckupItem();
+        await postList();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String temp = prefs.getString('truckType');
+        if (temp == 'BulkTruck') {
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+          showSuccessDialog('Checkup Successful');
+        } else if (temp == 'Trailer') {
+          Navigator.pop(context);
+          showSuccessDialog('Checkup Successful');
+        }
+        return;
+      }
+
+      await saveListCheckupItem();
+      await postList();
+      setState(() {
+        count++;
+      });
+      await updateListCheckupItem();
     }
+  }
+
+  Future<void> postList() async {
     //post list checkupitem
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -288,31 +346,13 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
       var data = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        showSuccessDialog('yyyyyyyyyyyyyyyyy Succesful');
+        print("post sucessful");
       } else {
-        showErrorDialog('Https Error Save');
+        showErrorDialog('Https Error postList');
       }
     } catch (e) {
       print("Error occured while SaveList");
     }
-  }
-
-  Future<void> nextButtonCheckupItem() async {
-    if (value == 2 && dateController.text.isEmpty) {
-      showErrorDialog('Please Select Date');
-      return;
-    }
-    if (list.length - 1 == count) {
-      await saveListCheckupItem();
-      showSuccessDialog('Check Finish Please Save!');
-      return;
-    }
-
-    await saveListCheckupItem();
-    setState(() {
-      count++;
-    });
-    await updateListCheckupItem();
   }
 
   void alertDialog(String msg, String type) {
@@ -350,12 +390,12 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
     });
   }
 
-  void showErrorDialog(String error) {
+  void showErrorDialog(String error) async {
     //MyWidget.showMyAlertDialog(context, "Error", error);
     alertDialog(error, 'Error');
   }
 
-  void showSuccessDialog(String success) {
+  void showSuccessDialog(String success) async {
     //MyWidget.showMyAlertDialog(context, "Success", success);
     alertDialog(success, 'Success');
   }
@@ -369,7 +409,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
             setState(() {
               radio = true;
               value = index;
-              saveEnable = true;
               nextEnable = true;
             });
           },
@@ -395,7 +434,6 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
             setState(() {
               radio = true;
               value = index;
-              saveEnable = true;
               nextEnable = true;
             });
           },
@@ -533,7 +571,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
                     CrossAxisAlignment.center, //Center Row contents vertically,
                 children: <Widget>[
                   new RaisedButton(
-                    color: count == 0 ? Colors.grey : Colors.red,
+                    color: backEnable == true ? Colors.red : Colors.grey,
                     child: const Text('Back',
                         style: TextStyle(
                           color: Colors.white,
@@ -544,20 +582,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
                           }
                         : null,
                   ),
-                  SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-                  new RaisedButton(
-                    color: saveEnable == true ? Colors.blue : Colors.grey,
-                    child: const Text('Save',
-                        style: TextStyle(
-                          color: Colors.white,
-                        )),
-                    onPressed: saveEnable
-                        ? () async {
-                            await saveButtonCheckupItem();
-                          }
-                        : null,
-                  ),
-                  SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.15),
                   new RaisedButton(
                     color: nextEnable == true ? Colors.green : Colors.grey,
                     child: const Text('Next',

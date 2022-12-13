@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/checkupheader.dart';
 import 'package:test/screens/checkup_item.dart';
+import 'package:test/screens/checkup_itembulkhead.dart';
 
 class CheckupHeader extends StatefulWidget {
   static String routeName = "/checkupheader";
@@ -73,7 +74,30 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
   }
 
   Future<void> checkLicense() async {
-    try {
+    //hard code for trailer(12) or bulk(27)
+    if (licenseTController.text.toString() == "12") {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        prefs.setInt('checkupHeaderID', 12);
+        prefs.setString('truckType', 'Trailer');
+        licenseHController.text = "";
+        licenseTController.text = "";
+      });
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => CheckupItemPage()));
+    } else if (licenseTController.text.toString() == "35") {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        prefs.setInt('checkupHeaderID', 35);
+        prefs.setString('truckType', 'BulkTruck');
+        licenseHController.text = "";
+        licenseTController.text = "";
+      });
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => CheckupItemBulkHeadPage()));
+    }
+
+    /* try {
       String path = "";
       if (licenseHController.text.toString() != "" ||
           licenseTController.text.toString() != "") {
@@ -126,12 +150,23 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         if (response.statusCode == 200) {
           setState(() {
             prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
+            prefs.setString('truckType', checkHeader.truckType);
             licenseHController.text = "";
             licenseTController.text = "";
           });
+
+          if (checkHeader.truckType == 'Trailer') {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CheckupItemPage()));
+          } else if (checkHeader.truckType == 'BulkTruck') {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CheckupItemBulkHeadPage()));
+          }
+
           //print(prefs.getInt('checkupHeaderID').toString());
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => CheckupItemPage()));
+
         } else {
           setState(() {
             licenseHController.text = "";
@@ -150,7 +185,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       }
     } catch (e) {
       print("Error occured while checkLicense");
-    }
+    }*/
   }
 
   @override
