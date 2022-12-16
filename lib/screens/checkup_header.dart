@@ -4,8 +4,11 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/checkupheader.dart';
+import 'package:test/class/driver.dart';
+import 'package:test/class/truck.dart';
 import 'package:test/screens/checkup_item.dart';
 import 'package:test/screens/checkup_itembulkhead.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CheckupHeader extends StatefulWidget {
   static String routeName = "/checkupheader";
@@ -14,18 +17,36 @@ class CheckupHeader extends StatefulWidget {
 }
 
 class _CheckupHeaderPageState extends State<CheckupHeader> {
-  TextEditingController licenseHController = TextEditingController();
-  TextEditingController licenseTController = TextEditingController();
-  bool enableNext = true;
+  TextEditingController truckPlateController = TextEditingController();
+  bool truckPlateReadonly = false;
+  Color truckPlateColor = Color(0xFFFFFFFF);
+  TextEditingController trailerPlateController = TextEditingController();
+  bool trailerPlateReadonly = false;
+  Color trailerPlateColor = Color(0xFFFFFFFF);
+  TextEditingController truckTypeController = TextEditingController();
+  bool truckTypeReadonly = false;
+  Color truckTypeColor = Color(0xFFFFFFFF);
+  bool backEnable = false;
+  bool searchEnable = false;
+  bool nextEnable = false;
+  bool showDetail = false;
   late Timer timer;
 
   String configs = '';
   String accessToken = '';
   String username = '';
 
+  List<String> listdriver = [];
+
+  String selectedValue = "";
+
+  final _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
+    setState(() {
+      searchEnable = true;
+    });
   }
 
   void alertDialog(String msg, String type) {
@@ -75,23 +96,23 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
 
   Future<void> checkLicense() async {
     //hard code for trailer(12) or bulk(27)
-    if (licenseTController.text.toString() == "12") {
+    if (trailerPlateController.text.toString() == "12") {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
         prefs.setInt('checkupHeaderID', 12);
         prefs.setString('truckType', 'Trailer');
-        licenseHController.text = "";
-        licenseTController.text = "";
+        truckPlateController.text = "";
+        trailerPlateController.text = "";
       });
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => CheckupItemPage()));
-    } else if (licenseTController.text.toString() == "35") {
+    } else if (trailerPlateController.text.toString() == "35") {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
         prefs.setInt('checkupHeaderID', 35);
         prefs.setString('truckType', 'BulkTruck');
-        licenseHController.text = "";
-        licenseTController.text = "";
+        truckPlateController.text = "";
+        trailerPlateController.text = "";
       });
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => CheckupItemBulkHeadPage()));
@@ -99,28 +120,28 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
 
     /* try {
       String path = "";
-      if (licenseHController.text.toString() != "" ||
-          licenseTController.text.toString() != "") {
+      if (truckPlateController.text.toString() != "" ||
+          trailerPlateController.text.toString() != "") {
         //set url
-        if (licenseHController.text.toString() != "" &&
-            licenseTController.text.toString() == "") {
+        if (truckPlateController.text.toString() != "" &&
+            trailerPlateController.text.toString() == "") {
           setState(() {
             path = "/api/CheckUpHeader/GetByLicensePlate?licenseplateh=" +
-                licenseHController.text.toString();
+                truckPlateController.text.toString();
           });
-        } else if (licenseHController.text.toString() == "" &&
-            licenseTController.text.toString() != "") {
+        } else if (truckPlateController.text.toString() == "" &&
+            trailerPlateController.text.toString() != "") {
           setState(() {
             path = "/api/CheckUpHeader/GetByLicensePlate?licenseplatet=" +
-                licenseTController.text.toString();
+                trailerPlateController.text.toString();
           });
-        } else if (licenseHController.text.toString() != "" &&
-            licenseTController.text.toString() != "") {
+        } else if (truckPlateController.text.toString() != "" &&
+            trailerPlateController.text.toString() != "") {
           setState(() {
             path = "/api/CheckUpHeader/GetByLicensePlate?licenseplateh=" +
-                licenseHController.text.toString() +
+                truckPlateController.text.toString() +
                 "&licenseplatet=" +
-                licenseTController.text.toString();
+                trailerPlateController.text.toString();
           });
         }
 
@@ -138,8 +159,8 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         http.Response response = await http.get(url, headers: headers);
         if (response.statusCode == 204) {
           setState(() {
-            licenseHController.text = "";
-            licenseTController.text = "";
+            truckPlateController.text = "";
+            trailerPlateController.text = "";
           });
           showErrorDialog('License Not Found!');
           return;
@@ -151,8 +172,8 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           setState(() {
             prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
             prefs.setString('truckType', checkHeader.truckType);
-            licenseHController.text = "";
-            licenseTController.text = "";
+            truckPlateController.text = "";
+            trailerPlateController.text = "";
           });
 
           if (checkHeader.truckType == 'Trailer') {
@@ -169,16 +190,16 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
 
         } else {
           setState(() {
-            licenseHController.text = "";
-            licenseTController.text = "";
+            truckPlateController.text = "";
+            trailerPlateController.text = "";
           });
           showErrorDialog('License Not Found!');
           return;
         }
       } else {
         setState(() {
-          licenseHController.text = "";
-          licenseTController.text = "";
+          truckPlateController.text = "";
+          trailerPlateController.text = "";
         });
         showErrorDialog('Please Enter Data!');
         return;
@@ -187,6 +208,185 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       print("Error occured while checkLicense");
     }*/
   }
+
+  Future<void> validateTruckPlate() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        accessToken = prefs.getString('accessToken');
+      });
+
+      var url = Uri.parse('https://' +
+          configs +
+          '/api/Truck/GetByTruckPlate/' +
+          truckPlateController.text.toString());
+
+      var headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + accessToken
+      };
+
+      http.Response response = await http.get(url, headers: headers);
+      if (response.statusCode == 204) {
+        setState(() {
+          truckPlateController.text = "";
+          trailerPlateController.text = "";
+        });
+        showErrorDialog('Truck Plate Not Found!');
+        return;
+      }
+      var data = json.decode(response.body);
+      Truck truckPlateAns = Truck.fromJson(data);
+
+      if (response.statusCode == 200) {
+        if (trailerPlateController.text.toString().isNotEmpty) {
+          await validateTrailerPlate();
+        } else {
+          setState(() {
+            truckTypeController.text = truckPlateAns.truckType!;
+          });
+          await validateDetail();
+        }
+      } else {
+        setState(() {
+          truckPlateController.text = "";
+          trailerPlateController.text = "";
+        });
+        showErrorDialog('Truck Plate Not Found!');
+        return;
+      }
+    } catch (e) {
+      print("Error occured while validateTruckPlate");
+    }
+  }
+
+  Future<void> validateTrailerPlate() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        accessToken = prefs.getString('accessToken');
+      });
+
+      var url = Uri.parse('https://' +
+          configs +
+          '/api/Truck/GetByTrailerPlate/' +
+          trailerPlateController.text.toString());
+
+      var headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + accessToken
+      };
+
+      http.Response response = await http.get(url, headers: headers);
+      if (response.statusCode == 204) {
+        setState(() {
+          truckPlateController.text = "";
+          trailerPlateController.text = "";
+        });
+        showErrorDialog('Trailer Plate Not Found!');
+        return;
+      }
+      var data = json.decode(response.body);
+      Truck truckPlateAns = Truck.fromJson(data);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          truckTypeController.text = truckPlateAns.truckType!;
+        });
+        await validateDetail();
+      } else {
+        setState(() {
+          truckPlateController.text = "";
+          trailerPlateController.text = "";
+        });
+        showErrorDialog('Trailer Plate Not Found!');
+        return;
+      }
+    } catch (e) {
+      print("Error occured while validateTrailerPlate");
+    }
+  }
+
+  Future<void> validateDetail() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        accessToken = prefs.getString('accessToken');
+      });
+
+      var url = Uri.parse('https://' + configs + '/api/User/GetDriver/All');
+      print(url);
+
+      var headers = {'Content-Type': 'application/json'};
+
+      http.Response response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        List<Driver> listtemp = [];
+        setState(() {
+          listtemp = (json.decode(response.body) as List)
+              .map((data) => Driver.fromJson(data))
+              .toList();
+        });
+        for (int i = 0; i < listtemp.length; i++) {
+          listdriver.add(listtemp[i].firstName!);
+        }
+        setState(() {
+          showDetail = true;
+          backEnable = true;
+          searchEnable = false;
+          nextEnable = true;
+          truckPlateColor = Color(0xFFEEEEEE);
+          truckPlateReadonly = true;
+          trailerPlateColor = Color(0xFFEEEEEE);
+          trailerPlateReadonly = true;
+          truckTypeColor = Color(0xFFEEEEEE);
+          truckTypeReadonly = true;
+          selectedValue = listdriver[0];
+        });
+      } else {
+        showErrorDialog('Driver Not Found');
+        return;
+      }
+    } catch (e) {
+      print("Error occured while validateDetail");
+    }
+  }
+
+  Future<void> backButton() async {
+    setState(() {
+      truckPlateController.text = "";
+      trailerPlateController.text = "";
+      truckTypeController.text = "";
+      listdriver = [];
+      showDetail = false;
+      backEnable = false;
+      searchEnable = true;
+      nextEnable = false;
+      truckPlateColor = Color(0xFFFFFFFF);
+      truckPlateReadonly = false;
+      trailerPlateColor = Color(0xFFFFFFFF);
+      trailerPlateReadonly = false;
+      truckTypeColor = Color(0xFFFFFFFF);
+      truckTypeReadonly = false;
+      selectedValue = "";
+    });
+  }
+
+  Future<void> searchButton() async {
+    if (truckPlateController.text.isEmpty) {
+      showErrorDialog('Please Enter License Head!');
+      return;
+    }
+    await validateTruckPlate();
+  }
+
+  Future<void> nextButton() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +411,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: MediaQuery.of(context).size.height / 12,
+                height: 26,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment
@@ -220,21 +420,23 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
                     CrossAxisAlignment.center, //Center Row contents vertically,
                 children: <Widget>[
                   new SizedBox(
-                      width: 200.0,
-                      height: 100.0,
+                      width: 160.0,
+                      height: 75.0,
                       child: TextFormField(
+                        readOnly: truckPlateReadonly,
                         keyboardType: TextInputType.number,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
+                          fillColor: truckPlateColor,
                           filled: true,
-                          hintText: 'Enter License Head',
-                          labelText: 'License Head',
+                          hintText: 'Enter Truck Plate',
+                          labelText: 'Truck Plate',
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(23), //
+                          contentPadding: EdgeInsets.all(16), //
                         ),
-                        controller: licenseHController,
+                        controller: truckPlateController,
                       )),
                 ],
               ),
@@ -245,42 +447,165 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
                     CrossAxisAlignment.center, //Center Row contents vertically,
                 children: <Widget>[
                   new SizedBox(
-                      width: 200.0,
-                      height: 100.0,
+                      width: 160.0,
+                      height: 75.0,
                       child: TextFormField(
+                        readOnly: trailerPlateReadonly,
                         keyboardType: TextInputType.number,
                         textInputAction: TextInputAction.go,
                         onFieldSubmitted: (value) {},
                         decoration: InputDecoration(
+                          fillColor: trailerPlateColor,
                           filled: true,
-                          hintText: 'Enter License Trailer',
-                          labelText: 'License Trailer',
+                          hintText: 'Enter Trailer Plate',
+                          labelText: 'Trailer Plate',
                           border: OutlineInputBorder(),
                           isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(23), //
+                          contentPadding: EdgeInsets.all(16), //
                         ),
-                        controller: licenseTController,
+                        controller: trailerPlateController,
                       )),
                 ],
               ),
+              Visibility(
+                  visible: showDetail,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment
+                        .center, //Center Row contents horizontally,
+                    crossAxisAlignment: CrossAxisAlignment
+                        .center, //Center Row contents vertically,
+                    children: <Widget>[
+                      new SizedBox(
+                        width: 160.0,
+                        height: 75.0,
+                        child: DropdownButtonFormField2(
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          value: selectedValue,
+                          isExpanded: true,
+                          hint: const Text(
+                            'Select Driver',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          icon: const Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.black45,
+                          ),
+                          iconSize: 30,
+                          buttonHeight: 60,
+                          buttonPadding:
+                              const EdgeInsets.only(left: 20, right: 10),
+                          dropdownDecoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          items: listdriver
+                              .map((item) => DropdownMenuItem<String>(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Select Driver';
+                            }
+                          },
+                          onChanged: (value) {
+                            selectedValue = value.toString();
+                            print(value);
+                          },
+                          onSaved: (value) {},
+                        ),
+                      ),
+                    ],
+                  )),
+              SizedBox(
+                height: 10,
+              ),
+              Visibility(
+                  visible: showDetail,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment
+                        .center, //Center Row contents horizontally,
+                    crossAxisAlignment: CrossAxisAlignment
+                        .center, //Center Row contents vertically,
+                    children: <Widget>[
+                      new SizedBox(
+                          width: 160.0,
+                          height: 75.0,
+                          child: TextFormField(
+                            readOnly: truckTypeReadonly,
+                            keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.go,
+                            onFieldSubmitted: (value) {},
+                            decoration: InputDecoration(
+                              fillColor: truckTypeColor,
+                              filled: true,
+                              hintText: 'Enter Trucktype',
+                              labelText: 'Trucktype',
+                              border: OutlineInputBorder(),
+                              isDense: true, // Added this
+                              contentPadding: EdgeInsets.all(16), //
+                            ),
+                            controller: truckTypeController,
+                          )),
+                    ],
+                  )),
               Row(
                 mainAxisAlignment: MainAxisAlignment
                     .center, //Center Row contents horizontally,
                 crossAxisAlignment:
                     CrossAxisAlignment.center, //Center Row contents vertically,
                 children: <Widget>[
-                  new RaisedButton(
-                    color: enableNext == true ? Colors.green : Colors.grey,
-                    child: const Text('Next',
-                        style: TextStyle(
-                          color: Colors.white,
-                        )),
-                    onPressed: enableNext
-                        ? () {
-                            checkLicense();
-                          }
-                        : null,
-                  ),
+                  Visibility(
+                      visible: showDetail,
+                      child: new RaisedButton(
+                        color: backEnable == true ? Colors.red : Colors.grey,
+                        child: const Text('Back',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        onPressed: backEnable
+                            ? () async {
+                                await backButton();
+                              }
+                            : null,
+                      )),
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+                  Visibility(
+                      visible: !showDetail,
+                      child: new RaisedButton(
+                        color: searchEnable == true ? Colors.blue : Colors.grey,
+                        child: const Text('Search',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        onPressed: searchEnable
+                            ? () async {
+                                await searchButton();
+                              }
+                            : null,
+                      )),
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+                  Visibility(
+                      visible: showDetail,
+                      child: new RaisedButton(
+                        color: nextEnable == true ? Colors.green : Colors.grey,
+                        child: const Text('Next',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                        onPressed: nextEnable ? () async {} : null,
+                      )),
                 ],
               ),
             ],

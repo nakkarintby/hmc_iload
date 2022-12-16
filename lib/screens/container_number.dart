@@ -589,16 +589,16 @@ class _ContainerNumberState extends State<ContainerNumber> {
 
       if (listimage.length == 1) {
         setState(() {
-          tempdoc.containerNo1 = 'test1';
-          // tempdoc.containerNo1 = listtextimage[0];
+          //tempdoc.containerNo1 = 'test1';
+          tempdoc.containerNo1 = listtextimage[0];
         });
       } else if (listimage.length == 2) {
         setState(() {
-          tempdoc.containerNo1 = 'test1';
-          tempdoc.containerNo2 = 'test2';
+          //tempdoc.containerNo1 = 'test1';
+          //tempdoc.containerNo2 = 'test2';
 
-          //tempdoc.containerNo1 = listtextimage[0];
-          // tempdoc.containerNo2 = listtextimage[1];
+          tempdoc.containerNo1 = listtextimage[0];
+          tempdoc.containerNo2 = listtextimage[1];
         });
       }
 
@@ -841,10 +841,10 @@ class _ContainerNumberState extends State<ContainerNumber> {
             )
           ]),
           SizedBox(height: 5),
-          /*Text(scannedText,
+          Text(scannedText,
               style: TextStyle(
                 color: Colors.black,
-              )),*/
+              )),
         ])))));
   }
 }

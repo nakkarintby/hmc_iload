@@ -58,7 +58,7 @@ dependencies:
   google_ml_kit: ^0.7.3
   image_cropper: ^1.5.1
   intl: ^0.17.0
-
+  dropdown_button2: ^1.4.0
   
 
 flutter_native_splash:
