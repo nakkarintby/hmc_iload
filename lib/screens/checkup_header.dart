@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/checkupheader.dart';
+import 'package:test/class/createcheckupheader.dart';
 import 'package:test/class/driver.dart';
 import 'package:test/class/truck.dart';
 import 'package:test/screens/checkup_item.dart';
@@ -39,6 +40,8 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
   List<String> listdriver = [];
 
   String selectedValue = "";
+  Truck? truckPlate;
+  Truck? trailerPlate;
 
   final _formKey = GlobalKey<FormState>();
   @override
@@ -94,121 +97,6 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
     alertDialog(success, 'Success');
   }
 
-  Future<void> checkLicense() async {
-    //hard code for trailer(12) or bulk(27)
-    if (trailerPlateController.text.toString() == "12") {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      setState(() {
-        prefs.setInt('checkupHeaderID', 12);
-        prefs.setString('truckType', 'Trailer');
-        truckPlateController.text = "";
-        trailerPlateController.text = "";
-      });
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => CheckupItemPage()));
-    } else if (trailerPlateController.text.toString() == "35") {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      setState(() {
-        prefs.setInt('checkupHeaderID', 35);
-        prefs.setString('truckType', 'BulkTruck');
-        truckPlateController.text = "";
-        trailerPlateController.text = "";
-      });
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => CheckupItemBulkHeadPage()));
-    }
-
-    /* try {
-      String path = "";
-      if (truckPlateController.text.toString() != "" ||
-          trailerPlateController.text.toString() != "") {
-        //set url
-        if (truckPlateController.text.toString() != "" &&
-            trailerPlateController.text.toString() == "") {
-          setState(() {
-            path = "/api/CheckUpHeader/GetByLicensePlate?licenseplateh=" +
-                truckPlateController.text.toString();
-          });
-        } else if (truckPlateController.text.toString() == "" &&
-            trailerPlateController.text.toString() != "") {
-          setState(() {
-            path = "/api/CheckUpHeader/GetByLicensePlate?licenseplatet=" +
-                trailerPlateController.text.toString();
-          });
-        } else if (truckPlateController.text.toString() != "" &&
-            trailerPlateController.text.toString() != "") {
-          setState(() {
-            path = "/api/CheckUpHeader/GetByLicensePlate?licenseplateh=" +
-                truckPlateController.text.toString() +
-                "&licenseplatet=" +
-                trailerPlateController.text.toString();
-          });
-        }
-
-        //call api
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        setState(() {
-          configs = prefs.getString('configs');
-          //accessToken = prefs.getString('accessToken');
-        });
-
-        var url = Uri.parse('https://' + configs + path);
-
-        var headers = {"Content-Type": "application/json"};
-
-        http.Response response = await http.get(url, headers: headers);
-        if (response.statusCode == 204) {
-          setState(() {
-            truckPlateController.text = "";
-            trailerPlateController.text = "";
-          });
-          showErrorDialog('License Not Found!');
-          return;
-        }
-        var data = json.decode(response.body);
-        CheckUpHeaderClass checkHeader = CheckUpHeaderClass.fromJson(data);
-
-        if (response.statusCode == 200) {
-          setState(() {
-            prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
-            prefs.setString('truckType', checkHeader.truckType);
-            truckPlateController.text = "";
-            trailerPlateController.text = "";
-          });
-
-          if (checkHeader.truckType == 'Trailer') {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CheckupItemPage()));
-          } else if (checkHeader.truckType == 'BulkTruck') {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => CheckupItemBulkHeadPage()));
-          }
-
-          //print(prefs.getInt('checkupHeaderID').toString());
-
-        } else {
-          setState(() {
-            truckPlateController.text = "";
-            trailerPlateController.text = "";
-          });
-          showErrorDialog('License Not Found!');
-          return;
-        }
-      } else {
-        setState(() {
-          truckPlateController.text = "";
-          trailerPlateController.text = "";
-        });
-        showErrorDialog('Please Enter Data!');
-        return;
-      }
-    } catch (e) {
-      print("Error occured while checkLicense");
-    }*/
-  }
-
   Future<void> validateTruckPlate() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -238,14 +126,14 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         return;
       }
       var data = json.decode(response.body);
-      Truck truckPlateAns = Truck.fromJson(data);
+      truckPlate = Truck.fromJson(data);
 
       if (response.statusCode == 200) {
         if (trailerPlateController.text.toString().isNotEmpty) {
           await validateTrailerPlate();
         } else {
           setState(() {
-            truckTypeController.text = truckPlateAns.truckType!;
+            truckTypeController.text = truckPlate!.truckType!;
           });
           await validateDetail();
         }
@@ -291,11 +179,11 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         return;
       }
       var data = json.decode(response.body);
-      Truck truckPlateAns = Truck.fromJson(data);
+      trailerPlate = Truck.fromJson(data);
 
       if (response.statusCode == 200) {
         setState(() {
-          truckTypeController.text = truckPlateAns.truckType!;
+          truckTypeController.text = trailerPlate!.truckType!;
         });
         await validateDetail();
       } else {
@@ -320,8 +208,6 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       });
 
       var url = Uri.parse('https://' + configs + '/api/User/GetDriver/All');
-      print(url);
-
       var headers = {'Content-Type': 'application/json'};
 
       http.Response response = await http.get(url, headers: headers);
@@ -358,8 +244,162 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
     }
   }
 
+  Future<void> checkHeader() async {
+    try {
+      String path = "";
+      //set url
+      if (trailerPlateController.text.toString().isEmpty) {
+        setState(() {
+          path = "/api/CheckUpHeader/GetByLicensePlate?truckplate=" +
+              truckPlateController.text.toString();
+        });
+      } else {
+        setState(() {
+          path = "/api/CheckUpHeader/GetByLicensePlate?truckplate=" +
+              truckPlateController.text.toString() +
+              "&trailerplate=" +
+              trailerPlateController.text.toString();
+        });
+      }
+
+      //call api
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        //accessToken = prefs.getString('accessToken');
+      });
+
+      var url = Uri.parse('https://' + configs + path);
+      var headers = {"Content-Type": "application/json"};
+
+      http.Response response = await http.get(url, headers: headers);
+      //create checkup header
+      if (response.statusCode == 204) {
+        print("not found header");
+        await createHeader();
+        return;
+      }
+      var data = json.decode(response.body);
+      CheckUpHeaderClass checkHeader = CheckUpHeaderClass.fromJson(data);
+      //get checkup header
+      if (response.statusCode == 200) {
+        print("found header");
+        setState(() {
+          prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
+        });
+        if (checkHeader.truckType == 'Truck') {
+          if (trailerPlateController.text.isNotEmpty) {
+            setState(() {
+              prefs.setBool('havetrailerbulk', true);
+            });
+          } else {
+            setState(() {
+              prefs.setBool('havetrailerbulk', false);
+            });
+          }
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CheckupItemBulkHeadPage()));
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CheckupItemPage()));
+        }
+        //create checkup header
+      } else {
+        await createHeader();
+        return;
+      }
+    } catch (e) {
+      print("Error occured while checkLicense");
+    }
+  }
+
+  Future<void> createHeader() async {
+    //post list createHeader
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        username = prefs.getString('username');
+      });
+
+      var url = Uri.parse('https://' + configs + '/api/CheckUpHeader/Create');
+
+      var headers = {'Content-Type': 'application/json'};
+
+      //set list
+      CreateCheckupHeader create = new CreateCheckupHeader();
+      if (trailerPlateController.text.isEmpty) {
+        setState(() {
+          create.createdBy = 'Admin';
+          create.driverID = truckPlate!.driverID;
+          create.truckID = truckPlate!.truckID;
+          create.truckPlate = truckPlate!.truckPlate;
+          create.truckType = truckPlate!.truckType;
+          create.trailerID = null;
+          create.trailerPlate = null;
+          create.trailerType = null;
+        });
+      } else {
+        setState(() {
+          create.createdBy = 'Admin';
+          create.driverID = truckPlate!.driverID;
+          create.truckID = truckPlate!.truckID;
+          create.truckPlate = truckPlate!.truckPlate;
+          create.truckType = truckPlate!.truckType;
+          create.trailerID = trailerPlate!.truckID;
+          create.trailerPlate = trailerPlate!.truckPlate;
+          create.trailerType = trailerPlate!.truckType;
+        });
+      }
+
+      var jsonBody = jsonEncode(create);
+      final encoding = Encoding.getByName('utf-8');
+
+      http.Response response = await http.post(
+        url,
+        headers: headers,
+        body: jsonBody,
+        encoding: encoding,
+      );
+      var data = json.decode(response.body);
+      CheckUpHeaderClass checkHeader = CheckUpHeaderClass.fromJson(data);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
+        });
+        if (checkHeader.truckType == 'Truck') {
+          if (trailerPlateController.text.isNotEmpty) {
+            setState(() {
+              prefs.setBool('havetrailerbulk', true);
+            });
+          } else {
+            setState(() {
+              prefs.setBool('havetrailerbulk', false);
+            });
+          }
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CheckupItemBulkHeadPage()));
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CheckupItemPage()));
+        }
+      } else {
+        showErrorDialog('Https Error createHeader');
+      }
+    } catch (e) {
+      print("Error occured while createHeader");
+    }
+  }
+
   Future<void> backButton() async {
     setState(() {
+      truckPlate = null;
+      trailerPlate = null;
       truckPlateController.text = "";
       trailerPlateController.text = "";
       truckTypeController.text = "";
@@ -386,7 +426,9 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
     await validateTruckPlate();
   }
 
-  Future<void> nextButton() async {}
+  Future<void> nextButton() async {
+    await checkHeader();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -521,7 +563,6 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
                           },
                           onChanged: (value) {
                             selectedValue = value.toString();
-                            print(value);
                           },
                           onSaved: (value) {},
                         ),
@@ -604,7 +645,11 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
                             style: TextStyle(
                               color: Colors.white,
                             )),
-                        onPressed: nextEnable ? () async {} : null,
+                        onPressed: nextEnable
+                            ? () async {
+                                await nextButton();
+                              }
+                            : null,
                       )),
                 ],
               ),

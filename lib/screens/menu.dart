@@ -85,10 +85,10 @@ class _MenuPageState extends State<Menu> {
                     color: Colors.blue,
                   ),
                   press: () => {
-                    /* Navigator.push(
+                    Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CheckupHeader()))*/
+                            builder: (context) => CheckupHeader()))
                   },
                 ),
               ),

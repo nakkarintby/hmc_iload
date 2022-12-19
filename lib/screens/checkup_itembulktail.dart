@@ -86,30 +86,24 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
             .toList();
       });
 
-      //check bulk and delete
-      String temp = prefs.getString('truckType');
-      if (temp == 'BulkTruck') {
-        //set list
-        for (int i = 0; i < listtemp.length; i++) {
-          if (listtemp[i].detailName == '11' ||
-              listtemp[i].detailName == '12' ||
-              listtemp[i].detailName == '13' ||
-              listtemp[i].detailName == '14' ||
-              listtemp[i].detailName == '15' ||
-              listtemp[i].detailName == '16' ||
-              listtemp[i].detailName == '17' ||
-              listtemp[i].detailName == '18' ||
-              listtemp[i].detailName == '19' ||
-              listtemp[i].detailName == '20' ||
-              listtemp[i].detailName == '21' ||
-              listtemp[i].detailName == '22') {
-            list.add(listtemp[i]);
-          }
+      for (int i = 0; i < listtemp.length; i++) {
+        if (listtemp[i].detailName == '11' ||
+            listtemp[i].detailName == '12' ||
+            listtemp[i].detailName == '13' ||
+            listtemp[i].detailName == '14' ||
+            listtemp[i].detailName == '15' ||
+            listtemp[i].detailName == '16' ||
+            listtemp[i].detailName == '17' ||
+            listtemp[i].detailName == '18' ||
+            listtemp[i].detailName == '19' ||
+            listtemp[i].detailName == '20' ||
+            listtemp[i].detailName == '21' ||
+            listtemp[i].detailName == '22') {
+          list.add(listtemp[i]);
         }
-        print(list.length);
-        await updateListCheckupItemBulkTail();
-        return;
       }
+      await updateListCheckupItemBulkTail();
+      return;
     } catch (e) {
       print("Error occured while setCheckupItem");
     }
@@ -117,6 +111,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
 
   Future<void> updateListCheckupItemBulkTail() async {
     for (int i = 0; i < list.length; i++) {
+      print(list[i].detailName);
       switch (i) {
         case 0:
           setState(() {
@@ -178,6 +173,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
             button22Enable = list[i].isChecked!;
           });
           break;
+
         default:
           // code block
           break;
@@ -188,29 +184,6 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
       nextEnable = true;
     });
   }
-
-  /* Future<void> checkEnable() async {
-    if (button1Enable ||
-        button2Enable ||
-        button3Enable ||
-        button4Enable ||
-        button5Enable ||
-        button6Enable ||
-        button7Enable ||
-        button8Enable ||
-        button9Enable ||
-        button10Enable) {
-      setState(() {
-        backEnable = true;
-        nextEnable = true;
-      });
-    } else {
-      setState(() {
-        backEnable = true;
-        nextEnable = false;
-      });
-    }
-  }*/
 
   Future<void> confirmDialog() async {
     // set up the buttons
@@ -326,6 +299,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
             list[i].isChecked = button22Enable;
           });
           break;
+
         default:
           // code block
           break;
@@ -443,9 +417,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 26,
-              ),
+              SizedBox(height: 24),
               SizedBox(
                   width: MediaQuery.of(context).size.width / 1.25,
                   child: const Text(
@@ -453,7 +425,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   )),
-              SizedBox(height: 25),
+              SizedBox(height: 10),
               Container(
                   margin: const EdgeInsets.all(10),
                   padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
@@ -483,7 +455,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -502,7 +474,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -521,7 +493,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -540,7 +512,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -551,7 +523,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 25),
+                        SizedBox(height: 14),
                         Row(
                           mainAxisAlignment: MainAxisAlignment
                               .center, //Center Row contents horizontally,
@@ -567,7 +539,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -586,7 +558,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -605,7 +577,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -624,7 +596,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -635,7 +607,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 25),
+                        SizedBox(height: 14),
                         Row(
                           mainAxisAlignment: MainAxisAlignment
                               .center, //Center Row contents horizontally,
@@ -651,7 +623,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -670,7 +642,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -689,7 +661,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -708,7 +680,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                minimumSize: Size(60, 60), //////// HERE
+                                minimumSize: Size(55, 55), //////// HERE
                               ),
                               onPressed: () async {
                                 setState(
@@ -720,7 +692,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
                           ],
                         ),
                       ]))),
-              SizedBox(height: 25),
+              SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment
                     .center, //Center Row contents horizontally,

@@ -1,12 +1,16 @@
 class CheckUpHeaderClass {
   int? checkUpHeaderID;
   int? truckID;
-  String? licensePlateH;
-  String? licensePlateT;
+  int? trailerID;
+  String? truckPlate;
+  String? trailerPlate;
   String? truckType;
-  String? driverName;
+  String? trailerType;
+  int? driverID;
   String? mileage;
   String? checkInTime;
+  String? result;
+  String? status;
   bool? isDeleted;
   String? createdBy;
   String? createdTime;
@@ -16,12 +20,16 @@ class CheckUpHeaderClass {
   CheckUpHeaderClass(
       {this.checkUpHeaderID,
       this.truckID,
-      this.licensePlateH,
-      this.licensePlateT,
+      this.trailerID,
+      this.truckPlate,
+      this.trailerPlate,
       this.truckType,
-      this.driverName,
+      this.trailerType,
+      this.driverID,
       this.mileage,
       this.checkInTime,
+      this.result,
+      this.status,
       this.isDeleted,
       this.createdBy,
       this.createdTime,
@@ -31,12 +39,16 @@ class CheckUpHeaderClass {
   CheckUpHeaderClass.fromJson(Map<String, dynamic> json) {
     checkUpHeaderID = json['checkUpHeaderID'];
     truckID = json['truckID'];
-    licensePlateH = json['licensePlateH'];
-    licensePlateT = json['licensePlateT'];
+    trailerID = json['trailerID'];
+    truckPlate = json['truckPlate'];
+    trailerPlate = json['trailerPlate'];
     truckType = json['truckType'];
-    driverName = json['driverName'];
+    trailerType = json['trailerType'];
+    driverID = json['driverID'];
     mileage = json['mileage'];
     checkInTime = json['checkInTime'];
+    result = json['result'];
+    status = json['status'];
     isDeleted = json['isDeleted'];
     createdBy = json['createdBy'];
     createdTime = json['createdTime'];
@@ -48,12 +60,16 @@ class CheckUpHeaderClass {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['checkUpHeaderID'] = this.checkUpHeaderID;
     data['truckID'] = this.truckID;
-    data['licensePlateH'] = this.licensePlateH;
-    data['licensePlateT'] = this.licensePlateT;
+    data['trailerID'] = this.trailerID;
+    data['truckPlate'] = this.truckPlate;
+    data['trailerPlate'] = this.trailerPlate;
     data['truckType'] = this.truckType;
-    data['driverName'] = this.driverName;
+    data['trailerType'] = this.trailerType;
+    data['driverID'] = this.driverID;
     data['mileage'] = this.mileage;
     data['checkInTime'] = this.checkInTime;
+    data['result'] = this.result;
+    data['status'] = this.status;
     data['isDeleted'] = this.isDeleted;
     data['createdBy'] = this.createdBy;
     data['createdTime'] = this.createdTime;
