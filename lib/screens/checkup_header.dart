@@ -288,13 +288,13 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
         });
         if (checkHeader.truckType == 'Truck') {
-          if (trailerPlateController.text.isNotEmpty) {
+          if (trailerPlateController.text.isEmpty) {
             setState(() {
-              prefs.setBool('havetrailerbulk', true);
+              prefs.setInt('typeCheckUp', 2);
             });
           } else {
             setState(() {
-              prefs.setBool('havetrailerbulk', false);
+              prefs.setInt('typeCheckUp', 3);
             });
           }
           Navigator.push(
@@ -302,6 +302,9 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
               MaterialPageRoute(
                   builder: (context) => CheckupItemBulkHeadPage()));
         } else {
+          setState(() {
+            prefs.setInt('typeCheckUp', 1);
+          });
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => CheckupItemPage()));
         }
@@ -371,13 +374,13 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
         });
         if (checkHeader.truckType == 'Truck') {
-          if (trailerPlateController.text.isNotEmpty) {
+          if (trailerPlateController.text.isEmpty) {
             setState(() {
-              prefs.setBool('havetrailerbulk', true);
+              prefs.setInt('typeCheckUp', 2);
             });
           } else {
             setState(() {
-              prefs.setBool('havetrailerbulk', false);
+              prefs.setInt('typeCheckUp', 3);
             });
           }
           Navigator.push(
@@ -385,6 +388,9 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
               MaterialPageRoute(
                   builder: (context) => CheckupItemBulkHeadPage()));
         } else {
+          setState(() {
+            prefs.setInt('typeCheckUp', 1);
+          });
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => CheckupItemPage()));
         }

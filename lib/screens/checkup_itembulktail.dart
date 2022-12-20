@@ -111,7 +111,6 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
 
   Future<void> updateListCheckupItemBulkTail() async {
     for (int i = 0; i < list.length; i++) {
-      print(list[i].detailName);
       switch (i) {
         case 0:
           setState(() {

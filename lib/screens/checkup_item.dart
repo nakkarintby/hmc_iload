@@ -80,20 +80,12 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
             .toList();
       });
 
-      //check bulk and delete
-      String temp = prefs.getString('truckType');
-      if (temp == 'BulkTruck') {
-        for (int i = list.length - 1; i >= 0; i--) {
-          if (list[i].detailNo == 0) {
-            print('remove :' + list[i].detailName.toString());
-            list.removeAt(i);
-          }
+      for (int i = list.length - 1; i >= 0; i--) {
+        if (list[i].detailNo == 0) {
+          list.removeAt(i);
         }
-        print(list.length);
-        await setCountListCheckupItem();
-        await updateListCheckupItem();
-        return;
       }
+
       await setCountListCheckupItem();
       await updateListCheckupItem();
     } catch (e) {
@@ -266,6 +258,57 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
     );
   }
 
+  Future<void> completeDialog() async {
+    // set up the buttons
+    Widget noButton = FlatButton(
+      child: Text("No"),
+      onPressed: () async {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+    Widget yesButton = FlatButton(
+      child: Text("Yes"),
+      onPressed: () async {
+        await saveListCheckupItem();
+        await postList();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        int typeCheckUp = prefs.getInt('typeCheckUp');
+        if (typeCheckUp == 1) {
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.pop(context);
+        } else if (typeCheckUp == 2) {
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.pop(context);
+          Navigator.pop(context);
+        } else if (typeCheckUp == 3) {
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Row(children: [
+        Icon(Icons.warning_amber_outlined, color: Colors.orangeAccent),
+        Text("Warning")
+      ]),
+      content: Text("Would you like complete?"),
+      actions: [
+        noButton,
+        yesButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Future<void> backButtonCheckupItem() async {
     await confirmDialog();
   }
@@ -277,19 +320,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         return;
       }
       if (list.length - 1 == count) {
-        await saveListCheckupItem();
-        await postList();
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        String temp = prefs.getString('truckType');
-        if (temp == 'BulkTruck') {
-          Navigator.pop(context);
-          Navigator.pop(context);
-          Navigator.pop(context);
-          showSuccessDialog('Checkup Successful');
-        } else if (temp == 'Trailer') {
-          Navigator.pop(context);
-          showSuccessDialog('Checkup Successful');
-        }
+        await completeDialog();
         return;
       }
 

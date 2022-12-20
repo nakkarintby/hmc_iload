@@ -225,14 +225,13 @@ class _CheckupItemBulkHeadPageState extends State<CheckupItemBulkHeadPage> {
     await saveListCheckupItemBulkHead();
     await postList();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    bool havetrailerbulk = prefs.getBool('havetrailerbulk');
-    if (havetrailerbulk) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => CheckupItemBulkTailPage()));
-    } else {
+    int typeCheckUp = prefs.getInt('typeCheckUp');
+    if (typeCheckUp == 2) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => CheckupItemPage()));
+    } else if (typeCheckUp == 3) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => CheckupItemBulkTailPage()));
     }
   }
 
