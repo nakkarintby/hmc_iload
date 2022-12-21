@@ -102,8 +102,24 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         return;
       }
     }
-    Navigator.of(context).pop();
-    showSuccessDialog('Document Successful');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int typeCheckUp = prefs.getInt('typeCheckUp');
+    if (typeCheckUp == 1) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.pop(context);
+      showSuccessDialog('Document Successful');
+    } else if (typeCheckUp == 2) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.pop(context);
+      Navigator.pop(context);
+      showSuccessDialog('Document Successful');
+    } else if (typeCheckUp == 3) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      showSuccessDialog('Document Successful');
+    }
   }
 
   Future<void> updateListCheckupItem() async {
