@@ -3,10 +3,12 @@ class CheckUpItemClass {
   int? checkUpHeaderID;
   String? truckType;
   String? subTruckType;
+  String? groupName;
   int? detailNo;
   String? detailName;
   bool? isChecked;
-  bool? isHeader;
+  int? fixDay;
+  bool? isWarning;
   String? remark;
   String? dueDate;
   String? createdBy;
@@ -19,10 +21,12 @@ class CheckUpItemClass {
       this.checkUpHeaderID,
       this.truckType,
       this.subTruckType,
+      this.groupName,
       this.detailNo,
       this.detailName,
       this.isChecked,
-      this.isHeader,
+      this.fixDay,
+      this.isWarning,
       this.remark,
       this.dueDate,
       this.createdBy,
@@ -35,10 +39,12 @@ class CheckUpItemClass {
     checkUpHeaderID = json['checkUpHeaderID'];
     truckType = json['truckType'];
     subTruckType = json['subTruckType'];
+    groupName = json['groupName'];
     detailNo = json['detailNo'];
     detailName = json['detailName'];
     isChecked = json['isChecked'];
-    isHeader = json['isHeader'];
+    fixDay = json['fixDay'];
+    isWarning = json['isWarning'];
     remark = json['remark'];
     dueDate = json['dueDate'];
     createdBy = json['createdBy'];
@@ -53,10 +59,12 @@ class CheckUpItemClass {
     data['checkUpHeaderID'] = this.checkUpHeaderID;
     data['truckType'] = this.truckType;
     data['subTruckType'] = this.subTruckType;
+    data['groupName'] = this.groupName;
     data['detailNo'] = this.detailNo;
     data['detailName'] = this.detailName;
     data['isChecked'] = this.isChecked;
-    data['isHeader'] = this.isHeader;
+    data['fixDay'] = this.fixDay;
+    data['isWarning'] = this.isWarning;
     data['remark'] = this.remark;
     data['dueDate'] = this.dueDate;
     data['createdBy'] = this.createdBy;

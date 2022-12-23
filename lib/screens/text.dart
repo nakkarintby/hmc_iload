@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/class/checkupheader.dart';
 import 'package:test/class/createcheckupheader.dart';
 import 'package:test/class/driver.dart';
-import 'package:test/class/receiveCreateCheckUpHeader.dart';
 import 'package:test/class/truck.dart';
 import 'package:test/screens/checkup_item.dart';
 import 'package:test/screens/checkup_itembulkhead.dart';
@@ -28,12 +27,9 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
   TextEditingController truckTypeController = TextEditingController();
   bool truckTypeReadonly = false;
   Color truckTypeColor = Color(0xFFFFFFFF);
-  TextEditingController mileageController = TextEditingController();
-  bool mileageReadonly = false;
-  Color mileageColor = Color(0xFFFFFFFF);
   bool backEnable = false;
   bool searchEnable = false;
-  bool createEnable = false;
+  bool nextEnable = false;
   bool showDetail = false;
   late Timer timer;
 
@@ -42,13 +38,10 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
   String username = '';
 
   List<String> listdriver = [];
-  List<int> listdriverID = [];
-  int selectdriverID = 0;
 
   String selectedValue = "";
   Truck? truckPlate;
   Truck? trailerPlate;
-  bool checkcreate = false;
 
   final _formKey = GlobalKey<FormState>();
   @override
@@ -139,13 +132,10 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         if (trailerPlateController.text.toString().isNotEmpty) {
           await validateTrailerPlate();
         } else {
-          await checkCreate();
-          if (checkcreate == true) {
-            setState(() {
-              truckTypeController.text = truckPlate!.truckType!;
-            });
-            await validateDetail();
-          }
+          setState(() {
+            truckTypeController.text = truckPlate!.truckType!;
+          });
+          await validateDetail();
         }
       } else {
         setState(() {
@@ -192,13 +182,10 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       trailerPlate = Truck.fromJson(data);
 
       if (response.statusCode == 200) {
-        await checkCreate();
-        if (checkcreate == true) {
-          setState(() {
-            truckTypeController.text = truckPlate!.truckType!;
-          });
-          await validateDetail();
-        }
+        setState(() {
+          truckTypeController.text = trailerPlate!.truckType!;
+        });
+        await validateDetail();
       } else {
         setState(() {
           truckPlateController.text = "";
@@ -234,13 +221,12 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         });
         for (int i = 0; i < listtemp.length; i++) {
           listdriver.add(listtemp[i].firstName!);
-          listdriverID.add(listtemp[i].id!);
         }
         setState(() {
           showDetail = true;
           backEnable = true;
           searchEnable = false;
-          createEnable = true;
+          nextEnable = true;
           truckPlateColor = Color(0xFFEEEEEE);
           truckPlateReadonly = true;
           trailerPlateColor = Color(0xFFEEEEEE);
@@ -258,7 +244,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
     }
   }
 
-  Future<void> checkCreate() async {
+  Future<void> checkHeader() async {
     try {
       String path = "";
       //set url
@@ -289,17 +275,16 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       http.Response response = await http.get(url, headers: headers);
       //create checkup header
       if (response.statusCode == 204) {
-        setState(() {
-          checkcreate = true;
-        });
+        print("not found header");
+        await createHeader();
         return;
       }
       var data = json.decode(response.body);
       CheckUpHeaderClass checkHeader = CheckUpHeaderClass.fromJson(data);
       //get checkup header
       if (response.statusCode == 200) {
+        print("found header");
         setState(() {
-          checkcreate = false;
           prefs.setInt('checkupHeaderID', checkHeader.checkUpHeaderID);
         });
         if (checkHeader.truckType == 'Tractor-Bulk') {
@@ -323,10 +308,9 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => CheckupItemPage()));
         }
+        //create checkup header
       } else {
-        setState(() {
-          checkcreate = true;
-        });
+        await createHeader();
         return;
       }
     } catch (e) {
@@ -352,30 +336,26 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       if (trailerPlateController.text.isEmpty) {
         setState(() {
           create.createdBy = 'Admin';
-          create.driverID = listdriverID[selectdriverID];
+          create.driverID = truckPlate!.driverID;
           create.truckID = truckPlate!.truckID;
           create.truckPlate = truckPlate!.truckPlate;
           create.truckType = truckPlate!.truckType;
           create.trailerID = null;
           create.trailerPlate = null;
           create.trailerType = null;
-          create.trailerType = null;
-          create.mileage = double.parse(mileageController.text.toString());
         });
       } else {
         setState(() {
           create.createdBy = 'Admin';
-          create.driverID = listdriverID[selectdriverID];
+          create.driverID = truckPlate!.driverID;
           create.truckID = truckPlate!.truckID;
           create.truckPlate = truckPlate!.truckPlate;
           create.truckType = truckPlate!.truckType;
           create.trailerID = trailerPlate!.truckID;
           create.trailerPlate = trailerPlate!.truckPlate;
           create.trailerType = trailerPlate!.truckType;
-          create.mileage = double.parse(mileageController.text.toString());
         });
       }
-      print(create.toJson());
 
       var jsonBody = jsonEncode(create);
       final encoding = Encoding.getByName('utf-8');
@@ -387,8 +367,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         encoding: encoding,
       );
       var data = json.decode(response.body);
-      RecieveCreateCheckupHeader checkHeader =
-          RecieveCreateCheckupHeader.fromJson(data);
+      CheckUpHeaderClass checkHeader = CheckUpHeaderClass.fromJson(data);
 
       if (response.statusCode == 200) {
         setState(() {
@@ -430,12 +409,11 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       truckPlateController.text = "";
       trailerPlateController.text = "";
       truckTypeController.text = "";
-      mileageController.text = "";
       listdriver = [];
       showDetail = false;
       backEnable = false;
       searchEnable = true;
-      createEnable = false;
+      nextEnable = false;
       truckPlateColor = Color(0xFFFFFFFF);
       truckPlateReadonly = false;
       trailerPlateColor = Color(0xFFFFFFFF);
@@ -458,12 +436,8 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
     await validateTruckPlate();
   }
 
-  Future<void> createButton() async {
-    if (mileageController.text.isEmpty) {
-      showErrorDialog('Please Enter Mileage!');
-      return;
-    }
-    await createHeader();
+  Future<void> nextButton() async {
+    await checkHeader();
   }
 
   @override
@@ -599,46 +573,10 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
                           },
                           onChanged: (value) {
                             selectedValue = value.toString();
-                            setState(() {
-                              selectdriverID =
-                                  listdriver.indexOf(value.toString());
-                            });
                           },
                           onSaved: (value) {},
                         ),
                       ),
-                    ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              Visibility(
-                  visible: showDetail,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment
-                        .center, //Center Row contents horizontally,
-                    crossAxisAlignment: CrossAxisAlignment
-                        .center, //Center Row contents vertically,
-                    children: <Widget>[
-                      new SizedBox(
-                          width: 160.0,
-                          height: 75.0,
-                          child: TextFormField(
-                            readOnly: mileageReadonly,
-                            keyboardType: TextInputType.number,
-                            textInputAction: TextInputAction.go,
-                            onFieldSubmitted: (value) {},
-                            decoration: InputDecoration(
-                              fillColor: mileageColor,
-                              filled: true,
-                              hintText: 'Enter Mileage',
-                              labelText: 'Mileage',
-                              border: OutlineInputBorder(),
-                              isDense: true, // Added this
-                              contentPadding: EdgeInsets.all(16), //
-                            ),
-                            controller: mileageController,
-                          )),
                     ],
                   )),
               SizedBox(
@@ -712,15 +650,14 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
                   Visibility(
                       visible: showDetail,
                       child: new RaisedButton(
-                        color:
-                            createEnable == true ? Colors.green : Colors.grey,
-                        child: const Text('Create',
+                        color: nextEnable == true ? Colors.green : Colors.grey,
+                        child: const Text('Next',
                             style: TextStyle(
                               color: Colors.white,
                             )),
-                        onPressed: createEnable
+                        onPressed: nextEnable
                             ? () async {
-                                await createButton();
+                                await nextButton();
                               }
                             : null,
                       )),

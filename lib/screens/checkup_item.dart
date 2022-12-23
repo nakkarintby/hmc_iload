@@ -129,9 +129,28 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
           radio = false;
           value = 0;
           remarkController.text = "";
-          dateController.text = "";
+          //dateController.text = "";
           backEnable = true;
           nextEnable = false;
+          if (list[count].fixDay == 0) {
+            DateTime today = DateTime.now();
+            String formattedDate = DateFormat('yyyy-MM-dd').format(today);
+            setState(() {
+              dateController.text = formattedDate;
+            });
+          } else {
+            int fix = list[count].fixDay!;
+            DateTime today = DateTime.now();
+            DateTime fixdate = DateTime(
+              today.year,
+              today.month,
+              today.day + fix,
+            );
+            String formattedDate = DateFormat('yyyy-MM-dd').format(fixdate);
+            setState(() {
+              dateController.text = formattedDate;
+            });
+          }
         });
       } else if (list[count].modifiedBy != null) {
         //set radio
@@ -160,9 +179,25 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
 
         //set date
         if (list[count].dueDate == null) {
-          setState(() {
-            dateController.text = "";
-          });
+          if (list[count].fixDay == 0) {
+            DateTime today = DateTime.now();
+            String formattedDate = DateFormat('yyyy-MM-dd').format(today);
+            setState(() {
+              dateController.text = formattedDate;
+            });
+          } else {
+            int fix = list[count].fixDay!;
+            DateTime today = DateTime.now();
+            DateTime fixdate = DateTime(
+              today.year,
+              today.month,
+              today.day + fix,
+            );
+            String formattedDate = DateFormat('yyyy-MM-dd').format(fixdate);
+            setState(() {
+              dateController.text = formattedDate;
+            });
+          }
         } else if (list[count].dueDate != null) {
           var tempdate = list[count].dueDate.toString();
           var splitdate = tempdate.split('T');
@@ -546,6 +581,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
                     right: MediaQuery.of(context).size.width / 6),
                 child: SingleChildScrollView(
                     child: TextFormField(
+                  maxLength: 250,
                   minLines: 1,
                   maxLines: 3,
                   keyboardType: TextInputType.multiline,
@@ -564,7 +600,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
                   controller: remarkController,
                 )),
               ),
-              SizedBox(height: 25),
+              SizedBox(height: 15),
               Container(
                 padding: new EdgeInsets.only(
                     left: MediaQuery.of(context).size.width / 6,
@@ -572,7 +608,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
                 child: SingleChildScrollView(
                     child: TextFormField(
                   minLines: 1,
-                  maxLines: 3,
+                  maxLines: 2,
                   keyboardType: TextInputType.multiline,
                   textAlignVertical: TextAlignVertical.center,
                   textInputAction: TextInputAction.go,

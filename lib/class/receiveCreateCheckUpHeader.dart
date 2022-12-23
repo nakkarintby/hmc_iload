@@ -1,4 +1,4 @@
-class CheckUpHeaderClass {
+class RecieveCreateCheckupHeader {
   int? checkUpHeaderID;
   int? truckID;
   int? trailerID;
@@ -17,7 +17,7 @@ class CheckUpHeaderClass {
   String? modifiedBy;
   String? modifiedTime;
 
-  CheckUpHeaderClass(
+  RecieveCreateCheckupHeader(
       {this.checkUpHeaderID,
       this.truckID,
       this.trailerID,
@@ -36,7 +36,7 @@ class CheckUpHeaderClass {
       this.modifiedBy,
       this.modifiedTime});
 
-  CheckUpHeaderClass.fromJson(Map<String, dynamic> json) {
+  RecieveCreateCheckupHeader.fromJson(Map<String, dynamic> json) {
     checkUpHeaderID = json['checkUpHeaderID'];
     truckID = json['truckID'];
     trailerID = json['trailerID'];

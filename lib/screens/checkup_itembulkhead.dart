@@ -660,7 +660,7 @@ class _CheckupItemBulkHeadPageState extends State<CheckupItemBulkHeadPage> {
                                     () => button11Enable = !button11Enable);
                                 //await checkEnable();
                               },
-                              child: Text('N/A'),
+                              child: Text('spare'),
                             ),
                           ],
                         ),

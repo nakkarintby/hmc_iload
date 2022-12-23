@@ -6,6 +6,7 @@ class CreateCheckupHeader {
   String? truckType;
   String? trailerType;
   int? driverID;
+  dynamic mileage;
   String? createdBy;
 
   CreateCheckupHeader(
@@ -16,6 +17,7 @@ class CreateCheckupHeader {
       this.truckType,
       this.trailerType,
       this.driverID,
+      this.mileage,
       this.createdBy});
 
   CreateCheckupHeader.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class CreateCheckupHeader {
     truckType = json['truckType'];
     trailerType = json['trailerType'];
     driverID = json['driverID'];
+    mileage = json['mileage'];
     createdBy = json['createdBy'];
   }
 
@@ -38,6 +41,7 @@ class CreateCheckupHeader {
     data['truckType'] = this.truckType;
     data['trailerType'] = this.trailerType;
     data['driverID'] = this.driverID;
+    data['mileage'] = this.mileage;
     data['createdBy'] = this.createdBy;
     return data;
   }
