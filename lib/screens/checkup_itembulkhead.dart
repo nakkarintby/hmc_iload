@@ -98,6 +98,9 @@ class _CheckupItemBulkHeadPageState extends State<CheckupItemBulkHeadPage> {
             listtemp[i].detailName == '9' ||
             listtemp[i].detailName == '10' ||
             listtemp[i].detailName == 'ยางอะไหล่') {
+          if (listtemp[i].isChecked == null) {
+            listtemp[i].isChecked = false;
+          }
           list.add(listtemp[i]);
         }
       }
@@ -222,14 +225,23 @@ class _CheckupItemBulkHeadPageState extends State<CheckupItemBulkHeadPage> {
   }
 
   Future<void> nextButton() async {
+    setState(() {
+      nextEnable = false;
+    });
     await saveListCheckupItemBulkHead();
     await postList();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int typeCheckUp = prefs.getInt('typeCheckUp');
     if (typeCheckUp == 2) {
+      setState(() {
+        nextEnable = true;
+      });
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => CheckupItemPage()));
     } else if (typeCheckUp == 3) {
+      setState(() {
+        nextEnable = true;
+      });
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => CheckupItemBulkTailPage()));
     }

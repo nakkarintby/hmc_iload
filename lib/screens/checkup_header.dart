@@ -41,9 +41,10 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
   String accessToken = '';
   String username = '';
 
-  List<String> listdriver = [];
-  List<int> listdriverID = [];
-  int selectdriverID = 0;
+  List<Driver> listdriver = [];
+  List<String> listDropdown = [];
+
+  int selectIndex = 0;
 
   String selectedValue = "";
   Truck? truckPlate;
@@ -128,6 +129,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         setState(() {
           truckPlateController.text = "";
           trailerPlateController.text = "";
+          searchEnable = true;
         });
         showErrorDialog('Truck Plate Not Found!');
         return;
@@ -151,6 +153,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         setState(() {
           truckPlateController.text = "";
           trailerPlateController.text = "";
+          searchEnable = true;
         });
         showErrorDialog('Truck Plate Not Found!');
         return;
@@ -184,6 +187,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         setState(() {
           truckPlateController.text = "";
           trailerPlateController.text = "";
+          searchEnable = true;
         });
         showErrorDialog('Trailer Plate Not Found!');
         return;
@@ -203,6 +207,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         setState(() {
           truckPlateController.text = "";
           trailerPlateController.text = "";
+          searchEnable = true;
         });
         showErrorDialog('Trailer Plate Not Found!');
         return;
@@ -218,6 +223,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       setState(() {
         configs = prefs.getString('configs');
         accessToken = prefs.getString('accessToken');
+        username = prefs.getString('username');
       });
 
       var url = Uri.parse('https://' + configs + '/api/User/GetDriver/All');
@@ -226,15 +232,21 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       http.Response response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
-        List<Driver> listtemp = [];
+        listdriver = [];
+        listDropdown = [];
         setState(() {
-          listtemp = (json.decode(response.body) as List)
+          listdriver = (json.decode(response.body) as List)
               .map((data) => Driver.fromJson(data))
               .toList();
         });
-        for (int i = 0; i < listtemp.length; i++) {
-          listdriver.add(listtemp[i].firstName!);
-          listdriverID.add(listtemp[i].id!);
+        for (int i = 0; i < listdriver.length; i++) {
+          if (listdriver[i].id == truckPlate!.driverID) {
+            setState(() {
+              selectIndex = i;
+            });
+          }
+          listDropdown
+              .add(listdriver[i].firstName! + " " + listdriver[i].lastName!);
         }
         setState(() {
           showDetail = true;
@@ -247,7 +259,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           trailerPlateReadonly = true;
           truckTypeColor = Color(0xFFEEEEEE);
           truckTypeReadonly = true;
-          selectedValue = listdriver[0];
+          selectedValue = listDropdown[selectIndex];
         });
       } else {
         showErrorDialog('Driver Not Found');
@@ -312,6 +324,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
               prefs.setInt('typeCheckUp', 3);
             });
           }
+          await backButton();
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -320,6 +333,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           setState(() {
             prefs.setInt('typeCheckUp', 1);
           });
+          await backButton();
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => CheckupItemPage()));
         }
@@ -351,8 +365,8 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       CreateCheckupHeader create = new CreateCheckupHeader();
       if (trailerPlateController.text.isEmpty) {
         setState(() {
-          create.createdBy = 'Admin';
-          create.driverID = listdriverID[selectdriverID];
+          create.createdBy = listdriver[selectIndex].userName;
+          create.driverID = listdriver[selectIndex].id;
           create.truckID = truckPlate!.truckID;
           create.truckPlate = truckPlate!.truckPlate;
           create.truckType = truckPlate!.truckType;
@@ -364,8 +378,8 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         });
       } else {
         setState(() {
-          create.createdBy = 'Admin';
-          create.driverID = listdriverID[selectdriverID];
+          create.createdBy = listdriver[selectIndex].userName;
+          create.driverID = listdriver[selectIndex].id;
           create.truckID = truckPlate!.truckID;
           create.truckPlate = truckPlate!.truckPlate;
           create.truckType = truckPlate!.truckType;
@@ -375,7 +389,6 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           create.mileage = double.parse(mileageController.text.toString());
         });
       }
-      print(create.toJson());
 
       var jsonBody = jsonEncode(create);
       final encoding = Encoding.getByName('utf-8');
@@ -404,6 +417,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
               prefs.setInt('typeCheckUp', 3);
             });
           }
+          await backButton();
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -412,6 +426,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
           setState(() {
             prefs.setInt('typeCheckUp', 1);
           });
+          await backButton();
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => CheckupItemPage()));
         }
@@ -432,6 +447,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
       truckTypeController.text = "";
       mileageController.text = "";
       listdriver = [];
+      listDropdown = [];
       showDetail = false;
       backEnable = false;
       searchEnable = true;
@@ -447,19 +463,29 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
   }
 
   Future<void> searchButton() async {
+    setState(() {
+      searchEnable = false;
+    });
     if (truckPlateController.text.isEmpty) {
-      showErrorDialog('Please Enter Truck Plate!');
       setState(() {
         truckPlateController.text = "";
         trailerPlateController.text = "";
+        searchEnable = true;
       });
+      showErrorDialog('Please Enter Truck Plate!');
       return;
     }
     await validateTruckPlate();
   }
 
   Future<void> createButton() async {
+    setState(() {
+      createEnable = false;
+    });
     if (mileageController.text.isEmpty) {
+      setState(() {
+        createEnable = true;
+      });
       showErrorDialog('Please Enter Mileage!');
       return;
     }
@@ -581,7 +607,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
                           dropdownDecoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          items: listdriver
+                          items: listDropdown
                               .map((item) => DropdownMenuItem<String>(
                                     value: item,
                                     child: Text(
@@ -600,8 +626,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
                           onChanged: (value) {
                             selectedValue = value.toString();
                             setState(() {
-                              selectdriverID =
-                                  listdriver.indexOf(value.toString());
+                              selectIndex = listDropdown.indexOf(selectedValue);
                             });
                           },
                           onSaved: (value) {},

@@ -29,6 +29,8 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
   String accessToken = "";
   String username = "";
   int checkupHeaderID = 0;
+  String tempDuedate = "";
+  String checkupHeader = "";
 
   @override
   void initState() {
@@ -102,23 +104,22 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         return;
       }
     }
+
+    //check document completed?
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int typeCheckUp = prefs.getInt('typeCheckUp');
     if (typeCheckUp == 1) {
-      Navigator.of(context, rootNavigator: true).pop();
       Navigator.pop(context);
-      showSuccessDialog('Document Successful');
+      showSuccessDialog('Document is Completed!');
     } else if (typeCheckUp == 2) {
-      Navigator.of(context, rootNavigator: true).pop();
       Navigator.pop(context);
       Navigator.pop(context);
-      showSuccessDialog('Document Successful');
+      showSuccessDialog('Document is Completed!');
     } else if (typeCheckUp == 3) {
-      Navigator.of(context, rootNavigator: true).pop();
       Navigator.pop(context);
       Navigator.pop(context);
       Navigator.pop(context);
-      showSuccessDialog('Document Successful');
+      showSuccessDialog('Document is Completed!');
     }
   }
 
@@ -129,28 +130,9 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
           radio = false;
           value = 0;
           remarkController.text = "";
-          //dateController.text = "";
+          dateController.text = "";
           backEnable = true;
           nextEnable = false;
-          if (list[count].fixDay == 0) {
-            DateTime today = DateTime.now();
-            String formattedDate = DateFormat('yyyy-MM-dd').format(today);
-            setState(() {
-              dateController.text = formattedDate;
-            });
-          } else {
-            int fix = list[count].fixDay!;
-            DateTime today = DateTime.now();
-            DateTime fixdate = DateTime(
-              today.year,
-              today.month,
-              today.day + fix,
-            );
-            String formattedDate = DateFormat('yyyy-MM-dd').format(fixdate);
-            setState(() {
-              dateController.text = formattedDate;
-            });
-          }
         });
       } else if (list[count].modifiedBy != null) {
         //set radio
@@ -179,23 +161,9 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
 
         //set date
         if (list[count].dueDate == null) {
-          if (list[count].fixDay == 0) {
-            DateTime today = DateTime.now();
-            String formattedDate = DateFormat('yyyy-MM-dd').format(today);
+          if (list[count].isChecked == true) {
             setState(() {
-              dateController.text = formattedDate;
-            });
-          } else {
-            int fix = list[count].fixDay!;
-            DateTime today = DateTime.now();
-            DateTime fixdate = DateTime(
-              today.year,
-              today.month,
-              today.day + fix,
-            );
-            String formattedDate = DateFormat('yyyy-MM-dd').format(fixdate);
-            setState(() {
-              dateController.text = formattedDate;
+              dateController.text = "";
             });
           }
         } else if (list[count].dueDate != null) {
@@ -315,6 +283,9 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
       child: Text("No"),
       onPressed: () async {
         Navigator.of(context, rootNavigator: true).pop();
+        setState(() {
+          nextEnable = true;
+        });
       },
     );
     Widget yesButton = FlatButton(
@@ -322,20 +293,24 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
       onPressed: () async {
         await saveListCheckupItem();
         await postList();
+        await completeCheckup();
         SharedPreferences prefs = await SharedPreferences.getInstance();
         int typeCheckUp = prefs.getInt('typeCheckUp');
         if (typeCheckUp == 1) {
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.pop(context);
+          showSuccessDialog('Document is Completed!');
         } else if (typeCheckUp == 2) {
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.pop(context);
           Navigator.pop(context);
+          showSuccessDialog('Document is Completed!');
         } else if (typeCheckUp == 3) {
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.pop(context);
           Navigator.pop(context);
           Navigator.pop(context);
+          showSuccessDialog('Document is Completed!');
         }
       },
     );
@@ -365,6 +340,9 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
   }
 
   Future<void> nextButtonCheckupItem() async {
+    setState(() {
+      nextEnable = false;
+    });
     if (list.length > 0) {
       if (value == 2 && dateController.text.isEmpty) {
         showErrorDialog('Please Select Date');
@@ -437,6 +415,33 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
     }
   }
 
+  Future<void> completeCheckup() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        accessToken = prefs.getString('accessToken');
+        username = prefs.getString('username');
+        checkupHeader = prefs.getInt('checkupHeaderID').toString();
+      });
+
+      var url = Uri.parse('https://' +
+          configs +
+          '/api/CheckUpHeader/MarkComplete?checkupheaderid=' +
+          checkupHeader);
+
+      http.Response response = await http.post(url);
+      var data = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+      } else {
+        showErrorDialog('Error occured while completeCheckup');
+      }
+    } catch (e) {
+      print("Error occured while completeCheckup");
+    }
+  }
+
   void alertDialog(String msg, String type) {
     Icon icon = Icon(Icons.info_outline, color: Colors.lightBlue);
     switch (type) {
@@ -493,6 +498,30 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
               value = index;
               nextEnable = true;
             });
+            if (list[count].modifiedBy == null) {
+              setState(() {
+                dateController.text = "";
+              });
+            } else if (list[count].modifiedBy != null &&
+                list[count].dueDate != null &&
+                list[count].isChecked == false) {
+              setState(() {
+                dateController.text = "";
+              });
+            } else if (list[count].modifiedBy != null &&
+                list[count].dueDate != null &&
+                list[count].isChecked == true) {
+              var tempdate = list[count].dueDate.toString();
+              var splitdate = tempdate.split('T');
+              setState(() {
+                dateController.text = splitdate[0];
+              });
+            } else if (list[count].modifiedBy != null &&
+                list[count].dueDate == null) {
+              setState(() {
+                dateController.text = "";
+              });
+            }
           },
           child: Text(
             text,
@@ -518,6 +547,56 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
               value = index;
               nextEnable = true;
             });
+
+            if (list[count].modifiedBy == null) {
+              if (list[count].fixDay == 0) {
+                DateTime today = DateTime.now();
+                String formattedDate = DateFormat('yyyy-MM-dd').format(today);
+                setState(() {
+                  dateController.text = formattedDate;
+                });
+              } else {
+                int fix = list[count].fixDay!;
+                DateTime today = DateTime.now();
+                DateTime fixdate = DateTime(
+                  today.year,
+                  today.month,
+                  today.day + fix,
+                );
+                String formattedDate = DateFormat('yyyy-MM-dd').format(fixdate);
+                setState(() {
+                  dateController.text = formattedDate;
+                });
+              }
+            } else if (list[count].modifiedBy != null &&
+                list[count].dueDate != null) {
+              var tempdate = list[count].dueDate.toString();
+              var splitdate = tempdate.split('T');
+              setState(() {
+                dateController.text = splitdate[0];
+              });
+            } else if (list[count].modifiedBy != null &&
+                list[count].dueDate == null) {
+              if (list[count].fixDay == 0) {
+                DateTime today = DateTime.now();
+                String formattedDate = DateFormat('yyyy-MM-dd').format(today);
+                setState(() {
+                  dateController.text = formattedDate;
+                });
+              } else {
+                int fix = list[count].fixDay!;
+                DateTime today = DateTime.now();
+                DateTime fixdate = DateTime(
+                  today.year,
+                  today.month,
+                  today.day + fix,
+                );
+                String formattedDate = DateFormat('yyyy-MM-dd').format(fixdate);
+                setState(() {
+                  dateController.text = formattedDate;
+                });
+              }
+            }
           },
           child: Text(
             text,

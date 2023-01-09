@@ -99,6 +99,9 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
             listtemp[i].detailName == '20' ||
             listtemp[i].detailName == '21' ||
             listtemp[i].detailName == '22') {
+          if (listtemp[i].isChecked == null) {
+            listtemp[i].isChecked = false;
+          }
           list.add(listtemp[i]);
         }
       }
@@ -229,8 +232,14 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
   }
 
   Future<void> nextButton() async {
+    setState(() {
+      nextEnable = false;
+    });
     await saveListCheckupItemBulkTail();
     await postList();
+    setState(() {
+      nextEnable = true;
+    });
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => CheckupItemPage()));
   }
