@@ -72,7 +72,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
       http.Response response = await http.get(url, headers: headers);
 
       if (response.statusCode != 200) {
-        showErrorDialog('Not found setCheckupItem');
+        showErrorDialog('Not found setListCheckupItem');
         return;
       }
 
@@ -91,7 +91,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
       await setCountListCheckupItem();
       await updateListCheckupItem();
     } catch (e) {
-      print("Error occured while setCheckupItem");
+      showErrorDialog('Error occured while setListCheckupItem');
     }
   }
 
@@ -408,10 +408,10 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
       if (response.statusCode == 200) {
         print("post sucessful");
       } else {
-        showErrorDialog('Https Error postList');
+        showErrorDialog('Error occured while postList');
       }
     } catch (e) {
-      print("Error occured while SaveList");
+      showErrorDialog('Error occured while postList');
     }
   }
 
@@ -438,7 +438,7 @@ class _CheckupItemPageState extends State<CheckupItemPage> {
         showErrorDialog('Error occured while completeCheckup');
       }
     } catch (e) {
-      print("Error occured while completeCheckup");
+      showErrorDialog('Error occured while completeCheckup');
     }
   }
 

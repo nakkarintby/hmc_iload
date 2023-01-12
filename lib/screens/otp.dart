@@ -97,10 +97,10 @@ class _OtpState extends State<Otp> {
           otp = otpTemp.toString();
         });
       } else {
-        showErrorDialog("Error Https SendOTP!");
+        showErrorDialog('Error occured while SendOTP');
       }
     } catch (e) {
-      Navigator.pushReplacementNamed(context, Register.routeName);
+      showErrorDialog('Error occured while SendOTP');
     }
   }
 
@@ -318,7 +318,7 @@ class _OtpState extends State<Otp> {
           showErrorDialog(checkAns.msg.toString());
         }
       } catch (e) {
-        Navigator.pushReplacementNamed(context, Register.routeName);
+        showErrorDialog('Error occured while UpdatePin');
       }
 
       timer = Timer(Duration(seconds: 1), () {

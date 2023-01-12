@@ -108,7 +108,7 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
       await updateListCheckupItemBulkTail();
       return;
     } catch (e) {
-      print("Error occured while setCheckupItem");
+      showErrorDialog("Error occured while setListCheckupItem");
     }
   }
 
@@ -351,10 +351,10 @@ class _CheckupItemBulkTailPageState extends State<CheckupItemBulkTailPage> {
       if (response.statusCode == 200) {
         print("post sucessful");
       } else {
-        showErrorDialog('Https Error postList');
+        showErrorDialog("Error occured while postList");
       }
     } catch (e) {
-      print("Error occured while SaveList");
+      showErrorDialog("Error occured while postList");
     }
   }
 

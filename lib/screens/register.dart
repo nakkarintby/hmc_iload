@@ -214,7 +214,7 @@ class _RegisterState extends State<Register> {
         _verificationNotifier.add(false);
       }
     } catch (e) {
-      Navigator.pushReplacementNamed(context, Register.routeName);
+      showErrorDialog('Error occured while _onPasscodeEntered');
     }
   }
 
@@ -301,7 +301,9 @@ class _RegisterState extends State<Register> {
         }
       });
     } catch (e) {
-      Navigator.pushReplacementNamed(context, Register.routeName);
+      _btnController.reset();
+      mobileController.text = '';
+      showErrorDialog('Error occured while PhoneNoCheck');
     }
   }
 

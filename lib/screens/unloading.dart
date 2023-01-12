@@ -65,7 +65,6 @@ class _UnloadingState extends State<Unloading> {
   String gps = "";
   String documentType = "";
 
-  late Uint8List img;
   String username = '';
 
   @override
@@ -376,7 +375,11 @@ class _UnloadingState extends State<Unloading> {
         showErrorDialog('DocumentID Not Found!');
       }
     } catch (e) {
-      Navigator.pushReplacementNamed(context, Register.routeName);
+      setState(() {
+        documentController.text = '';
+        documentIdInput = '';
+      });
+      showErrorDialog('Error occured while documentIDCheck');
     }
     setVisible();
     setReadOnly();
@@ -463,10 +466,10 @@ class _UnloadingState extends State<Unloading> {
           });
         }
       } else {
-        showErrorDialog('Https Error getImageSequence');
+        showErrorDialog('Error occured while getImageSequenceAfterUpload');
       }
     } catch (e) {
-      Navigator.pushReplacementNamed(context, Register.routeName);
+      showErrorDialog('Error occured while getImageSequenceAfterUpload');
     }
   }
 
@@ -543,10 +546,10 @@ class _UnloadingState extends State<Unloading> {
           });
         }
       } else {
-        showErrorDialog('Https Error getImageSequence');
+        showErrorDialog('Error occured while getImageSequenceAfterDocCheck');
       }
     } catch (e) {
-      Navigator.pushReplacementNamed(context, Register.routeName);
+      showErrorDialog('Error occured while getImageSequenceAfterDocCheck');
     }
   }
 
@@ -570,6 +573,44 @@ class _UnloadingState extends State<Unloading> {
           _image = temp;
           final encodedBytes = _image!.readAsBytesSync();
           fileInBase64 = base64Encode(encodedBytes);
+        });
+
+        //print size file image
+        double news = fileInBase64.length / (1024 * 1024);
+        print('Base64 : ' + news.toString() + ' MB');
+
+        //print size width, height image
+        var decoded = await decodeImageFromList(_image!.readAsBytesSync());
+        print('Original Width : ' + decoded.width.toString());
+        print('Original Height : ' + decoded.height.toString());
+
+        //resize image
+        img.Image? image = img.decodeImage(temp.readAsBytesSync());
+        var resizedImage = img.copyResize(image!, height: 120, width: 120);
+
+        //Get a path to save the resized file
+        final directory = await getApplicationDocumentsDirectory();
+        String path = directory.path;
+
+        // Save file
+        File resizedFile = File('$path/resizedImage.jpg')
+          ..writeAsBytesSync(img.encodePng(resizedImage));
+
+        //encode image to base64
+        final encodedBytes2 = resizedFile.readAsBytesSync();
+        String fileResizeInBase64 = base64Encode(encodedBytes2);
+
+        //print size file image
+        double news2 = fileResizeInBase64.length / (1024 * 1024);
+        print('Base64 : ' + news2.toString() + ' MB');
+
+        //print size width, height image
+        var decoded2 = await decodeImageFromList(resizedFile.readAsBytesSync());
+        print('Resize Width : ' + decoded2.width.toString());
+        print('Resize Height : ' + decoded2.height.toString());
+
+        setState(() {
+          fileInBase64 = fileResizeInBase64;
         });
       }
     }
@@ -640,10 +681,11 @@ class _UnloadingState extends State<Unloading> {
         await getImageSequenceAfterUpload();
       } else {
         await showProgressLoading(true);
-        showErrorDialog('Https Error upload');
+        showErrorDialog('Error occured while upload');
       }
     } catch (e) {
-      Navigator.pushReplacementNamed(context, Register.routeName);
+      await showProgressLoading(true);
+      showErrorDialog('Error occured while upload');
     }
 
     setVisible();
@@ -691,10 +733,10 @@ class _UnloadingState extends State<Unloading> {
         });
         showSuccessDialog('Scan Finish!');
       } else {
-        showErrorDialog('Https Error Finish');
+        showErrorDialog('Error occured while finish');
       }
     } catch (e) {
-      Navigator.pushReplacementNamed(context, Register.routeName);
+      showErrorDialog('Error occured while finish');
     }
     setVisible();
     setReadOnly();

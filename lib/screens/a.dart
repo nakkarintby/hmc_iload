@@ -37,17 +37,20 @@ class _ContainerNumberState extends State<ContainerNumber> {
   Color documentColor = Color(0xFFFFFFFF);
   bool takePhotoEnabled = false;
   bool uploadEnabled = false;
+  bool finishEnabled = false;
   bool backEnabled = false;
 
   String documentIdInput = '';
   String eventType = '';
   String statusUpload = '';
   String fileInBase64 = '';
+  bool documentWillUpload = false;
+  bool documentWillFinish = false;
 
   int step = 0;
   final ImagePicker _picker = ImagePicker();
   late File? _image = null;
-  late List<FocusNode> focusNodes = List.generate(3, (index) => FocusNode());
+  late List<FocusNode> focusNodes = List.generate(4, (index) => FocusNode());
   late Timer timer;
   String configs = '';
   String accessToken = '';
@@ -65,6 +68,8 @@ class _ContainerNumberState extends State<ContainerNumber> {
 
   String username = '';
 
+  late List<CreateImage?> listimage = [];
+  late List<String> listtextimage = [];
   ContainerDocument tempdoc = ContainerDocument();
 
   @override
@@ -182,6 +187,9 @@ class _ContainerNumberState extends State<ContainerNumber> {
         backEnabled = false;
         takePhotoEnabled = false;
         uploadEnabled = false;
+        finishEnabled = false;
+        documentWillUpload = false;
+        documentWillFinish = false;
       });
     } else if (step == 1) {
       setState(() {
@@ -189,6 +197,7 @@ class _ContainerNumberState extends State<ContainerNumber> {
         backEnabled = true;
         takePhotoEnabled = true;
         uploadEnabled = false;
+        finishEnabled = false;
       });
     } else if (step == 2) {
       setState(() {
@@ -196,7 +205,26 @@ class _ContainerNumberState extends State<ContainerNumber> {
         backEnabled = true;
         takePhotoEnabled = false;
         uploadEnabled = true;
+        finishEnabled = false;
       });
+    } else if (step == 3) {
+      if (documentWillUpload) {
+        setState(() {
+          documentReadonly = true;
+          backEnabled = true;
+          takePhotoEnabled = true;
+          uploadEnabled = false;
+          finishEnabled = false;
+        });
+      } else if (documentWillFinish) {
+        setState(() {
+          documentReadonly = true;
+          backEnabled = true;
+          takePhotoEnabled = false;
+          uploadEnabled = false;
+          finishEnabled = true;
+        });
+      }
     }
   }
 
@@ -220,6 +248,8 @@ class _ContainerNumberState extends State<ContainerNumber> {
         scannedText = '';
         sequence = 0;
         _image = null;
+        listimage = [];
+        listtextimage = [];
       });
     }
   }
@@ -234,6 +264,9 @@ class _ContainerNumberState extends State<ContainerNumber> {
     } else if (step == 2) {
       Future.delayed(Duration(milliseconds: 100))
           .then((_) => FocusScope.of(context).requestFocus(focusNodes[2]));
+    } else if (step == 3) {
+      Future.delayed(Duration(milliseconds: 100))
+          .then((_) => FocusScope.of(context).requestFocus(focusNodes[3]));
     }
   }
 
@@ -241,6 +274,12 @@ class _ContainerNumberState extends State<ContainerNumber> {
     if (step == 1 || step == 2) {
       setState(() {
         step--;
+        _image = null;
+        scannedText = '';
+      });
+    } else if (step == 3) {
+      setState(() {
+        step = 0;
         _image = null;
         scannedText = '';
       });
@@ -335,7 +374,10 @@ class _ContainerNumberState extends State<ContainerNumber> {
         tempdoc = checkAns;
       });
       if (response.statusCode == 200) {
-        await getImageSequenceAfterDocCheck();
+        setState(() {
+          max = checkAns.containerQty!;
+          step++;
+        });
       } else {
         setState(() {
           documentController.text = '';
@@ -357,87 +399,6 @@ class _ContainerNumberState extends State<ContainerNumber> {
     setFocus();
   }
 
-  Future<void> getImageSequenceAfterDocCheck() async {
-    if (tempdoc.containerQty == 1) {
-      if (tempdoc.containerNo1 != null) {
-        setState(() {
-          documentController.text = '';
-          documentIdInput = '';
-          sequence = 0;
-          max = 0;
-        });
-        showSuccessDialog('Document Complete!');
-        return;
-      } else {
-        setState(() {
-          sequence = 1;
-          max = 1;
-          step++;
-        });
-      }
-    } else if (tempdoc.containerQty == 2) {
-      if (tempdoc.containerNo1 != null && tempdoc.containerNo2 != null) {
-        setState(() {
-          documentController.text = '';
-          documentIdInput = '';
-          sequence = 0;
-          max = 0;
-        });
-        showSuccessDialog('Document Complete!');
-        return;
-      } else if (tempdoc.containerNo1 == null) {
-        setState(() {
-          sequence = 1;
-          max = 2;
-          step++;
-        });
-      } else if (tempdoc.containerNo1 != null && tempdoc.containerNo2 == null) {
-        setState(() {
-          sequence = 2;
-          max = 2;
-          step++;
-        });
-      }
-    }
-  }
-
-  Future<void> getImageSequenceAfterUpload() async {
-    if (sequence == max) {
-      setState(() {
-        _image = null;
-        scannedText = '';
-        statusUpload = 'Upload Image Finish';
-        step = 0;
-        sequence = 0;
-        max = 0;
-      });
-      setVisible();
-      setReadOnly();
-      setColor();
-      setText();
-      setFocus();
-      showProgressLoading(true);
-      showSuccessDialog('Document Complete!');
-    } else if (sequence < max) {
-      setState(() {
-        _image = null;
-        scannedText = '';
-        statusUpload = 'Upload Successful : ' +
-            sequence.toString() +
-            ' / ' +
-            max.toString();
-        sequence++;
-        step--;
-      });
-      setVisible();
-      setReadOnly();
-      setColor();
-      setText();
-      setFocus();
-      showProgressLoading(true);
-    }
-  }
-
   Future<void> _pickCamera() async {
     setState(() {
       step = 1;
@@ -455,7 +416,6 @@ class _ContainerNumberState extends State<ContainerNumber> {
         if (selectedImage.path.isNotEmpty) {
           await showProgressLoading(false);
           await _cropImage(temp);
-          showProgressImageFromCamera();
           await getRecognisedText(_image!);
           var tempsplit = scannedText.split("\n");
           var splitfin = "";
@@ -509,7 +469,7 @@ class _ContainerNumberState extends State<ContainerNumber> {
         }
       }
       if (_image != null) {
-        //showProgressImageFromCamera();
+        showProgressImageFromCamera();
         setState(() {
           step++;
         });
@@ -518,7 +478,6 @@ class _ContainerNumberState extends State<ContainerNumber> {
         setColor();
         setText();
         setFocus();
-        //await showProgressLoading(true);
       }
     } catch (e) {
       showErrorDialog('Error occured while PickCamera');
@@ -596,70 +555,69 @@ class _ContainerNumberState extends State<ContainerNumber> {
   Future<void> upload() async {
     setState(() {
       uploadEnabled = false;
+      sequence++;
     });
     await showProgressLoading(false);
     await getDeviceInfo();
     await getLocation();
 
-    //create image
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username');
+    });
+
+    late CreateImage? imageupload = new CreateImage();
+
+    setState(() {
+      imageupload.documentType = documentType;
+      imageupload.eventType = eventType;
+      imageupload.documentID = int.parse(documentIdInput);
+      imageupload.sequence = sequence;
+      imageupload.deviceInfo = deviceInfo;
+      imageupload.osInfo = osVersion;
+      imageupload.gps = gps;
+      imageupload.isDeleted = false;
+      imageupload.createdBy = username;
+      imageupload.imageBase64 = fileInBase64;
+    });
+
+    listimage.add(imageupload);
+    listtextimage.add(scannedText);
+
+    if (sequence == max) {
       setState(() {
-        configs = prefs.getString('configs');
-        accessToken = prefs.getString('accessToken');
-        username = prefs.getString('username');
+        _image = null;
+        documentWillUpload = false;
+        documentWillFinish = true;
+        statusUpload = 'Upload Image Finish';
+        scannedText = '';
+        step++;
       });
-
-      var url = Uri.parse('https://' + configs + '/api/Image/Create');
-
-      /*var headers = { 
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Bearer " + accessToken
-      };*/
-
-      var headers = {'Content-Type': 'application/json'};
-      late CreateImage? imageupload = new CreateImage();
-
+    } else {
       setState(() {
-        imageupload.documentType = documentType;
-        imageupload.eventType = eventType;
-        imageupload.documentID = int.parse(documentIdInput);
-        imageupload.sequence = sequence;
-        imageupload.deviceInfo = deviceInfo;
-        imageupload.osInfo = osVersion;
-        imageupload.gps = gps;
-        imageupload.isDeleted = false;
-        imageupload.createdBy = username;
-        imageupload.imageBase64 = fileInBase64;
+        _image = null;
+        documentWillUpload = true;
+        documentWillFinish = false;
+        statusUpload =
+            'Upload Image : ' + sequence.toString() + ' / ' + max.toString();
+        scannedText = '';
+        step--;
       });
-
-      print(imageupload.toJson());
-
-      var jsonBody = jsonEncode(imageupload);
-      print(jsonBody.toString());
-      final encoding = Encoding.getByName('utf-8');
-
-      http.Response response = await http.post(
-        url,
-        headers: headers,
-        body: jsonBody,
-        encoding: encoding,
-      );
-      var data = json.decode(response.body);
-
-      if (response.statusCode == 200) {
-      } else {
-        await showProgressLoading(true);
-        showErrorDialog('Error occured while upload create');
-        return;
-      }
-    } catch (e) {
-      await showProgressLoading(true);
-      showErrorDialog('Error occured while upload create');
-      return;
     }
 
+    setVisible();
+    setReadOnly();
+    setColor();
+    setText();
+    setFocus();
+    showProgressLoading(true);
+  }
+
+  Future<void> finish() async {
+    setState(() {
+      finishEnabled = false;
+    });
+    await showProgressLoading(false);
     //UPDATE FIELD CONTAINERDOCUMENT
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -678,13 +636,18 @@ class _ContainerNumberState extends State<ContainerNumber> {
         "Authorization": "Bearer " + accessToken
       };
 
-      if (sequence == 1) {
+      if (listimage.length == 1) {
         setState(() {
-          tempdoc.containerNo1 = scannedText;
+          //tempdoc.containerNo1 = 'test1';
+          tempdoc.containerNo1 = listtextimage[0];
         });
-      } else if (sequence == 2) {
+      } else if (listimage.length == 2) {
         setState(() {
-          tempdoc.containerNo2 = scannedText;
+          //tempdoc.containerNo1 = 'test1';
+          //tempdoc.containerNo2 = 'test2';
+
+          tempdoc.containerNo1 = listtextimage[0];
+          tempdoc.containerNo2 = listtextimage[1];
         });
       }
 
@@ -701,7 +664,6 @@ class _ContainerNumberState extends State<ContainerNumber> {
       var data = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        await getImageSequenceAfterUpload();
       } else {
         await showProgressLoading(true);
         showErrorDialog('Error occured while UPDATE FIELD CONTAINERDOCUMENT');
@@ -711,6 +673,59 @@ class _ContainerNumberState extends State<ContainerNumber> {
       await showProgressLoading(true);
       showErrorDialog('Error occured while UPDATE FIELD CONTAINERDOCUMENT');
     }
+    //POST LIST IMAGE
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        configs = prefs.getString('configs');
+        accessToken = prefs.getString('accessToken');
+        username = prefs.getString('username');
+      });
+
+      var url = Uri.parse('https://' + configs + '/api/Image/CreateList');
+
+      /*var headers = { 
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + accessToken
+      };*/
+
+      var headers = {'Content-Type': 'application/json'};
+
+      var jsonBody = jsonEncode(listimage);
+      final encoding = Encoding.getByName('utf-8');
+
+      http.Response response = await http.post(
+        url,
+        headers: headers,
+        body: jsonBody,
+        encoding: encoding,
+      );
+      var data = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        await showProgressLoading(true);
+        setState(() {
+          step = 0;
+          sequence = 0;
+          listimage = [];
+          listtextimage = [];
+          scannedText = '';
+        });
+        showSuccessDialog('Upload Succesful');
+      } else {
+        await showProgressLoading(true);
+        showErrorDialog('Error occured while UPDATE FIELD CONTAINERDOCUMENT');
+      }
+    } catch (e) {
+      await showProgressLoading(true);
+      showErrorDialog('Error occured while UPDATE FIELD CONTAINERDOCUMENT');
+    }
+    setVisible();
+    setReadOnly();
+    setColor();
+    setText();
+    setFocus();
   }
 
   Future<void> scanQR() async {
@@ -836,6 +851,24 @@ class _ContainerNumberState extends State<ContainerNumber> {
                         }
                       : null,
                 ),
+                new RaisedButton(
+                  focusNode: focusNodes[3],
+                  color: step == 3 ? Colors.green : Colors.blue,
+                  child: const Text('Finish',
+                      style: TextStyle(
+                        color: Colors.white,
+                      )),
+                  onPressed: finishEnabled
+                      ? () {
+                          finish();
+                          setVisible();
+                          setReadOnly();
+                          setColor();
+                          setText();
+                          setFocus();
+                        }
+                      : null,
+                ),
               ],
             ),
           ),
@@ -844,17 +877,17 @@ class _ContainerNumberState extends State<ContainerNumber> {
             Center(
               child: _image != null
                   ? Padding(
-                      padding: const EdgeInsets.all(0),
+                      padding: const EdgeInsets.all(10.0),
                       child: Container(
-                        width: 200,
-                        height: 200,
+                        width: 225,
+                        height: 225,
                         child: Image.file(
                           _image!,
                         ),
                       ),
                     )
                   : Padding(
-                      padding: const EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.all(18.0),
                       child: Text(statusUpload),
                     ),
             )

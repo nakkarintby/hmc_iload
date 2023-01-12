@@ -159,7 +159,12 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         return;
       }
     } catch (e) {
-      print("Error occured while validateTruckPlate");
+      setState(() {
+        truckPlateController.text = "";
+        trailerPlateController.text = "";
+        searchEnable = true;
+      });
+      showErrorDialog('Error occured while validateTruckPlate');
     }
   }
 
@@ -213,7 +218,12 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         return;
       }
     } catch (e) {
-      print("Error occured while validateTrailerPlate");
+      setState(() {
+        truckPlateController.text = "";
+        trailerPlateController.text = "";
+        searchEnable = true;
+      });
+      showErrorDialog("Error occured while validateTrailerPlate");
     }
   }
 
@@ -266,7 +276,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         return;
       }
     } catch (e) {
-      print("Error occured while validateDetail");
+      showErrorDialog("Error occured while validateDetail");
     }
   }
 
@@ -344,7 +354,7 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
         return;
       }
     } catch (e) {
-      print("Error occured while checkLicense");
+      showErrorDialog("Error occured while checkCreate");
     }
   }
 
@@ -431,10 +441,10 @@ class _CheckupHeaderPageState extends State<CheckupHeader> {
               MaterialPageRoute(builder: (context) => CheckupItemPage()));
         }
       } else {
-        showErrorDialog('Https Error createHeader');
+        showErrorDialog('Error occured while createHeader');
       }
     } catch (e) {
-      print("Error occured while createHeader");
+      showErrorDialog('Error occured while createHeader');
     }
   }
 
