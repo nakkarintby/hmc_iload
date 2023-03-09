@@ -2,7 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_session/flutter_session.dart';
-import 'package:test/screens/register.dart';
+import 'package:test/screens/login.dart';
 import 'package:test/routes.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -125,7 +125,7 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       navigatorKey: navigatorKey,
-      initialRoute: Register.routeName,
+      initialRoute: Login.routeName,
       routes: routes,
     );
   }

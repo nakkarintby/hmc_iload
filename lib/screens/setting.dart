@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:test/components/setting_menu.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:test/screens/main_screen.dart';
-import 'package:test/screens/register.dart';
+import 'package:test/screens/login.dart';
 
 class Setting extends StatelessWidget {
   @override
@@ -27,7 +27,7 @@ class Setting extends StatelessWidget {
               entryAnimation: EntryAnimation.RIGHT,
               onOkButtonPressed: () {
                 Navigator.of(context, rootNavigator: true).pushReplacement(
-                    MaterialPageRoute(builder: (context) => Register()));
+                    MaterialPageRoute(builder: (context) => Login()));
               },
               onCancelButtonPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();

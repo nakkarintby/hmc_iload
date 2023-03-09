@@ -1,11 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:test/components/menu_list2.dart';
-import 'package:test/screens/checkup_header.dart';
-import 'package:test/screens/checkup_itembulkhead.dart';
-import 'package:test/screens/container_pickup.dart';
-import 'package:test/screens/menu_container.dart';
-import 'package:test/screens/menu_transport.dart';
+import 'package:test/screens/checkup_item.dart';
+import 'package:test/screens/package_takephoto.dart';
 
 class Menu extends StatefulWidget {
   static String routeName = "/menu";
@@ -15,8 +11,6 @@ class Menu extends StatefulWidget {
 
 class _MenuPageState extends State<Menu> {
   bool containerVisible = true;
-  bool transportationVisible = true;
-  bool checkupVisible = true;
 
   @override
   void initState() {
@@ -44,26 +38,21 @@ class _MenuPageState extends State<Menu> {
               Visibility(
                 visible: containerVisible,
                 child: MenuList2(
-                  text: "Container",
+                  text: "ตรวจสอบสภาพอุปกรณ์",
                   imageIcon: ImageIcon(
-                    AssetImage('assets/container.png'),
+                    AssetImage('assets/checksheet.png'),
                     size: 45,
                     color: Colors.blue,
                   ),
-                  press: () => {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MenuContainer()))
-                  },
+                  press: () => {},
                 ),
               ),
               Visibility(
-                visible: transportationVisible,
+                visible: containerVisible,
                 child: MenuList2(
-                  text: "Transportation",
+                  text: "ถ่ายภาพการบรรจุสินค้า",
                   imageIcon: ImageIcon(
-                    AssetImage('assets/transportation.png'),
+                    AssetImage('assets/camera.png'),
                     size: 45,
                     color: Colors.blue,
                   ),
@@ -71,24 +60,7 @@ class _MenuPageState extends State<Menu> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => MenuTransport()))
-                  },
-                ),
-              ),
-              Visibility(
-                visible: checkupVisible,
-                child: MenuList2(
-                  text: "Check-up",
-                  imageIcon: ImageIcon(
-                    AssetImage('assets/checkup.png'),
-                    size: 45,
-                    color: Colors.blue,
-                  ),
-                  press: () => {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CheckupHeader()))
+                            builder: (context) => PackageTakephoto()))
                   },
                 ),
               ),

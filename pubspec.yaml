@@ -64,7 +64,7 @@ dependencies:
   
 
 flutter_native_splash:
-  image: assets/SMC_logo_splash.png
+  image: assets/hmc_logo.png
   color: "FFFFFF"
 
 dev_dependencies:
@@ -124,6 +124,9 @@ flutter:
     - assets/desccon.png
     - assets/loading.png 
     - assets/unloading.png 
+    - assets/box.png
+    - assets/camera.png
+    - assets/checksheet.png
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
