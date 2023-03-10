@@ -87,6 +87,11 @@ class _LoginState extends State<Login> {
     });
   }
 
+  Future<void> setPrefsConfigs(String configs) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('configs', configs);
+  }
+
   void showErrorDialog(String error) {
     alertDialog(error, 'Error');
   }
@@ -135,8 +140,8 @@ class _LoginState extends State<Login> {
       setState(() {
         //userDataLogin.username = usernameController.text;
         //userDataLogin.password = passwordController.text;
-        userDataLogin.username = 'user1';
-        userDataLogin.password = 'Useruseruser1*';
+        userDataLogin.username = 'test1';
+        userDataLogin.password = 'Test1test1*';
         userDataLogin.rememberLogin = true;
         userDataLogin.returnUrl = '1';
       });
@@ -204,7 +209,10 @@ class _LoginState extends State<Login> {
                   decoration: InputDecoration(
                       labelText: 'Configs', hintText: "Enter Url"),
                   textInputAction: TextInputAction.next,
-                  onEditingComplete: () {},
+                  onEditingComplete: () async {
+                    var temp = prefs.getString('configs').toString();
+                    await setPrefsConfigs(temp);
+                  },
                 ),
               ],
             )),

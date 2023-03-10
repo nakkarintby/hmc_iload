@@ -15,6 +15,7 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:image/image.dart' as img;
 import 'package:location/location.dart';
+import 'package:test/class/getItemWoImageDetailNotFound.dart';
 import 'package:test/class/itemWoImageDetail.dart';
 import 'package:test/class/listLoadTypeMenu.dart';
 import 'package:test/class/postImage.dart';
@@ -280,6 +281,15 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
           nextEnabled = true;
           finishEnabled = false;
         });
+      } else if (documentWillFinish) {
+        setState(() {
+          documentReadonly = true;
+          backEnabled = true;
+          takePhotoEnabled = false;
+          uploadEnabled = false;
+          nextEnabled = true;
+          finishEnabled = false;
+        });
       }
     } else if (step == 5) {
       setState(() {
@@ -291,13 +301,13 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
         finishEnabled = false;
       });
     } else if (step == 6) {
-      if (documentWillFinish) {
+      if (documentWillUpload) {
         setState(() {
           documentReadonly = true;
           backEnabled = true;
-          takePhotoEnabled = false;
+          takePhotoEnabled = true;
           uploadEnabled = false;
-          nextEnabled = true;
+          nextEnabled = false;
           finishEnabled = false;
         });
       } else if (documentWillUploadOrWillFinish) {
@@ -305,6 +315,15 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
           documentReadonly = true;
           backEnabled = true;
           takePhotoEnabled = true;
+          uploadEnabled = false;
+          nextEnabled = true;
+          finishEnabled = false;
+        });
+      } else if (documentWillFinish) {
+        setState(() {
+          documentReadonly = true;
+          backEnabled = true;
+          takePhotoEnabled = false;
           uploadEnabled = false;
           nextEnabled = true;
           finishEnabled = false;
@@ -366,7 +385,10 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
   }
 
   Future<void> backButtonUpload() async {
-    if (step == 4 || step == 6) {
+    setState(() {
+      backEnabled = false;
+    });
+    if (step == 4 || step == 6 || step == 7) {
       setState(() {
         step = 1;
         _image = null;
@@ -377,6 +399,8 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
       setState(() {
         step--;
         _image = null;
+        listImageSubWorkTypeMenu.clear();
+        listLoadTypeMenu.clear();
       });
     }
   }
@@ -480,7 +504,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
       barcodeScanRes = 'Failed to get platform version.';
     }
 
-    if (step == 0) {
+    if (step == 1) {
       setState(() {
         documentController.text = barcodeScanRes;
       });
@@ -493,6 +517,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
   }
 
   Future<void> documentIDCheck() async {
+    await showProgressLoading(false);
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
@@ -542,25 +567,23 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
             step++;
           });
         }
-
+        print(result.documentId!);
         await setPrefsDocumentId(result.documentId!);
         await setPrefsWorkTypeId(result.workTypeId!);
         await setPrefsWorkTypeName(result.workTypeName!);
+        await showProgressLoading(true);
       } else {
-        setState(() {
-          documentController.text = '';
-        });
+        await showProgressLoading(true);
         showErrorDialog('DocumentID Not Found!');
       }
     } catch (e) {
-      setState(() {
-        documentController.text = '';
-      });
+      await showProgressLoading(true);
       showErrorDialog('Error occured while documentIDCheck');
     }
   }
 
   Future<void> getLoadTypeMenu() async {
+    await showProgressLoading(false);
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int documentIdTemp = prefs.getInt('documentId');
@@ -599,15 +622,19 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
             listLoadTypeMenu.add(temp);
           });
         }
+        await showProgressLoading(true);
       } else {
+        await showProgressLoading(true);
         showErrorDialog('LoadTypeMenu Not Found!');
       }
     } catch (e) {
+      await showProgressLoading(true);
       showErrorDialog('Error occured while getLoadTypeMenu');
     }
   }
 
   Future<void> getItemWoImageDetail() async {
+    await showProgressLoading(false);
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int documentIdTemp = prefs.getInt('documentId');
@@ -631,6 +658,8 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
           '&loadTypeId=' +
           loadIdTemp.toString());
 
+      print(url);
+
       var headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -640,19 +669,13 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
       http.Response response = await http.get(url, headers: headers);
       var data = json.decode(response.body);
 
+      print(response.statusCode);
+
       if (response.statusCode == 200) {
         var datalist = List<ItemWoImageDetail>.from(
             data.map((model) => ItemWoImageDetail.fromJson(model)));
         late ItemWoImageDetail result;
         result = datalist[0];
-
-        if (result.isCompleted!) {
-          setState(() {
-            step = 1;
-          });
-          showSuccessDialog('Take Photo Complete');
-          return;
-        }
 
         setState(() {
           min = result.min!;
@@ -676,7 +699,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                 max.toString();
             step = 4;
           });
-        } else if (numberupload < max && numberupload > min) {
+        } else if (numberupload < max && numberupload >= min) {
           setState(() {
             documentWillUpload = true;
             documentWillUploadOrWillFinish = true;
@@ -692,29 +715,75 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                 max.toString();
             step = 6;
           });
-        } else if (numberupload == max) {
+        } else if (numberupload >= max) {
           setState(() {
             documentWillUpload = false;
             documentWillUploadOrWillFinish = false;
             documentWillFinish = true;
             seqence = result.sequence!;
             name = result.name!;
-            statusUpload = 'Take Photo Successful. Please Press Complete ';
+            statusUpload = seqence.toString() +
+                '. ' +
+                name +
+                ' : ' +
+                numberupload.toString() +
+                ' / ' +
+                max.toString();
             step = 6;
           });
         }
 
         await setPrefsWoImageHeaderId(result.woImageHeaderId!);
         await setPrefsWoImageDetailId(result.woImageDetailId!);
+        await showProgressLoading(true);
+      } else if (response.statusCode == 404) {
+        late GetItemWoImageDetailNotFound result;
+        setState(() {
+          result = GetItemWoImageDetailNotFound.fromJson(data);
+        });
+
+        if (result.data!.length > 0) {
+          int headertmp = result.woImageHeaderId!;
+          setState(() {
+            step = 7;
+            _image = null;
+            String tmp = result.data.toString();
+
+            String tmp1 = tmp.replaceAll('[', ' ');
+            String tmp2 = tmp1.replaceAll(']', '');
+            var splitted = tmp2.split(',');
+            statusUpload = '';
+
+            for (int i = 0; i < splitted.length; i++) {
+              setState(() {
+                statusUpload =
+                    statusUpload + splitted[i].toString() + '\n' + '\n';
+              });
+            }
+          });
+          await setPrefsWoImageHeaderId(headertmp);
+          await showProgressLoading(true);
+        } else {
+          setState(() {
+            step = 1;
+          });
+          await showProgressLoading(true);
+          showSuccessDialog('Document Completed!');
+        }
       } else {
+        await showProgressLoading(true);
         showErrorDialog('ItemWoImageDetail Not Found!');
       }
     } catch (e) {
+      await showProgressLoading(true);
       showErrorDialog('Error occured while getItemWoImageDetail');
     }
   }
 
   Future<void> openCamera() async {
+    setState(() {
+      takePhotoEnabled = false;
+    });
     if (step == 6) {
       setState(() {
         step = 4;
@@ -781,7 +850,6 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
       showProgressImageFromCamera();
       setState(() {
         step++;
-        print(step);
       });
     }
   }
@@ -802,9 +870,8 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
         listLoadTypeMenu.clear();
       });
 
-      var url = Uri.parse('https://' +
-          configs +
-          '/api/Documents/UploadImageWoImageDetailByImage');
+      var url = Uri.parse(
+          'https://' + configs + '/api/Documents/UploadImageWoImageDetail');
 
       var headers = {
         "Content-Type": "application/json",
@@ -858,12 +925,11 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                 ' / ' +
                 max.toString();
             step--;
-            print(step);
             _image = null;
           });
         } else if (numberupload < max && numberupload >= min) {
           setState(() {
-            documentWillUpload = true;
+            documentWillUpload = false;
             documentWillUploadOrWillFinish = true;
             documentWillFinish = false;
             seqence = result.sequence!;
@@ -876,7 +942,6 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                 ' / ' +
                 max.toString();
             step++;
-            print(step);
             _image = null;
           });
         } else if (numberupload >= max) {
@@ -886,9 +951,14 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
             documentWillFinish = true;
             seqence = result.sequence!;
             name = result.name!;
-            statusUpload = 'Take Photo Successful. Please Next Step ';
+            statusUpload = seqence.toString() +
+                '. ' +
+                name +
+                ' : ' +
+                numberupload.toString() +
+                ' / ' +
+                max.toString();
             step++;
-            print(step);
             _image = null;
           });
         }
@@ -898,7 +968,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
         await showProgressLoading(true);
       } else {
         await showProgressLoading(true);
-        showErrorDialog('Error occured while uploadImage');
+        showErrorDialog('uploadImage Error!');
       }
     } catch (e) {
       await showProgressLoading(true);
@@ -925,14 +995,10 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
 
       var url = Uri.parse('https://' +
           configs +
-          '/api/Documents/CompletedWoImageDetailitemBySeq?woImageHeaderId=' +
+          '/api/Documents/CompletedWoImageDetail?woImageHeaderId=' +
           woImageHeaderIdTemp.toString() +
           '&woImageDetailId=' +
           woImageDetailIdTemp.toString());
-
-      print('header :' + woImageHeaderIdTemp.toString());
-
-      print('detail :' + woImageDetailIdTemp.toString());
 
       var headers = {
         "Content-Type": "application/json",
@@ -955,7 +1021,6 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
       );
       var data = json.decode(response.body);
 
-      print('status' + response.statusCode.toString());
       if (response.statusCode == 200) {
         PostImageResult result = PostImageResult.fromJson(data);
 
@@ -981,12 +1046,12 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                 max.toString();
             step--;
             step--;
-            print(step);
             _image = null;
+            print(step);
           });
         } else if (numberupload < max && numberupload >= min) {
           setState(() {
-            documentWillUpload = true;
+            documentWillUpload = false;
             documentWillUploadOrWillFinish = true;
             documentWillFinish = false;
             seqence = result.sequence!;
@@ -998,9 +1063,9 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                 numberupload.toString() +
                 ' / ' +
                 max.toString();
-            step++;
-            print(step);
+            //step++;
             _image = null;
+            print(step);
           });
         } else if (numberupload >= max) {
           setState(() {
@@ -1009,10 +1074,16 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
             documentWillFinish = true;
             seqence = result.sequence!;
             name = result.name!;
-            statusUpload = 'Take Photo Successful. Please Next Step ';
+            statusUpload = seqence.toString() +
+                '. ' +
+                name +
+                ' : ' +
+                numberupload.toString() +
+                ' / ' +
+                max.toString();
             step++;
-            print(step);
             _image = null;
+            print(step);
           });
         }
 
@@ -1020,13 +1091,26 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
         await setPrefsWoImageDetailId(result.woImageDetailId!);
         await showProgressLoading(true);
       } else if (response.statusCode == 404) {
-        await showProgressLoading(true);
         setState(() {
           step++;
+          _image = null;
+          String tmp = data.toString();
+          String tmp1 = tmp.replaceAll('[', ' ');
+          String tmp2 = tmp1.replaceAll(']', '');
+          var splitted = tmp2.split(',');
+          statusUpload = '';
+
+          for (int i = 0; i < splitted.length; i++) {
+            setState(() {
+              statusUpload =
+                  statusUpload + splitted[i].toString() + '\n' + '\n';
+            });
+          }
         });
+        await showProgressLoading(true);
       } else {
         await showProgressLoading(true);
-        showErrorDialog('Error occured while next');
+        showErrorDialog('Next Sequence Error!');
       }
     } catch (e) {
       await showProgressLoading(true);
@@ -1053,10 +1137,8 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
 
       var url = Uri.parse('https://' +
           configs +
-          '/api/Documents/CompletedWoImageDetailitemBySeq?woImageHeaderId=' +
-          woImageHeaderIdTemp.toString() +
-          '&woImageDetailId=' +
-          woImageDetailIdTemp.toString());
+          '/api/Documents/CompletedWoImageHeader?woImageHeaderId=' +
+          woImageHeaderIdTemp.toString());
 
       var headers = {
         "Content-Type": "application/json",
@@ -1064,10 +1146,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
         "Authorization": "Bearer " + accessToken
       };
 
-      Map<String, dynamic> body = {
-        'woImageHeaderId': woImageHeaderIdTemp,
-        'woImageDetailIdTemp': woImageDetailIdTemp
-      };
+      Map<String, dynamic> body = {'woImageHeaderId': woImageHeaderIdTemp};
       var jsonBody = json.encode(body);
       final encoding = Encoding.getByName('utf-8');
 
@@ -1077,16 +1156,17 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
         body: jsonBody,
         encoding: encoding,
       );
-      var data = json.decode(response.body);
+      //var data = json.decode(response.body);
 
       if (response.statusCode == 200) {
         setState(() {
           step = 1;
         });
         await showProgressLoading(true);
+        showSuccessDialog('Document Completed');
       } else {
         await showProgressLoading(true);
-        showErrorDialog('Error occured while finish');
+        showErrorDialog('Finish Document Error');
       }
     } catch (e) {
       await showProgressLoading(true);
@@ -1391,6 +1471,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                     color: Colors.blue,
                   ),
                   press: () async => {
+                    await showProgressLoading(false),
                     setState(() {
                       //getHeader2
                       String temp = listImageSubWorkTypeMenu[index]
@@ -1409,6 +1490,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                     setReadOnly(),
                     setColor(),
                     setText(),
+                    await showProgressLoading(true),
                   },
                 );
               },
@@ -1427,9 +1509,8 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
           child: Column(children: <Widget>[
             ListView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
-                int temp = index + 1;
                 return MenuList2(
                   text: listLoadTypeMenu[index].loadTypeName.toString(),
                   imageIcon: ImageIcon(
@@ -1438,6 +1519,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                     color: Colors.blue,
                   ),
                   press: () async => {
+                    await showProgressLoading(false),
                     setState(() {
                       //getHeader3
                       String temp =
@@ -1454,6 +1536,7 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
                     setReadOnly(),
                     setColor(),
                     setText(),
+                    await showProgressLoading(true),
                   },
                 );
               },
