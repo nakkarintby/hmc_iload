@@ -523,14 +523,14 @@ class _PackageTakephotoState extends State<PackageTakephoto> {
       setState(() {
         configs = prefs.getString('configs');
         accessToken = prefs.getString('token');
-        documentController.text = '100000001';
+        //documentController.text = '100000001';
         listImageSubWorkTypeMenu.clear();
       });
 
       var url = Uri.parse('https://' +
           configs +
           '/api/Documents/ValidateDocument/' +
-          documentController.text);
+          documentController.text.toString());
 
       var headers = {
         "Content-Type": "application/json",

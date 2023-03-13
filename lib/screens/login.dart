@@ -140,8 +140,8 @@ class _LoginState extends State<Login> {
       setState(() {
         //userDataLogin.username = usernameController.text;
         //userDataLogin.password = passwordController.text;
-        userDataLogin.username = 'test1';
-        userDataLogin.password = 'Test1test1*';
+        userDataLogin.username = usernameController.text.toString();
+        userDataLogin.password = passwordController.text.toString();
         userDataLogin.rememberLogin = true;
         userDataLogin.returnUrl = '1';
       });
